@@ -4,7 +4,7 @@ const pkgDir = require('pkg-dir');
 var rootPath;
 
 test.before(t => {
-	rootPath = pkgDir().sync();
+	rootPath = pkgDir.sync();
 });
 
 test("smoke", t => {
@@ -13,6 +13,8 @@ test("smoke", t => {
 
 test("test case", t => {
 	return main("angular2-calendar", { baseDir: rootPath }).then(result => {
-		console.log('result', result);
+		console.log('--------');
+		console.log(result);
+		console.log('--------');
 	});
 });
