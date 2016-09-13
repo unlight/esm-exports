@@ -12,7 +12,7 @@
     "typescript": "1.8.10"
   },
   "scripts": {
-    "build:prod": "sigh.cmd build:prod",
+    "build:prod": "rm -rf lib && sigh.cmd build:prod -vv",
     "test": "ava"
   },
   "dependencies": {
