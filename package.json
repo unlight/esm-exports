@@ -3,28 +3,32 @@
   "version": "1.0.0",
   "description": "Test project. Try parse and extract all exports.",
   "main": "lib",
+  "devDependencies": {
+    "ava": "0.16.0",
+    "pkg-dir": "^1.0.0",
+    "sigh": "0.12.32",
+    "sigh-ava": "0.3.1",
+    "sigh-ts": "0.0.13",
+    "typescript": "1.8.10"
+  },
+  "scripts": {
+    "build:prod": "sigh.cmd build:prod",
+    "test": "ava"
+  },
+  "dependencies": {
+    "fs-readfile-promise": "^3.0.0",
+    "is-relative-path": "^1.0.1",
+    "lodash": "^4.15.0",
+    "resolve-pkg": "^0.2.0",
+    "unixify": "^0.2.1"
+  },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/unlight/typescript-exports.git"
+    "url": "https://github.com/unlight/typescript-exports.git"
   },
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/unlight/typescript-exports/issues"
   },
-  "homepage": "https://github.com/unlight/typescript-exports#readme",
-  "devDependencies": {
-    "ava": "0.16.0",
-    "memory-fs": "0.3.0",
-    "sigh": "0.12.32",
-    "sigh-ava": "0.3.1",
-    "sigh-ts": "0.0.10",
-    "typescript": "1.8.10"
-  },
-  "scripts": {
-    "test": "ava"
-  },
-  "dependencies": {
-    "glob": "7.0.6",
-    "glob-stream": "5.3.5"
-  }
+  "homepage": "https://github.com/unlight/typescript-exports#readme"
 }
