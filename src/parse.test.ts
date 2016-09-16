@@ -1,12 +1,12 @@
 import test from "ava";
-const pkgDir = require('pkg-dir');
-var mock = require('mock-require');
+const pkgDir = require("pkg-dir");
+const mock = require("mock-require");
 var rootPath;
 var parse;
 var code;
 
 test.before(t => {
-    mock('fs-readfile-promise', function(file) {
+    mock("fs-readfile-promise", function(file) {
         return Promise.resolve(code);
     });
     parse = require("./parse").default;
@@ -25,7 +25,7 @@ test("several var export", async function(t) {
     t.is(result2.name, "bbb");
 });
 
-test.only("export all", async function(t) {
+test("export all", async function(t) {
     code = `export * from './provider'`;
     var [result] = await parse("code");
     t.is(result.exportAll, true);
