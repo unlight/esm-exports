@@ -1,4 +1,5 @@
 /// <reference path="../node_modules/typescript/lib/lib.es6.d.ts" />
+/// <reference path="../typings/index.d.ts" />
 import * as ts from "typescript";
 import * as path from "path";
 import {find, flatten} from "lodash";

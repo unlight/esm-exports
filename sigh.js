@@ -8,6 +8,6 @@ module.exports = function (pipelines) {
         glob({ basePath: "src" }, "**/*.ts"),
         ts({declaration: false, sourceMap: false}),
         write("lib"),
-        ava({files: "lib/*.test.js", verbose: true})
+        // ava({files: "lib/*.test.js", verbose: true, serial: true})
     ];
 };
