@@ -8,7 +8,6 @@
 		"moduleResolution": "node",
 		"removeComments": false,
 		"declaration": true,
-		"inlineSources": true,
 		"noEmitHelpers": false,
 		"sourceMap": true
 	}
