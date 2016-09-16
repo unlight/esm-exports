@@ -1,20 +1,22 @@
 /// <reference path="../node_modules/typescript/lib/lib.es6.d.ts" />
 import * as ts from "typescript";
 import * as path from "path";
-import {find, flatten} from "lodash";
+import {find, flatten, get} from "lodash";
 import main from "./main";
 const isRelative = require("is-relative-path");
 const unixify = require("unixify");
 
-export default function parse(sourceText: string, options?: any) {
+export default function parse(sourceText: string, options: any = {}) {
     var entryList: Array<any> = [];
     var sourceFile = ts.createSourceFile("dummy.ts", sourceText, ts.ScriptTarget.ES6, false);
     var {dirname, module, file} = options;
     sourceFile.statements.forEach((node: any) => {
         if (node.kind === ts.SyntaxKind.ExportDeclaration) {
-            var specifier = node.moduleSpecifier.text;
-            var exportAll = true;
-            var names = [null];
+            var specifier: string = get(node, "moduleSpecifier.text", null);
+            var exportAll = !(node.exportClause && node.exportClause.elements);
+            if (exportAll) {
+                var names = [null];
+            }
             if (node.exportClause) {
                 names = node.exportClause.elements.map(n => n.name.text);
             }
@@ -28,7 +30,7 @@ export default function parse(sourceText: string, options?: any) {
                 });
             } else if (node.name) {
                 var name = node.name.text;
-                var {specifier, baseDir} = options;
+                var {specifier: string, baseDir} = options;
                 if (specifier && isRelative(specifier)) {
                     var relative: string = unixify(path.relative(baseDir, file));
                     var exact = `${module}/${relative.slice(0, -(".d.ts".length))}`;
