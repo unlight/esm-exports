@@ -1,6 +1,6 @@
 {
   "name": "typescript-exports",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Test project. Try parse and extract all exports.",
   "main": "lib",
   "devDependencies": {
@@ -13,10 +13,11 @@
     "typescript": "1.8.10"
   },
   "scripts": {
-    "build:prod": "rm -rf lib && sigh.cmd build:prod -vv",
+    "build": "rm -rf lib && sigh.cmd build -vv",
     "test": "ava"
   },
   "dependencies": {
+    "fs-readdir-recursive": "^1.0.0",
     "fs-readfile-promise": "^3.0.0",
     "is-relative-path": "^1.0.1",
     "lodash": "^4.15.0",

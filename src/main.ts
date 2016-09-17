@@ -2,7 +2,7 @@
 import * as path from "path";
 import * as fs from "fs";
 import parse from "./parse";
-import {get} from "lodash";
+import {get, endsWith} from "lodash";
 const resolvePkg = require('resolve-pkg');
 type readFileResult = (file: string, enc?: string) => Promise<string>;
 const readFile: readFileResult = require("fs-readfile-promise");
@@ -18,8 +18,17 @@ export default function main(nameOrFile: string, options: { [k: string]: any } =
     var {baseDir, parent} = options;
     var module: string = parent ? parent : nameOrFile;
     if (isRelative(nameOrFile)) {
-        var extFile = nameOrFile + ".d.ts";
-        file = path.resolve(baseDir, extFile);
+        if (endsWith(nameOrFile, ".ts")) {
+            nameOrFile = nameOrFile.slice(0, -3);
+        }
+        var checkExtensions = [".ts", ".d.ts"];
+        for (var i = 0; i < checkExtensions.length; ++i) {
+            var extFile = nameOrFile + checkExtensions[i];
+            file = path.resolve(baseDir, extFile);
+            if (fs.existsSync(file)) {
+                break;
+            }
+        }
     } else {
         var packageDir = resolvePkg(nameOrFile, { cwd: baseDir });
         var packageFile = path.join(packageDir, "package.json");

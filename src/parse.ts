@@ -10,6 +10,9 @@ export default function parse(sourceText: string, options: any = {}) {
     var entryList: Array<any> = [];
     var sourceFile = ts.createSourceFile("dummy.ts", sourceText, ts.ScriptTarget.ES6, false);
     var {dirname, module, file} = options;
+    if (module) {
+        module = unixify(module);
+    }
     sourceFile.statements.forEach((node: any) => {
         if (node.kind === ts.SyntaxKind.ExportDeclaration) {
             var specifier: string = get(node, "moduleSpecifier.text", null);
@@ -33,6 +36,7 @@ export default function parse(sourceText: string, options: any = {}) {
                 var {specifier: string, baseDir} = options;
                 if (specifier && isRelative(specifier)) {
                     var relative: string = unixify(path.relative(baseDir, file));
+                    // TODO: strip ts or dts extension
                     var exact = `${module}/${relative.slice(0, -(".d.ts".length))}`;
                 }
                 entryList.push({ name, module, relative, exact, specifier});

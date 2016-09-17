@@ -4,14 +4,17 @@ var ava;
 
 module.exports = function (pipelines) {
 
-    pipelines["dev"] = [
+    pipelines["source"] = [
         glob({ basePath: "src" }, "**/*.ts"),
         ts({declaration: false, sourceMap: false}),
         write("lib"),
-        ava({files: "lib/*.test.js", verbose: true, serial: true })
     ];
 
-    pipelines["build:prod"] = [
+    pipelines["test"] = [
+        ava({files: "lib/*.test.js", serial: true })
+    ];
+
+    pipelines["build"] = [
         glob({ basePath: "src" }, "**/*.ts"),
         ts({declaration: true, sourceMap: true}),
         write("lib"),

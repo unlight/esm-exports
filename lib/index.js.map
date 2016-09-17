@@ -1,1 +1,1 @@
-{"version":3,"file":"index.js","sourceRoot":"","sources":["..\\index.ts"],"names":[],"mappings":";AAAA,qBAAiB,QAAQ,CAAC,CAAA;AAC1B,iBAAS,cAAI,CAAC","sourcesContent":["import main from \"./main\";\nexport = main;\n"]}
+{"version":3,"file":"index.js","sourceRoot":"","sources":["..\\index.ts"],"names":[],"mappings":";AAAA,qBAA8B,QAAQ,CAAC;AAA/B,8BAA+B;AACvC,0BAAmC,aAAa,CAAC;AAAzC,wCAAyC","sourcesContent":["export {default as main} from \"./main\";\nexport {default as directory} from \"./directory\";"]}
