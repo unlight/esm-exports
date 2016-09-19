@@ -11,7 +11,7 @@ module.exports = function (pipelines) {
     ];
 
     pipelines["test"] = [
-        ava({files: "lib/*.test.js", serial: true })
+        ava({files: "lib/*.test.js", verbose: false, serial: true})
     ];
 
     pipelines["build"] = [
