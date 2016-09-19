@@ -23,7 +23,7 @@ export default function parse(sourceText: string, options: any = {}) {
             if (node.exportClause) {
                 names = node.exportClause.elements.map(n => n.name.text);
             }
-            names.forEach(name => entryList.push({ name, specifier, exportAll, dirname }));
+            names.forEach(name => entryList.push({ name, module, specifier, exportAll, dirname }));
         } else if (find<ts.Node>(node.modifiers, m => m.kind === ts.SyntaxKind.ExportKeyword)) {
             // TODO: Combine ifs later.
             if (node.declarationList) {

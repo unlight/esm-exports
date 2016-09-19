@@ -1,5 +1,5 @@
 import test from "ava";
-import directory from "./directory";
+import {directory} from "./";
 import {filter} from "lodash";
 const pkgDir = require("pkg-dir");
 var rootPath;
