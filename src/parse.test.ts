@@ -4,8 +4,8 @@ const mock = require("mock-require");
 var parse;
 
 test.before(t => {
-    mock("./main", {
-        default: function(specifier, properties) {
+    mock("./node", {
+        node: function(specifier, properties) {
             properties.__mainMock = true;
             return [properties];
         }

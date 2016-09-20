@@ -1,5 +1,5 @@
 import test from "ava";
-import {main} from "./";
+import {node} from "./";
 const pkgDir = require("pkg-dir");
 var rootPath;
 
@@ -8,11 +8,11 @@ test.before(t => {
 });
 
 test("smoke", t => {
-    t.truthy(main);
+    t.truthy(node);
 });
 
 test.skip("test case ava", t => {
-    return main("ava", { baseDir: rootPath }).then(result => {
+    return node("ava", { baseDir: rootPath }).then(result => {
         console.log('--------');
         console.log(result);
         console.log('--------');
@@ -20,7 +20,7 @@ test.skip("test case ava", t => {
 });
 
 test.skip("test case angular2-calendar", t => {
-    return main("angular2-calendar", { baseDir: rootPath }).then(result => {
+    return node("angular2-calendar", { baseDir: rootPath }).then(result => {
         console.log('--------');
         console.log(result);
         console.log('--------');
@@ -29,7 +29,7 @@ test.skip("test case angular2-calendar", t => {
 
 
 test.skip("test case rxjs", t => {
-    return main("rxjs", { baseDir: rootPath }).then(result => {
+    return node("rxjs", { baseDir: rootPath }).then(result => {
         console.log('--------');
         console.log(result);
         console.log('--------');

@@ -3,8 +3,8 @@ import * as path from "path";
 import * as fs from "fs";
 import parse from "./parse";
 import {get, endsWith} from "lodash";
-const resolvePkg = require('resolve-pkg');
-type readFileResult = (file: string, enc?: string) => Promise<string>;
+import {readFileResult} from "./types/readfile-result";
+const resolvePkg = require("resolve-pkg");
 const readFile: readFileResult = require("fs-readfile-promise");
 const unixify = require("unixify");
 const isRelative = require("is-relative-path");
@@ -13,7 +13,7 @@ const defaults = {
     baseDir: "."
 };
 
-export default function main(nameOrFile: string, options: { [k: string]: any } = defaults): Promise<Array<any>> {
+export function node(nameOrFile: string, options: { [k: string]: any } = defaults): Promise<Array<any>> {
     var file: string;
     var {baseDir, parent} = options;
     var module: string = parent ? parent : nameOrFile;
