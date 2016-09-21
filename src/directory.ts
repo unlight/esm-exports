@@ -8,7 +8,7 @@ const readFile: readFileResult = require("fs-readfile-promise");
 const recursive = require("recursive-readdir");
 const unixify = require("unixify");
 
-export default function directory(target: string) {
+export function directory(target: string) {
     var baseDir = target;
     return new Promise<any[]>((resolve, reject) => {
         var files: string[] = recursive(target, [ignore], (err, files) => {

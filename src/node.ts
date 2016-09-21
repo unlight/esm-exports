@@ -1,7 +1,7 @@
 /// <reference path="../node_modules/typescript/lib/lib.es6.d.ts" />
 import * as path from "path";
 import * as fs from "fs";
-import parse from "./parse";
+import {parse} from "./parse";
 import {get, endsWith} from "lodash";
 import {readFileResult} from "./types/readfile-result";
 const resolvePkg = require("resolve-pkg");

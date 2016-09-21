@@ -6,7 +6,7 @@ import {node} from "./";
 const isRelative = require("is-relative-path");
 const unixify = require("unixify");
 
-export default function parse(sourceText: string, options: any = {}) {
+export function parse(sourceText: string, options: any = {}) {
     var entryList: Array<any> = [];
     var sourceFile = ts.createSourceFile("dummy.ts", sourceText, ts.ScriptTarget.ES6, false);
     var {dirname, module, file} = options;
@@ -39,16 +39,17 @@ export default function parse(sourceText: string, options: any = {}) {
                     // TODO: strip ts or dts extension
                     var exact = `${module}/${relative.slice(0, -(".d.ts".length))}`;
                 }
-                entryList.push({ name, module, relative, exact, specifier});
+                entryList.push({ name, module, relative, exact, specifier });
             }
         }
     });
-    return Promise.all(entryList.map(item => {
-        if (!item.exportAll) {
-            return item;
-        }
-        return node(item.specifier, { baseDir: dirname, parent: module, specifier: item.specifier });
-    }))
+    return Promise.all(
+        entryList.map(item => {
+            if (!item.exportAll) {
+                return item;
+            }
+            return node(item.specifier, { baseDir: dirname, parent: module, specifier: item.specifier });
+        }))
         .then(result => {
             return flatten<any>(result);
         });
