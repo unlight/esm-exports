@@ -7,7 +7,7 @@ module.exports = function (pipelines) {
 
     pipelines["source"] = [
         glob({ basePath: "src" }, "**/!(*.test).ts"),
-        ts({declaration: false, sourceMap: false}),
+        ts({declaration: false, sourceMap: false, module: "commonjs"}),
         write("lib"),
     ];
 
@@ -18,7 +18,7 @@ module.exports = function (pipelines) {
             return event;
         }),
         write("lib"),
-        ava({files: "lib/*.test.js", verbose: false, serial: true})
+        ava({files: "lib/*.test.js", verbose: true, serial: true})
     ];
 
     pipelines["build"] = [

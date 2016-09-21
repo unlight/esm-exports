@@ -10,7 +10,7 @@ test.before(t => {
             return [properties];
         }
     });
-    parse = require("./parse").default;
+    parse = require("./").parse;
 });
 
 test("var export", async function(t) {
