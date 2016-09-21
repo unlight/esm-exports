@@ -9,6 +9,7 @@
     "pkg-dir": "^1.0.0",
     "sigh": "0.12.32",
     "sigh-ava": "0.3.1",
+    "sigh-thru": "0.0.2",
     "sigh-ts": "0.0.13",
     "typescript": "1.8.10"
   },
@@ -20,8 +21,8 @@
   "dependencies": {
     "fs-readfile-promise": "^3.0.0",
     "is-relative-path": "^1.0.1",
-    "lodash": "^4.15.0",
-    "recursive-readdir": "^2.0.0",
+    "lodash": "4.16.1",
+    "recursive-readdir": "2.1.0",
     "resolve-pkg": "^0.2.0",
     "unixify": "^0.2.1"
   },
