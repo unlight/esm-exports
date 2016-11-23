@@ -3,7 +3,7 @@ import * as path from "path";
 import * as fs from "fs";
 import {parse} from "./parse";
 import {get, endsWith} from "lodash";
-import {readFileResult} from "./types/readfile-result";
+import {readFileResult} from "./readfile-result";
 const resolvePkg = require("resolve-pkg");
 const readFile: readFileResult = require("fs-readfile-promise");
 const unixify = require("unixify");

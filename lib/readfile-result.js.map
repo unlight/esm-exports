@@ -1,0 +1,1 @@
+{"version":3,"file":"readfile-result.js","sourceRoot":"","sources":["..\\readfile-result.ts"],"names":[],"mappings":"","sourcesContent":["export type readFileResult = (file: string, enc?: string) => Promise<string>;"]}

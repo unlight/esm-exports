@@ -3,7 +3,7 @@ import * as fs from "fs";
 import * as path from "path";
 import {node} from "./";
 import {flatten, endsWith} from "lodash";
-import {readFileResult} from "./types/readfile-result";
+import {readFileResult} from "./readfile-result";
 const readFile: readFileResult = require("fs-readfile-promise");
 const recursive = require("recursive-readdir");
 const unixify = require("unixify");
