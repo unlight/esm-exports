@@ -3,6 +3,7 @@
   "version": "0.0.7",
   "description": "Test project. Try parse and extract all exports.",
   "main": "lib",
+  "typings": "lib/index.d.ts",
   "devDependencies": {
     "angular2-calendar": "0.3.6",
     "ava": "0.17.0",
