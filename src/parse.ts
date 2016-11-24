@@ -1,8 +1,8 @@
 /// <reference path="../node_modules/typescript/lib/lib.es6.d.ts" />
 import * as ts from "typescript";
 import * as path from "path";
-import {find, flatten, get} from "lodash";
-import {node} from "./";
+import { find, flatten, get } from "lodash";
+import { node } from "./";
 const isRelative = require("is-relative-path");
 const unixify = require("unixify");
 
