@@ -1,6 +1,6 @@
 {
   "name": "typescript-exports",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "Test project. Try parse and extract all exports.",
   "main": "lib",
   "typings": "lib/index.d.ts",
