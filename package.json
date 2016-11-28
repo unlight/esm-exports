@@ -1,7 +1,7 @@
 {
   "name": "typescript-exports",
   "version": "0.0.8",
-  "description": "Test project. Try parse and extract all exports.",
+  "description": "Parse ES2015 modules.",
   "main": "lib",
   "typings": "lib/index.d.ts",
   "devDependencies": {
