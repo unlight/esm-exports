@@ -2,7 +2,7 @@
 import * as fs from "fs";
 import * as path from "path";
 import { node } from "./";
-import { flatten, endsWith } from "lodash";
+import { flatten, endsWith, startsWith } from "lodash";
 import { readFileResult } from "./readfile-result";
 const readFile: readFileResult = require("fs-readfile-promise");
 const recursive = require("recursive-readdir");
@@ -10,8 +10,9 @@ const unixify = require("unixify");
 
 export function directory(target: string) {
     var baseDir = target;
+    var targetNodeModules = path.normalize(path.join(target, 'node_modules'));
     return new Promise<any[]>((resolve, reject) => {
-        var files: string[] = recursive(target, [ignore], (err, files) => {
+        var files: string[] = recursive(target, [ignore.bind(null, targetNodeModules)], (err, files) => {
             if (err) return reject(err);
             resolve(files);
         });
@@ -28,7 +29,8 @@ export function directory(target: string) {
     })
 }
 
-function ignore(file, stats) {
+function ignore(targetNodeModules, file, stats) {
+    if (startsWith(file, targetNodeModules)) return true;
     if (stats.isDirectory()) return false;
     if (endsWith(path.extname(file), ".ts")) return false;
     return true;

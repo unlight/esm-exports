@@ -1,4 +1,3 @@
-/// <reference path="../node_modules/typescript/lib/lib.es6.d.ts" />
 import * as path from "path";
 import * as fs from "fs";
 import { parse } from "./parse";

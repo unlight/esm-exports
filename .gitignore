@@ -1,6 +1,5 @@
 ~*
 /node_modules/
-/typings/
 /npm-debug.log
 /.sublime/
 /.vscode/

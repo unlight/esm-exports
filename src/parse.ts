@@ -1,4 +1,3 @@
-/// <reference path="../node_modules/typescript/lib/lib.es6.d.ts" />
 import * as ts from "typescript";
 import * as path from "path";
 import { find, flatten, get } from "lodash";
@@ -8,7 +7,7 @@ const unixify = require("unixify");
 
 export function parse(sourceText: string, options: any = {}) {
     var entryList: Array<any> = [];
-    var sourceFile = ts.createSourceFile("dummy.ts", sourceText, ts.ScriptTarget.ES6, false);
+    var sourceFile = ts.createSourceFile("dummy.ts", sourceText, ts.ScriptTarget.ES2015, false);
     var {dirname, module, file} = options;
     if (module) {
         module = unixify(module);
