@@ -22,7 +22,7 @@ module.exports = function (pipelines) {
     ];
 
     pipelines["build"] = [
-        glob({ basePath: "src" }, "**/!(*.test).ts"),
+        glob({ basePath: "src" }, "**/*.ts"),
         ts({declaration: true, sourceMap: true, module: "commonjs", target: "es5"}),
         write("lib"),
     ];
