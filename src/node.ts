@@ -17,17 +17,7 @@ export function node(nameOrFile: string, options: { [k: string]: any } = default
     var {baseDir, parent} = options;
     var module: string = parent ? parent : nameOrFile;
     if (isRelative(nameOrFile)) {
-        if (endsWith(nameOrFile, ".ts")) {
-            nameOrFile = nameOrFile.slice(0, -3);
-        }
-        var checkExtensions = [".ts", ".d.ts"];
-        for (var i = 0; i < checkExtensions.length; ++i) {
-            var extFile = nameOrFile + checkExtensions[i];
-            file = path.resolve(baseDir, extFile);
-            if (fs.existsSync(file)) {
-                break;
-            }
-        }
+        file = findFile(baseDir, nameOrFile);
     } else {
         var packageDir = resolvePkg(nameOrFile, { cwd: baseDir });
         var packageFile = path.join(packageDir, "package.json");
@@ -35,7 +25,7 @@ export function node(nameOrFile: string, options: { [k: string]: any } = default
         if (!typings) {
             return Promise.resolve([]);
         }
-        file = path.join(packageDir, typings);
+        file = findFile(packageDir, typings);
     }
     var dirname = path.dirname(file);
     dirname = unixify(dirname);
@@ -44,4 +34,19 @@ export function node(nameOrFile: string, options: { [k: string]: any } = default
             var o = Object.assign({}, options, { module, file, dirname });
             return parse(sourceText, o);
         });
+}
+
+export function findFile(baseDir, name) {
+    const checkExtensions = ["", ".ts", ".d.ts"];
+    let file;
+    for (let i = 0; i < checkExtensions.length; ++i) {
+        let extFile = name + checkExtensions[i];
+        file = path.resolve(baseDir, extFile);
+        if (fs.existsSync(file)) {
+            let stat = fs.statSync(file);
+            if (stat.isDirectory()) continue;
+            break;
+        }
+    }
+    return file;
 }

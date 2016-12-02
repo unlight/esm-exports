@@ -20,9 +20,9 @@ test("should parse directory", t => {
 		});
 });
 
-test("should parse directory", t => {
-	return directory(rootPath + "/src")
-		.then(result => {
-			// console.log('result', result);
-		});
-});
+// test("should parse directory", t => {
+// 	return directory(rootPath + "/src")
+// 		.then(result => {
+// 			// console.log('result', result);
+// 		});
+// });

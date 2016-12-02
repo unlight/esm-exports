@@ -13,11 +13,13 @@ module.exports = function (pipelines) {
 
     pipelines["test"] = [
         glob({ basePath: "src" }, "**/*.test.ts"),
+        debounce(400),
         thru(event => {
             event.changeFileSuffix("js");
             return event;
         }),
         write("lib"),
+        debounce(400),
         ava({files: "lib/*.test.js", verbose: true, serial: true})
     ];
 

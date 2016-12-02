@@ -5,7 +5,7 @@ import { node } from "./";
 const isRelative = require("is-relative-path");
 const unixify = require("unixify");
 
-export function parse(sourceText: string, options: any = {}) {
+export function parse(sourceText: string, options: any = {}): Promise<any[]> {
     var entryList: Array<any> = [];
     var sourceFile = ts.createSourceFile("dummy.ts", sourceText, ts.ScriptTarget.ES2015, false);
     var {dirname, module, file} = options;

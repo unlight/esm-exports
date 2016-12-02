@@ -1,10 +1,24 @@
 import test from "ava";
 import { directory, node } from './';
+const pkgDir = require("pkg-dir");
+var rootPath;
 
-test.skip('angular2-blank-project src', async t => {
-	const files = await directory(`d:/My/Dev/angular2-blank-project`)
+test.before(t => {
+    rootPath = pkgDir.sync();
 });
 
-test.skip('angular2-blank-project deps', async t => {
-	var nodes = await node('@angular/core', {baseDir: `d:/My/Dev/angular2-blank-project`});
+test('angular2-blank-project src', async t => {
+	const files = await directory(`d:/My/Dev/angular2-blank-project`);
+	var [appModuleInfo] = files;
+	t.is(appModuleInfo.name, 'AppModule');
+	t.is(appModuleInfo.module, './src/app/app.module.ts');
+});
+
+test('gulp-tslint', async t => {
+	const nodes = await node('gulp-tslint', {baseDir: rootPath});
+	let falsyNodes = nodes.filter(v => !v);
+	t.truthy(falsyNodes.length === 0);
+	let pluginOptions = nodes.find(v => v.name === 'PluginOptions');
+	t.truthy(pluginOptions);
+	t.truthy(pluginOptions.module === 'gulp-tslint');
 });
