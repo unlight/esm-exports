@@ -8,8 +8,10 @@ const readFile: readFileResult = require("fs-readfile-promise");
 const recursive = require("recursive-readdir");
 const unixify = require("unixify");
 
-export function directory(target: string) {
-    var baseDir = target;
+export function directory(target: string): Promise<any[]> {
+    if (typeof target !== 'string') {
+        return Promise.reject('Target must be a string');
+    }
     var targetNodeModules = path.normalize(path.join(target, 'node_modules'));
     return new Promise<any[]>((resolve, reject) => {
         var files: string[] = recursive(target, [ignore.bind(null, targetNodeModules)], (err, files) => {
@@ -19,9 +21,9 @@ export function directory(target: string) {
     }).then(files => {
         return Promise.all(
             files.map(file => {
-                file = path.relative(baseDir, file);
+                file = path.relative(target, file);
                 file = unixify(file);
-                return node(`./${file}`, { baseDir });
+                return node(`./${file}`, { baseDir: target });
             }))
             .then(result => {
                 return flatten<any>(result);

@@ -4,7 +4,7 @@ const pkgDir = require("pkg-dir");
 var rootPath;
 
 test.before(t => {
-    rootPath = pkgDir.sync();
+	rootPath = pkgDir.sync();
 });
 
 test('angular2-blank-project src', async t => {
@@ -15,7 +15,7 @@ test('angular2-blank-project src', async t => {
 });
 
 test('gulp-tslint', async t => {
-	const nodes = await node('gulp-tslint', {baseDir: rootPath});
+	const nodes = await node('gulp-tslint', { baseDir: rootPath });
 	let falsyNodes = nodes.filter(v => !v);
 	t.truthy(falsyNodes.length === 0);
 	let pluginOptions = nodes.find(v => v.name === 'PluginOptions');

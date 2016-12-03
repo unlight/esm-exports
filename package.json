@@ -1,7 +1,7 @@
 {
   "name": "typescript-exports",
   "version": "0.0.10",
-  "description": "Parse ES2015 modules.",
+  "description": "Parse typescript modules.",
   "main": "lib",
   "typings": "lib/index.d.ts",
   "devDependencies": {

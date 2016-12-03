@@ -39,13 +39,13 @@ test("export some from module", async function(t) {
     t.is(result.specifier, "./provider");
 });
 
-test("pick export", async function(t) { 
-   var code = `export { CalendarEvent, EventAction } from 'calendar-utils'`;
-   var [first, second] = await parse(code);
-   t.is(first.name, "CalendarEvent");
-   t.is(first.specifier, "calendar-utils");
-   t.falsy(first.exportAll);
-   t.is(second.name, "EventAction");
+test("pick export", async function(t) {
+    var code = `export { CalendarEvent, EventAction } from 'calendar-utils'`;
+    var [first, second] = await parse(code);
+    t.is(first.name, "CalendarEvent");
+    t.is(first.specifier, "calendar-utils");
+    t.falsy(first.exportAll);
+    t.is(second.name, "EventAction");
 });
 
 test("export declare class", async function(t) {

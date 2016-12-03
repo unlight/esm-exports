@@ -1,5 +1,5 @@
 import test from "ava";
-import {node} from "./";
+import { node } from "./";
 const pkgDir = require("pkg-dir");
 var rootPath;
 
