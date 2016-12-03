@@ -18,11 +18,7 @@
     "sigh-ava": "0.3.1",
     "sigh-thru": "0.0.2",
     "sigh-ts": "0.0.15",
-    "tslint": "4.0.2",
-    "typescript": "2.1.1"
-  },
-  "peerDependencies": {
-    "typescript": "2"
+    "tslint": "4.0.2"
   },
   "scripts": {
     "build": "rm -rf lib && sigh.cmd build -vv",
@@ -30,6 +26,7 @@
     "test": "ava"
   },
   "dependencies": {
+    "typescript": "2.1.1",
     "fs-readfile-promise": "3.0.0",
     "is-relative-path": "1.0.1",
     "lodash": "4.17.2",
