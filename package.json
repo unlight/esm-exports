@@ -1,6 +1,6 @@
 {
   "name": "typescript-exports",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "description": "Parse typescript modules.",
   "main": "lib",
   "typings": "lib/index.d.ts",
