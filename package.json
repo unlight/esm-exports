@@ -1,7 +1,7 @@
 {
-  "name": "typescript-exports",
+  "name": "esm-exports",
   "version": "0.0.13",
-  "description": "Parse typescript modules.",
+  "description": "Parse ecmascript modules and collect names of export vars, functions, etc.",
   "main": "lib",
   "typings": "lib/index.d.ts",
   "devDependencies": {
@@ -36,11 +36,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/unlight/typescript-exports.git"
+    "url": "https://github.com/unlight/esm-exports.git"
   },
   "license": "Xnet",
   "bugs": {
-    "url": "https://github.com/unlight/typescript-exports/issues"
+    "url": "https://github.com/unlight/esm-exports/issues"
   },
-  "homepage": "https://github.com/unlight/typescript-exports#readme"
+  "homepage": "https://github.com/unlight/esm-exports#readme"
 }

@@ -1,5 +1,5 @@
-# typescript-exports
-Parse typescript modules.
+# esm-exports
+Parse ecmascript modules and collect names of export vars, functions, etc.
 
 ## CHANGELOG
 * 0.0.12 - updated @types/node
