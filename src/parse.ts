@@ -1,12 +1,13 @@
 import * as ts from "typescript";
 import * as path from "path";
-import { find, flatten, get } from "lodash";
+import { find, flatten, get, uniqBy } from "lodash";
 import { node } from "./";
+import { Entry } from "./entry.interface";
 const isRelative = require("is-relative-path");
 const unixify = require("unixify");
 
-export function parse(sourceText: string, options: any = {}): Promise<any[]> {
-    var entryList: Array<any> = [];
+export function parse(sourceText: string, options: any = {}): Promise<Entry[]> {
+    var entryList: Array<Entry> = [];
     var sourceFile = ts.createSourceFile("dummy.ts", sourceText, ts.ScriptTarget.ES2015, false);
     var {dirname, module, file} = options;
     if (module) {
@@ -32,7 +33,7 @@ export function parse(sourceText: string, options: any = {}): Promise<any[]> {
                 });
             } else if (statement.name) {
                 var name = statement.name.text;
-                var {specifier: string, baseDir} = options;
+                var {specifier, baseDir}: {specifier: string, baseDir: string} = options;
                 if (specifier && isRelative(specifier)) {
                     var relative: string = unixify(path.relative(baseDir, file));
                     // TODO: strip ts or dts extension
@@ -43,13 +44,16 @@ export function parse(sourceText: string, options: any = {}): Promise<any[]> {
         }
     });
     return Promise.all(
-        entryList.map(item => {
+        entryList.map<any>(item => {
             if (!item.exportAll) {
                 return item;
             }
             return node(item.specifier, { baseDir: dirname, parent: module, specifier: item.specifier });
         }))
         .then(result => {
-            return flatten<any>(result);
+            return flatten(result);
+        })
+        .then(result => {
+            return uniqBy<Entry>(result, (value) => JSON.stringify([value.name, value.module]));
         });
 }

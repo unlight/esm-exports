@@ -18,18 +18,20 @@ test("angular2-calendar", t => {
     });
 });
 
-test.skip("test case ava", t => {
+test("ava module", t => {
     return node("ava", { baseDir: rootPath }).then(result => {
-        console.log('--------');
-        console.log(result);
-        console.log('--------');
+        // node_modules names should be uniq
+        var names = result.map(item => item.name);
+        var uniqNames = Array.from(new Set(names));
+        t.is(uniqNames.length, names.length);
     });
 });
 
-test.skip("test case rxjs", t => {
+test("rxjs module", t => {
     return node("rxjs", { baseDir: rootPath }).then(result => {
-        console.log('--------');
-        console.log(result);
-        console.log('--------');
+        // node_modules names should be uniq
+        var names = result.map(item => item.name);
+        var uniqNames = Array.from(new Set(names));
+        t.is(uniqNames.length, names.length);
     });
 });
