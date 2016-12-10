@@ -1,5 +1,5 @@
 import test from "ava";
-import { directory } from "./";
+import { directory } from "./directory";
 import { filter } from "lodash";
 const pkgDir = require("pkg-dir");
 var rootPath;
@@ -31,4 +31,11 @@ test('not existing target', async t => {
 		.catch(err => {
 			t.truthy(err);
 		})
+});
+
+test('angular2-blank-project src', async t => {
+    const files = await directory(`../angular2-blank-project`);
+    let appModuleInfo = files.find(e => e.name === 'AppModule');
+    t.is(appModuleInfo.name, 'AppModule');
+    t.truthy(appModuleInfo.filepath);
 });

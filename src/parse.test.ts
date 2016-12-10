@@ -4,13 +4,17 @@ const mock = require("mock-require");
 var parse;
 
 test.before(t => {
-    mock("./node", {
-        node: function(specifier, properties) {
+    mock("./parse-file", {
+        parseFile: function(specifier, properties) {
             properties.__mainMock = true;
             return [properties];
         }
     });
-    parse = require("./").parse;
+    parse = require("./parse").parse;
+});
+
+test("smoke test", async function(t) {
+    t.truthy(parse);
 });
 
 test("var export", async function(t) {
@@ -44,7 +48,6 @@ test("pick export", async function(t) {
     var [first, second] = await parse(code);
     t.is(first.name, "CalendarEvent");
     t.is(first.specifier, "calendar-utils");
-    t.falsy(first.exportAll);
     t.is(second.name, "EventAction");
 });
 
@@ -72,12 +75,10 @@ test("export function", async function(t) {
     t.is(result.name, "dummy");
 });
 
-test("export somevar", async function(t) {
+test("export several vars", async function(t) {
     var code = `export {somevar, otherVar}`;
     var [result, other] = await parse(code);
     t.is(result.name, "somevar");
-    t.falsy(result.exportAll);
     t.is(other.name, "otherVar");
-    t.falsy(other.exportAll);
 });
 

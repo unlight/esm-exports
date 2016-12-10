@@ -1,59 +1,49 @@
 import * as ts from "typescript";
-import * as path from "path";
-import { find, flatten, get, uniqBy } from "lodash";
-import { node } from "./";
-import { Entry } from "./entry.interface";
+import * as Path from "path";
+import * as _ from "lodash";
+import { parseFile } from "./parse-file";
+import { Entry } from "./entry";
+import { parseDeclaration } from "./parse-declaration";
+import { parseKeyword } from "./parse-keyword";
 const isRelative = require("is-relative-path");
 const unixify = require("unixify");
 
-export function parse(sourceText: string, options: any = {}): Promise<Entry[]> {
-    var entryList: Array<Entry> = [];
-    var sourceFile = ts.createSourceFile("dummy.ts", sourceText, ts.ScriptTarget.ES2015, false);
-    var {dirname, module, file} = options;
-    if (module) {
-        module = unixify(module);
-    }
-    sourceFile.statements.forEach((statement: any) => {
-        if (statement.kind === ts.SyntaxKind.ExportDeclaration) {
-            var specifier: string = get(statement, "moduleSpecifier.text", null);
-            var exportAll = !(statement.exportClause && statement.exportClause.elements);
-            if (exportAll) {
-                var names = [null];
+export type ParseOptions = {
+    filepath?: string;
+    module?: string;
+}
+
+export function parse(sourceText: string, options: ParseOptions = {}): Promise<Entry[]> {
+    const {filepath, module} = options;
+    const sourceFile = ts.createSourceFile("dummy.ts", sourceText, ts.ScriptTarget.ES2015, false);
+    return _.chain(sourceFile.statements)
+        .map((statement: ts.Statement) => {
+            let names: string[];
+            if (statement.kind === ts.SyntaxKind.ExportDeclaration) {
+                names = parseDeclaration(statement);
+            } else if (_.find(statement.modifiers, m => m.kind === ts.SyntaxKind.ExportKeyword)) {
+                names = parseKeyword(statement);
+            } else {
+                return [];
             }
-            if (statement.exportClause) {
-                names = statement.exportClause.elements.map(n => n.name.text);
-            }
-            names.forEach(name => entryList.push({ name, module, specifier, exportAll, dirname }));
-        } else if (find<ts.Node>(statement.modifiers, m => m.kind === ts.SyntaxKind.ExportKeyword)) {
-            // TODO: Combine ifs later.
-            if (statement.declarationList) {
-                statement.declarationList.declarations.forEach(d => {
-                    var name = d.name.text;
-                    entryList.push({ name, module });
-                });
-            } else if (statement.name) {
-                var name = statement.name.text;
-                var {specifier, baseDir}: {specifier: string, baseDir: string} = options;
-                if (specifier && isRelative(specifier)) {
-                    var relative: string = unixify(path.relative(baseDir, file));
-                    // TODO: strip ts or dts extension
-                    var exact = `${module}/${relative.slice(0, -(".d.ts".length))}`;
-                }
-                entryList.push({ name, module, relative, exact, specifier });
-            }
-        }
-    });
-    return Promise.all(
-        entryList.map<any>(item => {
-            if (!item.exportAll) {
-                return item;
-            }
-            return node(item.specifier, { baseDir: dirname, parent: module, specifier: item.specifier });
-        }))
-        .then(result => {
-            return flatten(result);
+            const specifier: string = _.get<string>(statement, "moduleSpecifier.text");
+            return names.map(name => ({ name, specifier }));
         })
-        .then(result => {
-            return uniqBy<Entry>(result, (value) => JSON.stringify([value.name, value.module]));
+        .flatten()
+        .map(({name, specifier}) => {
+            if (!name && specifier && filepath) {
+                let dirname = Path.dirname(filepath);
+                return parseFile(specifier, { dirname, module });
+            }
+            let entry = new Entry({ name, filepath, specifier, module });
+            return Promise.resolve([entry]);
+        })
+        .thru(promises => Promise.all(promises))
+        .value()
+        .then(entryListCollection => {
+            return _.chain(entryListCollection)
+                .flatten<Entry>()
+                .uniqBy(entry => entry.hash())
+                .value();
         });
 }

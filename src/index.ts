@@ -1,3 +1,3 @@
-export { node } from "./node";
-export { directory } from "./directory";
-export { parse } from "./parse";
+export { directory } from './directory';
+export { parseModule } from './parse-module';
+export { parseFile } from './parse-file';
