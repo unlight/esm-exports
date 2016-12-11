@@ -82,3 +82,10 @@ test("export several vars", async function(t) {
     t.is(other.name, "otherVar");
 });
 
+test("export default", async function(t) {
+    var code = `export default function foo() {}`;
+    var [entry] = await parse(code);
+    t.is(entry.name, 'foo');
+    t.is(entry.isDefault, true);
+});
+

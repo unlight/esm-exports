@@ -27,15 +27,16 @@ export function parse(sourceText: string, options: ParseOptions = {}): Promise<E
                 return [];
             }
             const specifier: string = _.get<string>(statement, "moduleSpecifier.text");
-            return names.map(name => ({ name, specifier }));
+            const isDefault = Boolean(_.find(statement.modifiers, m => m.kind === ts.SyntaxKind.DefaultKeyword));
+            return names.map(name => ({ name, specifier, isDefault }));
         })
         .flatten()
-        .map(({name, specifier}) => {
+        .map(({name, specifier, isDefault}) => {
             if (!name && specifier && filepath) {
                 let dirname = Path.dirname(filepath);
                 return parseFile(specifier, { dirname, module });
             }
-            let entry = new Entry({ name, filepath, specifier, module });
+            let entry = new Entry({ name, filepath, specifier, module, isDefault });
             return Promise.resolve([entry]);
         })
         .thru(promises => Promise.all(promises))

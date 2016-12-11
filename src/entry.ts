@@ -16,11 +16,17 @@ export class Entry {
 	 */
 	module: string;
 	
-	constructor({name, filepath, specifier, module}) {
+	/**
+	 * Flag indicates export default.
+	 */
+	isDefault: boolean;
+	
+	constructor({name, filepath, specifier, module, isDefault}) {
 		this.name = name;
 		this.filepath = filepath;
 		this.specifier = specifier;
 		this.module = module;
+		this.isDefault = Boolean(isDefault);
 	}
 	
 	hash() {

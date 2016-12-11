@@ -5,6 +5,7 @@ Parse ecmascript modules and collect names of export vars, functions, etc.
 - parse javascript files also
 
 ## CHANGELOG
+* 0.1.0 - added isDefault property
 * 0.0.14 - removed duplicates from result
 * 0.0.12 - updated @types/node
 * 0.0.11 - fixed: invalid path throws error
