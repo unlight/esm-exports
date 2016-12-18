@@ -89,3 +89,8 @@ test("export default", async function(t) {
     t.is(entry.isDefault, true);
 });
 
+test('empty source', async t => {
+    var code = ``;
+    var result = await parse(code);
+    t.deepEqual(result, []);
+});

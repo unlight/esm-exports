@@ -1,10 +1,8 @@
 # esm-exports
 Parse ecmascript modules and collect names of export vars, functions, etc.
 
-## TODO
-- parse javascript files also
-
 ## CHANGELOG
+* 0.2.0 - parse javasript files
 * 0.1.0 - added isDefault property
 * 0.0.14 - removed duplicates from result
 * 0.0.12 - updated @types/node

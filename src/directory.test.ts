@@ -39,3 +39,9 @@ test('angular2-blank-project src', async t => {
     t.is(appModuleInfo.name, 'AppModule');
     t.truthy(appModuleInfo.filepath);
 });
+
+test('angular2-blank-project src', async t => {
+    const files = await directory(`d:/Progs/Sublime-Text-3/Data/Packages/sublime-import-helper/~src/modules`);
+    let nodeModuleInfo = files.find(e => e.name === 'Node');
+    t.is(nodeModuleInfo.name, 'Node');
+});

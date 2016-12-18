@@ -1,15 +1,15 @@
 import * as Path from "path";
 import { parseFile } from "./parse-file";
-import { flatten, endsWith, startsWith } from "lodash";
+import { flatten, startsWith, find } from "lodash";
 import { Entry } from "./entry";
 const recursive = require("recursive-readdir");
 const unixify = require("unixify");
 
 export function directory(target: string): Promise<Entry[]> {
     if (typeof target !== 'string') {
-        return Promise.reject('Target must be a string');
+        return Promise.reject(new Error('Target must be a string'));
     }
-    var targetNodeModules = Path.normalize(Path.join(target, 'node_modules'));
+    const targetNodeModules = Path.normalize(Path.join(target, 'node_modules'));
     return new Promise<any[]>((resolve, reject) => {
         var files: string[] = recursive(target, [ignore.bind(null, targetNodeModules)], (err, files) => {
             if (err) return reject(err);
@@ -30,6 +30,9 @@ export function directory(target: string): Promise<Entry[]> {
 function ignore(targetNodeModules, file, stats) {
     if (startsWith(file, targetNodeModules)) return true;
     if (stats.isDirectory()) return false;
-    if (endsWith(Path.extname(file), ".ts")) return false;
+    const pathExt = Path.extname(file);
+    if (find(['.ts', '.js'], testExt => testExt === pathExt)) {
+        return false;
+    }
     return true;
 }
