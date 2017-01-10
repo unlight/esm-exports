@@ -4,34 +4,33 @@
   "description": "Parse ecmascript modules and collect names of export vars, functions, etc.",
   "main": "lib",
   "typings": "lib/index.d.ts",
+  "scripts": {
+    "dev": "concurrently -k \"npm run tsc:w\" \"npm run test:w\"",
+    "tsc:w": "tsc --watch",
+    "tsc": "tsc",
+    "test:w": "ava --watch --serial",
+    "test": "ava --serial"
+  },
   "devDependencies": {
-    "@angular/core": "2.2.4",
-    "@types/lodash": "4.14.41",
-    "@types/node": "6.0.51",
+    "@angular/core": "2.4.2",
+    "@types/lodash": "4.14.48",
+    "@types/node": "6.0.59",
     "angular2-calendar": "0.3.6",
     "ava": "0.17.0",
+    "concurrently": "3.1.0",
     "gulp-tslint": "7.0.1",
     "mock-require": "1.3.0",
-    "pkg-dir": "^1.0.0",
-    "rxjs": "5.0.0-rc.4",
-    "sigh": "0.12.32",
-    "sigh-ava": "0.3.1",
-    "sigh-thru": "0.0.2",
-    "sigh-ts": "0.0.15",
-    "tslint": "4.0.2"
-  },
-  "scripts": {
-    "build": "rm -rf lib && sigh.cmd build -vv",
-    "dev": "sigh.cmd source test -w -vv",
-    "test": "ava"
+    "pkg-dir": "1.0.0",
+    "rxjs": "5.0.3",
+    "tslint": "4.3.1"
   },
   "dependencies": {
-    "typescript": "2.1.1",
     "fs-readfile-promise": "3.0.0",
     "is-relative-path": "1.0.1",
-    "lodash": "4.17.2",
+    "lodash": "4.17.4",
     "recursive-readdir": "2.1.0",
     "resolve-pkg": "0.2.0",
+    "typescript": "2.1.4",
     "unixify": "0.2.1"
   },
   "repository": {

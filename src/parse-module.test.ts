@@ -50,3 +50,8 @@ test('no falsy nodes', async t => {
     var falsyNodes = nodes.filter(v => !v);
     t.truthy(falsyNodes.length === 0);
 });
+
+test('parseModule unknown module', async t => {
+    const nodes = await parseModule('unknown_module_foo', { dirname: rootPath });
+    t.truthy(nodes.length === 0);
+});

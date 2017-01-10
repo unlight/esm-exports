@@ -20,8 +20,9 @@ const defaults = {
 export function parseModule(name: string, options: ParseModuleOptions = defaults): Promise<Entry[]> {
     let {dirname, module} = options;
     let packageDir = resolvePkg(name, { cwd: dirname });
-    // TODO: Check packageDir for null.
-    // console.log('packageDir', packageDir);
+    if (!packageDir) {
+        return Promise.resolve([]);
+    }
     let filepath: string;
     let packageFile = Path.join(packageDir, 'package.json');
     let pkgData = require(packageFile);
