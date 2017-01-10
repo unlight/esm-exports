@@ -94,3 +94,10 @@ test('empty source', async t => {
     var result = await parse(code);
     t.deepEqual(result, []);
 });
+
+test('object binding', async t => {
+	var code = `export const {ModuleStore} = $traceurRuntime;`;
+	var [result1] = await parse(code);
+    t.is(result1.name, 'ModuleStore');
+});
+
