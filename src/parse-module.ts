@@ -1,12 +1,12 @@
 import * as Path from 'path';
 import * as fs from 'fs';
 import { parse } from './parse';
-import get = require('lodash/get');
-import endsWith = require('lodash/endsWith');
+import * as _ from 'lodash';
 import { Entry } from './entry';
 const resolvePkg = require('resolve-pkg');
 const readFile: readFileResult = require('fs-readfile-promise');
 import { findFile } from './find-file';
+import { directory } from './directory';
 const resolve = require('resolve');
 
 type readFileResult = (file: string, encoding?: string) => Promise<string>;
@@ -20,19 +20,22 @@ const parseModuleDefaults = {
     dirname: '.'
 };
 
-// function findInnerModules(directory: string) {
-//     fs.readdirSync(directory)
-//         .filter(path => (path !== '.' || path !== '..'))
-//         .map(path => ({ path, stat: fs.statSync(path) }))
-//         .filter(({ stat }) => stat.isDirectory())
-//         .map(({ path }) => {
-//             let packageFile = Path.join(path, 'package.json');
-//             let pkgData = JSON.parse(fs.readFileSync(packageFile, 'utf8'));
-//             return get(pkgData, 'main', 'index');
-//         })
-//         // .map()
-
-// }
+function findInnerModules(basename: string, cwd: string): Promise<Entry[]> {
+    let p = Promise.resolve([]);
+    fs.readdirSync(cwd)
+        .filter(name => name !== '.' && name !== '..')
+        .map(name => ({ name, packageFile: Path.resolve(cwd, name, 'package.json') }))
+        .filter(({ packageFile }) => fs.existsSync(packageFile))
+        .map(({name}) => name)
+        .forEach(name => {
+            let d = Path.resolve(cwd, name);
+            p = p.then(result => directory(d).then(entries => {
+               entries.forEach(e => e.module = `${basename}/${name}`);
+               return result.concat(entries);
+            }));
+        });
+    return p;
+}
 
 export function parseModule(name: string, options: ParseModuleOptions = parseModuleDefaults): Promise<Entry[]> {
     let { dirname, module } = options;
@@ -57,6 +60,17 @@ export function parseModule(name: string, options: ParseModuleOptions = parseMod
         })
         .catch(err => {
             return Promise.resolve([]);
+        })
+        .then(result => {
+            return findInnerModules(name, packageDir)
+                .catch(err => Promise.resolve([]))
+                .then(entries => result.concat(entries));
+        })
+        .then(entryListCollection => {
+            return _.chain(entryListCollection)
+                .flatten<Entry>()
+                .uniqBy(entry => entry.hash())
+                .value();
         });
 }
 

@@ -2,6 +2,7 @@
 Parse ecmascript modules and collect names of export vars, functions, etc.
 
 ## CHANGELOG
+* 0.4.0 - parse inner modules
 * 0.3.1 - prevent fail for non-existing directory
 * 0.2.0 - parse javascript files
 * 0.1.0 - added isDefault property

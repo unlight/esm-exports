@@ -1,4 +1,4 @@
-import * as ts from "typescript";
+import * as ts from 'typescript';
 
 export function parseDeclaration(statement: any | ts.Statement) {
     // console.log('parseDeclaration', statement);

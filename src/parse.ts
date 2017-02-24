@@ -1,12 +1,12 @@
-import * as ts from "typescript";
-import * as Path from "path";
-import * as _ from "lodash";
-import { parseFile } from "./parse-file";
-import { Entry } from "./entry";
-import { parseDeclaration } from "./parse-declaration";
-import { parseKeyword } from "./parse-keyword";
-const isRelative = require("is-relative-path");
-const unixify = require("unixify");
+import * as ts from 'typescript';
+import * as Path from 'path';
+import * as _ from 'lodash';
+import { parseFile } from './parse-file';
+import { Entry } from './entry';
+import { parseDeclaration } from './parse-declaration';
+import { parseKeyword } from './parse-keyword';
+const isRelative = require('is-relative-path');
+const unixify = require('unixify');
 
 export type ParseOptions = {
     filepath?: string;
@@ -15,7 +15,7 @@ export type ParseOptions = {
 
 export function parse(sourceText: string, options: ParseOptions = {}): Promise<Entry[]> {
     const {filepath, module} = options;
-    const sourceFile = ts.createSourceFile("dummy.ts", sourceText, ts.ScriptTarget.ES2015, false);
+    const sourceFile = ts.createSourceFile('dummy.ts', sourceText, ts.ScriptTarget.ES2015, false);
     return _.chain(sourceFile.statements)
         .map((statement: ts.Statement) => {
             let names: string[];
@@ -26,7 +26,7 @@ export function parse(sourceText: string, options: ParseOptions = {}): Promise<E
             } else {
                 return [];
             }
-            const specifier: string = _.get<string>(statement, "moduleSpecifier.text");
+            const specifier: string = _.get<string>(statement, 'moduleSpecifier.text');
             const isDefault = Boolean(_.find(statement.modifiers, m => m.kind === ts.SyntaxKind.DefaultKeyword));
             return names.map(name => ({ name, specifier, isDefault }));
         })

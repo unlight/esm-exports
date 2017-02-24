@@ -1,13 +1,12 @@
+/// <reference path="spec.reference.d.ts" />
 import * as assert from 'assert';
 import { parseModule } from './parse-module';
+import { Entry } from './entry';
 const pkgDir = require('pkg-dir');
-let rootPath;
+const rootPath = pkgDir.sync();
+import * as _ from 'lodash';
 
-before(() => {
-    rootPath = pkgDir.sync();
-});
-
-it('smoke', () => {
+it('parse module smoke', () => {
     assert(parseModule);
 });
 
@@ -45,4 +44,12 @@ it('no falsy nodes', async () => {
 it('parseModule unknown module', async () => {
     const nodes = await parseModule('unknown_module_foo', { dirname: rootPath });
     assert(nodes.length === 0);
+});
+
+it('should find inner module properly', async () => {
+    const nodes = await parseModule('@angular/core', { dirname: rootPath });
+    let testing = nodes.filter(n => n.module === '@angular/core/testing');
+    assert(testing);
+    let inject = nodes.filter(n => n.name === 'inject');
+    assert(inject.length > 0);
 });
