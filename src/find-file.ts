@@ -7,7 +7,6 @@ export function findFile(name, dirname = '.'): Promise<string> {
     let file: string = null;
     for (let i = 0; i < checkExtensions.length; i++) {
         let extFile = name + checkExtensions[i];
-        // console.log('dirname, extFile', dirname, extFile);
         let testFile = Path.resolve(dirname, extFile);
         try {
             var stat = fs.statSync(testFile);

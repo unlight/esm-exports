@@ -1,41 +1,30 @@
-import test from "ava";
-import { directory } from "./directory";
-import { filter } from "lodash";
-const pkgDir = require("pkg-dir");
-var rootPath;
+import * as assert from 'assert';
+import { directory } from './directory';
+import filter = require('lodash/filter');
+const pkgDir = require('pkg-dir');
+const rootPath = pkgDir.sync();
 
-test.before(t => {
-	rootPath = pkgDir.sync();
+it('directory smoke test', () => {
+	assert(directory);
 });
 
-test("smoke", t => {
-	t.truthy(directory);
-});
-
-test("should parse directory", t => {
-	return directory(rootPath + "/src")
+it('should parse directory', () => {
+	return directory(rootPath + '/src')
 		.then(result => {
-			var [parse] = filter(result, item => item.name === "parse");
-			t.truthy(parse);
+			var [parse] = filter(result, item => item.name === 'parse');
+			assert(parse);
 		});
 });
 
-test('directory target null', t => {
+it('directory target null', () => {
 	return directory(null).catch(err => {
-		t.truthy(err);
+		assert(err);
 	});
 });
 
-test('not existing target', async t => {
-	return directory(rootPath + "/foo")
+it('not existing target', async () => {
+	return directory(rootPath + '/foo')
 		.catch(err => {
-			t.truthy(err);
+			assert(err);
 		})
-});
-
-test('angular2-blank-project src', async t => {
-    const files = await directory(`../angular2-blank-project`);
-    let appModuleInfo = files.find(e => e.name === 'AppModule');
-    t.is(appModuleInfo.name, 'AppModule');
-    t.truthy(appModuleInfo.filepath);
 });

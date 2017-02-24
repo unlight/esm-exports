@@ -1,57 +1,48 @@
-import test from "ava";
-import { parseModule } from "./parse-module";
-const pkgDir = require("pkg-dir");
-var rootPath;
+import * as assert from 'assert';
+import { parseModule } from './parse-module';
+const pkgDir = require('pkg-dir');
+let rootPath;
 
-test.before(t => {
+before(() => {
     rootPath = pkgDir.sync();
 });
 
-test("smoke", t => {
-    t.truthy(parseModule);
+it('smoke', () => {
+    assert(parseModule);
 });
 
-test("angular2-calendar", t => {
-    return parseModule("angular2-calendar", { dirname: rootPath }).then(result => {
+it('angular2-calendar', () => {
+    return parseModule('angular2-calendar', { dirname: rootPath }).then(result => {
         const calendarEventTitleEntry = result.find(item => item.name === 'CalendarEventTitle');
-        t.is(calendarEventTitleEntry.module, 'angular2-calendar');
+        assert.equal(calendarEventTitleEntry.module, 'angular2-calendar');
     });
 });
 
-test("ava module", t => {
-    return parseModule("ava", { dirname: rootPath }).then(result => {
+it('rxjs module', () => {
+    return parseModule('rxjs', { dirname: rootPath }).then(result => {
         // node_modules names should be uniq
         var names = result.map(item => item.name);
         var uniqNames = Array.from(new Set(names));
-        t.is(uniqNames.length, names.length);
+        assert.equal(uniqNames.length, names.length);
     });
 });
 
-test("rxjs module", t => {
-    return parseModule("rxjs", { dirname: rootPath }).then(result => {
-        // node_modules names should be uniq
-        var names = result.map(item => item.name);
-        var uniqNames = Array.from(new Set(names));
-        t.is(uniqNames.length, names.length);
-    });
-});
-
-test('gulp-tslint', async t => {
+it('gulp-tslint', async () => {
     const nodes = await parseModule('gulp-tslint', { dirname: rootPath });
     let falsyNodes = nodes.filter(v => !v);
-    t.truthy(falsyNodes.length === 0);
+    assert(falsyNodes.length === 0);
     let pluginOptions = nodes.find(v => v.name === 'PluginOptions');
-    t.truthy(pluginOptions);
-    t.truthy(pluginOptions.module === 'gulp-tslint');
+    assert(pluginOptions);
+    assert(pluginOptions.module === 'gulp-tslint');
 });
 
-test('no falsy nodes', async t => {
+it('no falsy nodes', async () => {
     var nodes = await parseModule('@angular/core', {dirname: rootPath});
     var falsyNodes = nodes.filter(v => !v);
-    t.truthy(falsyNodes.length === 0);
+    assert(falsyNodes.length === 0);
 });
 
-test('parseModule unknown module', async t => {
+it('parseModule unknown module', async () => {
     const nodes = await parseModule('unknown_module_foo', { dirname: rootPath });
-    t.truthy(nodes.length === 0);
+    assert(nodes.length === 0);
 });

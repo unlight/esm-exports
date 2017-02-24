@@ -1,103 +1,113 @@
-import test from "ava";
-const pkgDir = require("pkg-dir");
-const mock = require("mock-require");
-var parse;
+import * as assert from 'assert';
+import { parse } from './parse';
 
-test.before(t => {
-    mock("./parse-file", {
-        parseFile: function(specifier, properties) {
-            properties.__mainMock = true;
-            return [properties];
-        }
-    });
-    parse = require("./parse").parse;
+it('smoke test', () => {
+    assert(parse);
 });
 
-test("smoke test", async function(t) {
-    t.truthy(parse);
+it('var export', async function() {
+    let code = `export var aaa = 1`;
+    let [result] = await parse(code);
+    assert.equal(result.name, 'aaa');
 });
 
-test("var export", async function(t) {
-    var code = `export var aaa = 1`;
-    var [result] = await parse(code);
-    t.is(result.name, "aaa");
+it('several var export', async function() {
+    let code = `export var aaa, bbb`;
+    let [result, result2] = await parse(code);
+    assert.equal(result.name, 'aaa');
+    assert.equal(result2.name, 'bbb');
 });
 
-test("several var export", async function(t) {
-    var code = `export var aaa, bbb`;
-    var [result, result2] = await parse(code);
-    t.is(result.name, "aaa");
-    t.is(result2.name, "bbb");
+it('export all', async function() {
+    let code = `export * from './provider'`;
+    let [result] = await parse(code);
+    assert.equal(result.specifier, './provider');
 });
 
-test("export all", async function(t) {
-    var code = `export * from './provider'`;
-    var [result] = await parse(code);
-    t.is(result.specifier, "./provider");
+it('export some from module', async function() {
+    let code = `export {var1} from './provider'`;
+    let [result] = await parse(code);
+    assert.equal(result.name, 'var1');
+    assert.equal(result.specifier, './provider');
 });
 
-test("export some from module", async function(t) {
-    var code = `export {var1} from './provider'`;
-    var [result] = await parse(code);
-    t.is(result.name, "var1");
-    t.is(result.specifier, "./provider");
-});
-
-test("pick export", async function(t) {
-    var code = `export { CalendarEvent, EventAction } from 'calendar-utils'`;
+it('pick export', async function() {
+    let code = `export { CalendarEvent, EventAction } from 'calendar-utils'`;
     var [first, second] = await parse(code);
-    t.is(first.name, "CalendarEvent");
-    t.is(first.specifier, "calendar-utils");
-    t.is(second.name, "EventAction");
+    assert.equal(first.name, 'CalendarEvent');
+    assert.equal(first.specifier, 'calendar-utils');
+    assert.equal(second.name, 'EventAction');
 });
 
-test("export declare class", async function(t) {
-    var code = `export declare class Calendar`;
-    var [result] = await parse(code);
-    t.is(result.name, "Calendar");
+it('export declare class', async function() {
+    let code = `export declare class Calendar`;
+    let [result] = await parse(code);
+    assert.equal(result.name, 'Calendar');
 });
 
-test("export class", async function(t) {
-    var code = `export class Aaa`;
-    var [result] = await parse(code);
-    t.is(result.name, "Aaa");
+it('export class', async function() {
+    let code = `export class Aaa`;
+    let [result] = await parse(code);
+    assert.equal(result.name, 'Aaa');
 });
 
-test("export interface", async function(t) {
-    var code = `export interface Entry {}`;
-    var [result] = await parse(code);
-    t.is(result.name, "Entry");
+it('export interface', async function() {
+    let code = `export interface Entry {}`;
+    let [result] = await parse(code);
+    assert.equal(result.name, 'Entry');
 });
 
-test("export function", async function(t) {
-    var code = `export function dummy() {}`;
-    var [result] = await parse(code);
-    t.is(result.name, "dummy");
+it('export function', async function() {
+    let code = `export function dummy() {}`;
+    let [result] = await parse(code);
+    assert.equal(result.name, 'dummy');
 });
 
-test("export several vars", async function(t) {
-    var code = `export {somevar, otherVar}`;
-    var [result, other] = await parse(code);
-    t.is(result.name, "somevar");
-    t.is(other.name, "otherVar");
+it('export several vars', async function() {
+    let code = `export {somevar, otherVar}`;
+    let [result, other] = await parse(code);
+    assert.equal(result.name, 'somevar');
+    assert.equal(other.name, 'otherVar');
 });
 
-test("export default", async function(t) {
-    var code = `export default function foo() {}`;
+it('export default', async function() {
+    let code = `export default function foo() {}`;
     var [entry] = await parse(code);
-    t.is(entry.name, 'foo');
-    t.is(entry.isDefault, true);
+    assert.equal(entry.name, 'foo');
+    assert.equal(entry.isDefault, true);
 });
 
-test('empty source', async t => {
-    var code = ``;
+it('empty source', async () => {
+    let code = ``;
     var result = await parse(code);
-    t.deepEqual(result, []);
+    assert.deepEqual(result, []);
 });
 
-test('object binding', async t => {
-	var code = `export const {ModuleStore} = $traceurRuntime;`;
-	var [result1] = await parse(code);
-    t.is(result1.name, 'ModuleStore');
+it('object binding', async () => {
+    let code = `export const {ModuleStore} = $traceurRuntime;`;
+    let [result1] = await parse(code);
+    assert.equal(result1.name, 'ModuleStore');
 });
 
+it.skip('declare namespace', async () => {
+    let source = `
+        declare namespace through2 {
+            export interface Through2Constructor {
+            }
+        }
+    `;
+    let [entry] = await parse(source);
+    assert.equal(entry.name, 'Through2Constructor');
+    assert.equal(entry.module, 'through2');
+});
+
+it.skip('declare namespace isDefault', async () => {
+    let source = `
+        declare namespace through2 {
+        }
+        export = through2
+    `;
+    let [entry] = await parse(source);
+    assert.equal(entry.module, 'through2');
+    assert.equal(entry.isDefault, true);
+});

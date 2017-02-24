@@ -1,24 +1,41 @@
 import * as Path from 'path';
 import * as fs from 'fs';
 import { parse } from './parse';
-import { get, endsWith } from 'lodash';
+import get = require('lodash/get');
+import endsWith = require('lodash/endsWith');
 import { Entry } from './entry';
 const resolvePkg = require('resolve-pkg');
-type readFileResult = (file: string, enc?: string) => Promise<string>;
 const readFile: readFileResult = require('fs-readfile-promise');
 import { findFile } from './find-file';
+const resolve = require('resolve');
+
+type readFileResult = (file: string, encoding?: string) => Promise<string>;
 
 export type ParseModuleOptions = {
     dirname?: string;
     module?: string;
 };
 
-const defaults = {
+const parseModuleDefaults = {
     dirname: '.'
 };
 
-export function parseModule(name: string, options: ParseModuleOptions = defaults): Promise<Entry[]> {
-    let {dirname, module} = options;
+// function findInnerModules(directory: string) {
+//     fs.readdirSync(directory)
+//         .filter(path => (path !== '.' || path !== '..'))
+//         .map(path => ({ path, stat: fs.statSync(path) }))
+//         .filter(({ stat }) => stat.isDirectory())
+//         .map(({ path }) => {
+//             let packageFile = Path.join(path, 'package.json');
+//             let pkgData = JSON.parse(fs.readFileSync(packageFile, 'utf8'));
+//             return get(pkgData, 'main', 'index');
+//         })
+//         // .map()
+
+// }
+
+export function parseModule(name: string, options: ParseModuleOptions = parseModuleDefaults): Promise<Entry[]> {
+    let { dirname, module } = options;
     let packageDir = resolvePkg(name, { cwd: dirname });
     if (!packageDir) {
         return Promise.resolve([]);
@@ -36,9 +53,6 @@ export function parseModule(name: string, options: ParseModuleOptions = defaults
         })
         .then((sourceText: string) => {
             if (!module) module = name;
-            // console.log('options', options);
-            // console.log('sourceText', sourceText);
-            // let o = Object.assign({}, options, { module, file, dirname });
             return parse(sourceText, { filepath, module });
         })
         .catch(err => {
@@ -46,7 +60,7 @@ export function parseModule(name: string, options: ParseModuleOptions = defaults
         });
 }
 
-function findEntry(packageDir, {typings, main}) {
+function findEntry(packageDir, { typings, main }) {
     if (typings) {
         return findFile(typings, packageDir);
     }
