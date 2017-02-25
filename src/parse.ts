@@ -31,6 +31,17 @@ export function parseDefinitions(sourceText: string, options: ParseOptions = {})
                 module = _.get<string>(node, 'name.text');
                 moduleEnd = node.end;
             } break;
+            case ts.SyntaxKind.ExportDeclaration: {
+                let statement = (node as ts.ExportDeclaration);
+                const names = [];
+                const exportAll = !(statement.exportClause && statement.exportClause.elements);
+                if (exportAll) {
+                    names.push(null);
+                } else if (statement.exportClause) {
+                    statement.exportClause.elements.forEach(e => names.push(e.name.text));
+                }
+                names;
+            } break;
             case ts.SyntaxKind.ExportKeyword: {
                 if (!module) break;
                 let declarations = _.get<any[]>(node.parent, 'declarationList.declarations', []);
