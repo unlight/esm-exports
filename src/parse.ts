@@ -14,8 +14,47 @@ export type ParseOptions = {
     module?: string;
 }
 
+export function parseDefinitions(sourceText: string, options: ParseOptions = {}): Entry[] {
+    const sourceFile = ts.createSourceFile('dummy.ts', sourceText, ts.ScriptTarget.ES2015, false);
+    let { filepath, module } = options;
+    let moduleEnd: number;
+    let result: Entry[] = [];
+    walk(sourceFile);
+    function walk(node: ts.Node) {
+        if (node.pos >= moduleEnd) {
+            module = undefined;
+        }
+        switch (node.kind) {
+            case ts.SyntaxKind.ModuleDeclaration: {
+                let isDeclare = Boolean(_.find(node.modifiers, m => m.kind === ts.SyntaxKind.DeclareKeyword));
+                if (!isDeclare) break;
+                module = _.get<string>(node, 'name.text');
+                moduleEnd = node.end;
+            } break;
+            case ts.SyntaxKind.ExportKeyword: {
+                if (!module) break;
+                let declarations = _.get<any[]>(node.parent, 'declarationList.declarations', []);
+                declarations.forEach(d => {
+                    let name = _.get<string>(d, 'name.text');
+                    let entry = new Entry({ name, module } as any);
+                    result.push(entry);
+                });
+                let name = _.get<string>(node.parent, 'name.text');
+                if (name) {
+                    let entry = new Entry({ name, module } as any);
+                    result.push(entry);
+                }
+            } break;
+            default:
+            // console.log("\n", (node as any));
+        }
+        ts.forEachChild(node, walk);
+    }
+    return result;
+}
+
 export function parse(sourceText: string, options: ParseOptions = {}): Promise<Entry[]> {
-    const {filepath, module} = options;
+    const { filepath, module } = options;
     const sourceFile = ts.createSourceFile('dummy.ts', sourceText, ts.ScriptTarget.ES2015, false);
     return _.chain(sourceFile.statements)
         .map((statement: ts.Statement) => {
@@ -32,7 +71,7 @@ export function parse(sourceText: string, options: ParseOptions = {}): Promise<E
             return names.map(name => ({ name, specifier, isDefault }));
         })
         .flatten()
-        .map(({name, specifier, isDefault}) => {
+        .map(({ name, specifier, isDefault }) => {
             if (!name && specifier && filepath) {
                 let dirname = Path.dirname(filepath);
                 return parseFile(specifier, { dirname, module });

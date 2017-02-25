@@ -1,6 +1,6 @@
 import * as Path from 'path';
 import * as fs from 'fs';
-import { parse } from './parse';
+import { parse, parseDefinitions } from './parse';
 import * as _ from 'lodash';
 import { Entry } from './entry';
 const resolvePkg = require('resolve-pkg');
@@ -26,12 +26,12 @@ function findInnerModules(basename: string, cwd: string): Promise<Entry[]> {
         .filter(name => name !== '.' && name !== '..')
         .map(name => ({ name, packageFile: Path.resolve(cwd, name, 'package.json') }))
         .filter(({ packageFile }) => fs.existsSync(packageFile))
-        .map(({name}) => name)
+        .map(({ name }) => name)
         .forEach(name => {
             let d = Path.resolve(cwd, name);
             p = p.then(result => directory(d).then(entries => {
-               entries.forEach(e => e.module = `${basename}/${name}`);
-               return result.concat(entries);
+                entries.forEach(e => e.module = `${basename}/${name}`);
+                return result.concat(entries);
             }));
         });
     return p;
@@ -55,6 +55,11 @@ export function parseModule(name: string, options: ParseModuleOptions = parseMod
             return readFile(filepath, 'utf8');
         })
         .then((sourceText: string) => {
+            // if (_.endsWith(filepath, '.d.ts')) {
+            //     console.log('filepath', filepath);
+            //     var tmp = parseDefinitions(sourceText, { module: name });
+            //     console.log('tmp', tmp);
+            // }
             if (!module) module = name;
             return parse(sourceText, { filepath, module });
         })
