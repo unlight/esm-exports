@@ -5,8 +5,8 @@ import * as _ from 'lodash';
 import { Entry } from './entry';
 const resolvePkg = require('resolve-pkg');
 const readFile: readFileResult = require('fs-readfile-promise');
-import { findFile } from './find-file';
 import { directory } from './directory';
+import { findFile, uniqEntryList } from './utils';
 const resolve = require('resolve');
 
 type readFileResult = (file: string, encoding?: string) => Promise<string>;
@@ -66,12 +66,7 @@ export function parseModule(name: string, options: ParseModuleOptions = parseMod
                 .catch(err => Promise.resolve([]))
                 .then(entries => result.concat(entries));
         })
-        .then(entryListCollection => {
-            return _.chain(entryListCollection)
-                .flatten<Entry>()
-                .uniqBy(entry => entry.hash())
-                .value();
-        });
+        .then(entryList => uniqEntryList(entryList));
 }
 
 function findEntry(packageDir, { typings, main }) {

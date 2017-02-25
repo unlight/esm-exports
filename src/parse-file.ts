@@ -1,8 +1,9 @@
 import { parse, ParseOptions } from './parse';
 import { Entry } from './entry';
-import { findFile } from './find-file';
-type readFileResult = (file: string, enc?: string) => Promise<string>;
+import { findFile } from './utils';
 const readFile: readFileResult = require('fs-readfile-promise');
+
+type readFileResult = (file: string, encoding?: string) => Promise<string>;
 
 export type ParseFileOptions = {
 	dirname?: string;

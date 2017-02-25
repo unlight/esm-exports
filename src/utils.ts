@@ -1,5 +1,7 @@
 import * as fs from 'fs';
 import * as Path from 'path';
+import { Entry } from './entry';
+import * as _ from 'lodash';
 
 const checkExtensions = ['', '.ts', '.d.ts', '.js'];
 
@@ -18,4 +20,11 @@ export function findFile(name, dirname = '.'): Promise<string> {
         break;
     }
     return Promise.resolve(file)
+}
+
+export function uniqEntryList(entryListCollection) {
+    return _.chain(entryListCollection)
+        .flatten<Entry>()
+        .uniqBy(entry => entry.hash())
+        .value();
 }

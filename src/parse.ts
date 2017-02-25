@@ -5,6 +5,7 @@ import { parseFile } from './parse-file';
 import { Entry } from './entry';
 import { parseDeclaration } from './parse-declaration';
 import { parseKeyword } from './parse-keyword';
+import { uniqEntryList } from './utils';
 const isRelative = require('is-relative-path');
 const unixify = require('unixify');
 
@@ -41,10 +42,5 @@ export function parse(sourceText: string, options: ParseOptions = {}): Promise<E
         })
         .thru(promises => Promise.all(promises))
         .value()
-        .then(entryListCollection => {
-            return _.chain(entryListCollection)
-                .flatten<Entry>()
-                .uniqBy(entry => entry.hash())
-                .value();
-        });
+        .then(entryList => uniqEntryList(entryList));
 }
