@@ -11,7 +11,7 @@
     "mocha": "mocha --compilers ts:ts-node/register",
     "test": "npm run compile && npm run test:r",
     "test:r": "npm run mocha -- src/*.spec.ts",
-    "test:w": "npm run mocha -- --watch src/*.spec.ts",
+    "test:w": "npm run mocha -- --watch src/*.spec.ts --reporter min",
     "dev": "concurrently -r -k -p \"{name}:\" -n \"c,t\" \"npm run compile:w\" \"npm run test:w\""
   },
   "devDependencies": {

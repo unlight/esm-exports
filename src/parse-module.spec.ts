@@ -5,6 +5,7 @@ import { Entry } from './entry';
 const pkgDir = require('pkg-dir');
 const rootPath = pkgDir.sync();
 import * as _ from 'lodash';
+import { uniqEntryList } from './utils';
 
 it('parse module smoke', () => {
     assert(parseModule);
@@ -52,4 +53,19 @@ it('should find inner module properly', async () => {
     assert(testing);
     let inject = nodes.filter(n => n.name === 'inject');
     assert(inject.length > 0);
+});
+
+it('should not contain duplicated entries (modules)', async () => {
+    const nodes = await parseModule('@angular/core', { dirname: rootPath });
+    let inject = nodes.filter(n => n.name === 'inject');
+    assert.equal(inject.length, 1);
+});
+
+it('should not contain duplicated entries (src)', () => {
+    let entries = [
+        new Entry({name: 'name1', filepath: '/directory/file1'} as any),
+        new Entry({name: 'name1', filepath: '/directory/file1'} as any),
+    ]
+    entries = uniqEntryList(entries);
+    assert.equal(entries.length, 1);
 });

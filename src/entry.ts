@@ -30,6 +30,9 @@ export class Entry {
 	}
 	
 	hash() {
-		return JSON.stringify([this.name, this.filepath]);
+		let items = new Array(2);
+		items[0] = this.name;
+		items[1] = this.module ? this.module : this.filepath;
+		return JSON.stringify(items);
 	}
 }
