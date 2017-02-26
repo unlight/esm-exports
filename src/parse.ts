@@ -12,33 +12,53 @@ const unixify = require('unixify');
 export type ParseOptions = {
     filepath?: string;
     module?: string;
+    statements?: ts.Statement[];
 }
 
 export function parse(sourceText: string, options: ParseOptions = {}): Promise<Entry[]> {
-    const {filepath, module} = options;
-    const sourceFile = ts.createSourceFile('dummy.ts', sourceText, ts.ScriptTarget.ES2015, false);
-    return _.chain(sourceFile.statements)
-        .map((statement: ts.Statement) => {
+    const { filepath, module } = options;
+    let statements = _.get(options, 'statements') as ts.Statement[];
+    if (!statements) {
+        const sourceFile = ts.createSourceFile('dummy.ts', sourceText, ts.ScriptTarget.ES2015, false);
+        statements = sourceFile.statements;
+    }
+    return _.chain(statements)
+        .map((node: ts.Node) => {
             let names: string[];
-            if (statement.kind === ts.SyntaxKind.ExportDeclaration) {
-                names = parseDeclaration(statement);
-            } else if (_.find(statement.modifiers, m => m.kind === ts.SyntaxKind.ExportKeyword)) {
-                names = parseKeyword(statement);
+            if (node.kind === ts.SyntaxKind.ExportDeclaration) {
+                names = parseDeclaration(node);
+            } else if (_.find(node.modifiers, m => m.kind === ts.SyntaxKind.ExportKeyword)) {
+                names = parseKeyword(node);
+            } else if (node.kind === ts.SyntaxKind.ModuleDeclaration) {
+                if (_.find(node.modifiers, m => m.kind === ts.SyntaxKind.DeclareKeyword) && node.flags === ts.NodeFlags.None) {
+                    let module = (node as any).name.text;
+                    let statements = (node as any).body.statements;
+                    return parse(null, { module, statements });
+                } else if (node.flags === ts.NodeFlags.Namespace) {
+                    let statements = (node as any).body.statements;
+                    return parse(null, { module, statements });
+                } else {
+                    return [];
+                }
             } else {
                 return [];
             }
-            const specifier: string = _.get<string>(statement, 'moduleSpecifier.text');
-            const isDefault = Boolean(_.find(statement.modifiers, m => m.kind === ts.SyntaxKind.DefaultKeyword));
+            const specifier: string = _.get<string>(node, 'moduleSpecifier.text');
+            const isDefault = Boolean(_.find(node.modifiers, m => m.kind === ts.SyntaxKind.DefaultKeyword));
             return names.map(name => ({ name, specifier, isDefault }));
         })
         .flatten()
-        .map(({name, specifier, isDefault}) => {
+        .map((p: any) => {
+            if (p instanceof Promise) {
+                return p;
+            }
+            let { name, specifier, isDefault } = p;
             if (!name && specifier && filepath) {
                 let dirname = Path.dirname(filepath);
                 return parseFile(specifier, { dirname, module });
             }
             let entry = new Entry({ name, filepath, specifier, module, isDefault });
-            return Promise.resolve([entry]);
+            return Promise.resolve(entry);
         })
         .thru(promises => Promise.all(promises))
         .value()

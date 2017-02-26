@@ -90,25 +90,31 @@ it('object binding', async () => {
     assert.equal(result1.name, 'ModuleStore');
 });
 
-it.skip('declare namespace', async () => {
-    let source = `
-        declare namespace through2 {
-            export interface Through2Constructor {
-            }
+it('declared module with inner declaration', async () => {
+    let code = `declare module "events" {
+    class internal extends NodeJS.EventEmitter { }
+
+    namespace internal {
+        export class EventEmitter extends internal {
         }
-    `;
-    let [entry] = await parse(source);
-    assert.equal(entry.name, 'Through2Constructor');
-    assert.equal(entry.module, 'through2');
+    }
+
+    export = internal;
+}`;
+    let nodes = await parse(code);
+    let [ee] = nodes.filter(n => n.name === 'EventEmitter');
+    assert(ee);
+    assert(ee.module === 'events');
 });
 
-it.skip('declare namespace isDefault', async () => {
-    let source = `
-        declare namespace through2 {
-        }
-        export = through2
+it('should extract declared module http', async () => {
+    let source = `declare module "http" {
+        export var METHODS: string[];
+        export const c1, c2: any;
+    }
+    export var out1: number = 1;
     `;
-    let [entry] = await parse(source);
-    assert.equal(entry.module, 'through2');
-    assert.equal(entry.isDefault, true);
+    let entries = await parse(source);
+    let httpEntries = entries.filter(e => e.module === 'http');
+    assert.equal(httpEntries.length, 3);
 });

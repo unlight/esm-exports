@@ -20,18 +20,20 @@ const parseModuleDefaults = {
     dirname: '.'
 };
 
+const SCOPE_TYPES = '@types/';
+
 function findInnerModules(basename: string, cwd: string): Promise<Entry[]> {
     let p = Promise.resolve([]);
     fs.readdirSync(cwd)
         .filter(name => name !== '.' && name !== '..')
         .map(name => ({ name, packageFile: Path.resolve(cwd, name, 'package.json') }))
         .filter(({ packageFile }) => fs.existsSync(packageFile))
-        .map(({name}) => name)
+        .map(({ name }) => name)
         .forEach(name => {
             let d = Path.resolve(cwd, name);
             p = p.then(result => directory(d).then(entries => {
-               entries.forEach(e => e.module = `${basename}/${name}`);
-               return result.concat(entries);
+                entries.forEach(e => e.module = `${basename}/${name}`);
+                return result.concat(entries);
             }));
         });
     return p;
@@ -43,6 +45,7 @@ export function parseModule(name: string, options: ParseModuleOptions = parseMod
     if (!packageDir) {
         return Promise.resolve([]);
     }
+    let isTypeDefinition = _.startsWith(name, SCOPE_TYPES);
     let filepath: string;
     let packageFile = Path.join(packageDir, 'package.json');
     let pkgData = require(packageFile);
@@ -56,7 +59,13 @@ export function parseModule(name: string, options: ParseModuleOptions = parseMod
         })
         .then((sourceText: string) => {
             if (!module) module = name;
-            return parse(sourceText, { filepath, module });
+            return parse(sourceText, { filepath, module })
+                .then(entryList => {
+                    if (isTypeDefinition) {
+                        _.remove(entryList, e => _.startsWith(e.module, SCOPE_TYPES));
+                    }
+                    return entryList;
+                });
         })
         .catch(err => {
             return Promise.resolve([]);

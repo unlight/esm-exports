@@ -69,3 +69,18 @@ it('should not contain duplicated entries (src)', () => {
     entries = uniqEntryList(entries);
     assert.equal(entries.length, 1);
 });
+
+it('types node', async () => {
+    const nodes = await parseModule('@types/node', { dirname: rootPath });
+    const buffer = nodes.filter(m => m.module === 'buffer');
+    const events = nodes.filter(m => m.module === 'events');
+    assert(events.length > 0);
+    assert(buffer.length > 0);
+});
+
+it('globals should be eliminated', async () => {
+    const nodes = await parseModule('@types/node', { dirname: rootPath });
+    const bastards = nodes.filter(m => m.module === '@types/node');
+    assert.equal(bastards.length, 0);
+});
+

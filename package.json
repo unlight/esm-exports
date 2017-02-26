@@ -10,9 +10,10 @@
     "~mocha": "mocha --compilers ts:ts-node/register --require espower-ts-node",
     "mocha": "mocha --compilers ts:ts-node/register",
     "test": "npm run compile && npm run test:r",
+    "t": "npm run mocha -- src/*.spec.ts",
     "test:r": "npm run mocha -- src/*.spec.ts",
     "test:w": "npm run mocha -- --watch src/*.spec.ts",
-    "dev": "concurrently -r -k -p \"{name}:\" -n \"c,t\" \"npm run compile:w\" \"npm run test:w\""
+    "dev": "npm run test:w"
   },
   "devDependencies": {
     "@angular/core": "~2.4.2",
