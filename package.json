@@ -19,24 +19,24 @@
     "@angular/core": "~2.4.2",
     "@types/lodash": "~4.14.48",
     "@types/mocha": "^2.2.39",
-    "@types/node": "~6.0.59",
+    "@types/node": "~7.0.8",
     "@types/through2": "~2.0.32",
     "angular2-calendar": "~0.3.6",
-    "concurrently": "3.3.0",
-    "gulp-tslint": "~7.0.1",
+    "concurrently": "3.4.0",
+    "gulp-tslint": "~7.1.0",
     "mocha": "^3.2.0",
     "pkg-dir": "~1.0.0",
-    "rxjs": "~5.0.3",
+    "rxjs": "~5.2.0",
     "ts-node": "^2.1.0",
-    "tslint": "~4.3.1"
+    "tslint": "~4.5.1"
   },
   "dependencies": {
     "fs-readfile-promise": "~3.0.0",
     "is-relative-path": "~1.0.1",
     "lodash": "^4.17.4",
     "recursive-readdir": "~2.1.0",
-    "resolve-pkg": "~0.2.0",
-    "typescript": "~2.1.6",
+    "resolve-pkg": "~1.0.0",
+    "typescript": "~2.2.1",
     "unixify": "~0.2.1"
   },
   "repository": {
