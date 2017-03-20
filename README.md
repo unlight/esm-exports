@@ -1,4 +1,6 @@
 # esm-exports
+
+[![Greenkeeper badge](https://badges.greenkeeper.io/unlight/esm-exports.svg)](https://greenkeeper.io/)
 Parse ecmascript modules and collect names of export vars, functions, etc.
 
 ## CHANGELOG
