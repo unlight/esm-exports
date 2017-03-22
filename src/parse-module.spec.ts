@@ -1,4 +1,3 @@
-/// <reference path="spec.reference.d.ts" />
 import * as assert from 'assert';
 import { parseModule } from './parse-module';
 import { Entry } from './entry';

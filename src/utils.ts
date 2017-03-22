@@ -3,7 +3,7 @@ import * as Path from 'path';
 import { Entry } from './entry';
 import * as _ from 'lodash';
 
-const checkExtensions = ['', '.ts', '.d.ts', '.js'];
+const checkExtensions = ['', '.ts', '.d.ts', '.js', '.tsx', '.jsx'];
 
 export function findFile(name, dirname = '.'): Promise<string> {
     let file: string = null;

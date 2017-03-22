@@ -1,4 +1,3 @@
-/// <reference path="spec.reference.d.ts" />
 import * as assert from 'assert';
 import { directory } from './directory';
 import filter = require('lodash/filter');

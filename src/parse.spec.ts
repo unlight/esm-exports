@@ -1,4 +1,3 @@
-/// <reference path="spec.reference.d.ts" />
 import * as assert from 'assert';
 import { parse } from './parse';
 
@@ -117,4 +116,16 @@ it('should extract declared module http', async () => {
     let entries = await parse(source);
     let httpEntries = entries.filter(e => e.module === 'http');
     assert.equal(httpEntries.length, 3);
+});
+
+it('should parse react tsx', async () => {
+    let source = `
+export class AppComponent extends React.Component<any, any> {
+    render() {
+        return (<div>hello</div>);
+    }
+}
+    `;
+    let [entry] = await parse(source);
+    assert.equal(entry.name, 'AppComponent');
 });

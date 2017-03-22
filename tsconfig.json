@@ -6,15 +6,18 @@
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true,
         "declaration": true,
-        "outDir": "lib/",
+        "outDir": "lib",
         "pretty": true,
-        "sourceMap": true,
+        "inlineSourceMap": true,
         "lib": [
             "es2015"
         ]
 	},
     "include": [
         "src/**/*.ts"
+    ],
+    "exclude": [
+        "src/**/*.spec.ts"
     ],
     "compileOnSave": false,
     "buildOnSave": false

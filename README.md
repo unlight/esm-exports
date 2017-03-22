@@ -2,6 +2,7 @@
 Parse ecmascript modules and collect names of export vars, functions, etc.
 
 ## CHANGELOG
+* 0.6.1 - added support tsx/jsx
 * 0.6.0 - scoped types modules
 * 0.5.0 - remove duplicates, fix #2
 * 0.4.0 - parse inner modules
