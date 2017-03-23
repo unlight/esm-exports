@@ -17,7 +17,11 @@ export function directory(target: string): Promise<Entry[]> {
             if (err) return reject(err);
             resolve(files);
         });
-    }).then(files => {
+    })
+    .catch(err => {
+        return [];
+    })
+    .then(files => {
         return Promise.all(
             files.map(file => {
                 file = resolve(file);
@@ -26,7 +30,7 @@ export function directory(target: string): Promise<Entry[]> {
             .then(result => {
                 return flatten<any>(result);
             });
-    })
+    });
 }
 
 function ignore(targetNodeModules, file, stats) {

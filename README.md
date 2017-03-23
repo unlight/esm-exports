@@ -2,6 +2,7 @@
 Parse ecmascript modules and collect names of export vars, functions, etc.
 
 ## CHANGELOG
+* 0.7.0 - catch if recursive fails
 * 0.6.1 - added support tsx/jsx
 * 0.6.0 - scoped types modules
 * 0.5.0 - remove duplicates, fix #2
@@ -14,3 +15,7 @@ Parse ecmascript modules and collect names of export vars, functions, etc.
 * 0.0.11 - fixed: invalid path throws error
 * 0.0.9 - fixed: handle typings without extension
 * 0.0.8 - first release
+
+DEBUG
+---
+`inspect node_modules\ts-node\dist\_bin.js -F "node_modules/mocha/bin/_mocha" "src/*.spec.ts"`
