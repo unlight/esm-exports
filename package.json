@@ -8,11 +8,12 @@
     "clean": "rm -rf lib",
     "compile": "tsc",
     "compile:w": "tsc --watch",
-    "mocha": "ts-node -F -- node_modules/mocha/bin/_mocha",
+    "mocha": "ts-node -F node_modules/mocha/bin/_mocha",
     "t": "npm run mocha -- src/*.spec.ts",
     "test": "npm run t",
-    "test:w": "npm run mocha -- --watch src/*.spec.ts --watch-extensions spec.ts",
-    "release": "npm run clean && npm run compile"
+    "test:w": "npm run mocha -- --watch src/**/*.spec.ts --watch-extensions ts",
+    "release": "npm run clean && npm run compile",
+    "inspecttest": "inspect node_modules/ts-node/dist/_bin.js -F node_modules/mocha/bin/_mocha src/**/*.spec.ts"
   },
   "devDependencies": {
     "@angular/core": "^2.4.10",

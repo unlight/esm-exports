@@ -1,3 +1,4 @@
+/// <reference path="spec.reference.d.ts" />
 import * as assert from 'assert';
 import { parseModule } from './parse-module';
 import { Entry } from './entry';
@@ -36,8 +37,8 @@ it('gulp-tslint', async () => {
 });
 
 it('no falsy nodes', async () => {
-    var nodes = await parseModule('@angular/core', {dirname: rootPath});
-    var falsyNodes = nodes.filter(v => !v);
+    let nodes = await parseModule('@angular/core', { dirname: rootPath });
+    let falsyNodes = nodes.filter(v => !v);
     assert(falsyNodes.length === 0);
 });
 
@@ -47,6 +48,7 @@ it('parseModule unknown module', async () => {
 });
 
 it('should find inner module properly', async () => {
+    debugger;
     const nodes = await parseModule('@angular/core', { dirname: rootPath });
     let testing = nodes.filter(n => n.module === '@angular/core/testing');
     assert(testing);
@@ -62,8 +64,8 @@ it('should not contain duplicated entries (modules)', async () => {
 
 it('should not contain duplicated entries (src)', () => {
     let entries = [
-        new Entry({name: 'name1', filepath: '/directory/file1'} as any),
-        new Entry({name: 'name1', filepath: '/directory/file1'} as any),
+        new Entry({ name: 'name1', filepath: '/directory/file1' } as any),
+        new Entry({ name: 'name1', filepath: '/directory/file1' } as any),
     ]
     entries = uniqEntryList(entries);
     assert.equal(entries.length, 1);

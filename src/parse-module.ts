@@ -6,7 +6,7 @@ import { Entry } from './entry';
 const resolvePkg = require('resolve-pkg');
 const readFile: readFileResult = require('fs-readfile-promise');
 import { directory } from './directory';
-import { findFile, uniqEntryList } from './utils';
+import { findFile, uniqEntryList, findEntry } from './utils';
 const resolve = require('resolve');
 
 type readFileResult = (file: string, encoding?: string) => Promise<string>;
@@ -55,6 +55,7 @@ export function parseModule(name: string, options: ParseModuleOptions = parseMod
                 return Promise.reject(undefined);
             }
             filepath = file;
+            debugger;
             return readFile(filepath, 'utf8');
         })
         .then((sourceText: string) => {
@@ -78,12 +79,3 @@ export function parseModule(name: string, options: ParseModuleOptions = parseMod
         .then(entryList => uniqEntryList(entryList));
 }
 
-function findEntry(packageDir, { typings, main }) {
-    if (typings) {
-        return findFile(typings, packageDir);
-    }
-    if (!main) {
-        main = 'index';
-    }
-    return findFile(main, packageDir);
-}

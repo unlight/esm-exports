@@ -31,7 +31,7 @@ export function uniqEntryList(entryListCollection) {
         .value();
 }
 
-export function fileList(basedir: string, File = inject('fs', () => fs)): Promise<string[]> {
+export function fileList(basedir: string, mapIterator = (path: string) => path, File = inject('fs', () => fs)): Promise<string[]> {
     let result: string[] = [];
     return new Promise<string[]>(resolve => {
         File.readdir(basedir, (err, files) => {
@@ -41,16 +41,21 @@ export function fileList(basedir: string, File = inject('fs', () => fs)): Promis
             }
             const promises = [];
             files.forEach(file => {
-                if (file === '.' || file === '..') return;
-                const testPath = Path.join(basedir, file);
-                File.stat(testPath, (err, stat) => {
-                    if (err) return;
-                    if (stat.isDirectory()) {
-                        let p = fileList(testPath).then(r => result = result.concat(r));
-                        promises.push(p);
-                    } else {
-                        result.push(testPath);
-                    }
+                let testPath = Path.join(basedir, file).replace(/\\/g, '/');
+                promises[promises.length] = new Promise<string>(resolve => {
+                    File.stat(testPath, (err, stat) => {
+                        if (err) {
+                            return resolve();
+                        }
+                        if (stat.isDirectory()) {
+                            return fileList(testPath, mapIterator).then(r => result = result.concat(r));
+                        }
+                        testPath = mapIterator(testPath);
+                        if (testPath) {
+                            result.push(testPath);
+                            resolve();
+                        }
+                    });
                 });
             });
             const done = () => resolve(result);
@@ -59,4 +64,14 @@ export function fileList(basedir: string, File = inject('fs', () => fs)): Promis
                 .catch(done);
         });
     });
+}
+
+export function findEntry(packageDir, { typings, main }) {
+    if (typings) {
+        return findFile(typings, packageDir);
+    }
+    if (!main) {
+        main = 'index';
+    }
+    return findFile(main, packageDir);
 }
