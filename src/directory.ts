@@ -15,7 +15,7 @@ export function directory(target: string): Promise<Entry[]> {
     };
     return fileList(target, mapIterator)
         .catch(err => [])
-        .then((files: string[]) => {
+        .then<Entry[]>((files: string[]) => {
             return Promise.all(
                 files.map(file => {
                     file = Path.resolve(file);

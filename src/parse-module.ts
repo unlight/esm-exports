@@ -20,6 +20,7 @@ const parseModuleDefaults = {
 const SCOPE_TYPES = '@types/';
 
 function findInnerModules(basename: string, cwd: string): Promise<Entry[]> {
+    debugger;
     let p = Promise.resolve([]);
     fs.readdirSync(cwd)
         .filter(name => name !== '.' && name !== '..')

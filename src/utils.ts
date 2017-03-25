@@ -41,7 +41,7 @@ export function fileList(basedir: string, mapIterator = (path: string) => path, 
             }
             const promises = [];
             files.forEach(file => {
-                let testPath = Path.join(basedir, file).replace(/\\/g, '/');
+                let testPath = Path.join(basedir, file);
                 promises[promises.length] = new Promise<string>(resolve => {
                     File.stat(testPath, (err, stat) => {
                         if (err) {
@@ -50,6 +50,7 @@ export function fileList(basedir: string, mapIterator = (path: string) => path, 
                         if (stat.isDirectory()) {
                             return fileList(testPath, mapIterator).then(r => result = result.concat(r));
                         }
+                        testPath = testPath.replace(/\\/g, '/');
                         testPath = mapIterator(testPath);
                         if (testPath) {
                             result.push(testPath);
