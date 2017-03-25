@@ -4,12 +4,9 @@ import { parse } from './parse';
 import * as _ from 'lodash';
 import { Entry } from './entry';
 const resolvePkg = require('resolve-pkg');
-const readFile: readFileResult = require('fs-readfile-promise');
 import { directory } from './directory';
-import { findFile, uniqEntryList, findEntry } from './utils';
+import { findFile, uniqEntryList, findEntry, readFile } from './utils';
 const resolve = require('resolve');
-
-type readFileResult = (file: string, encoding?: string) => Promise<string>;
 
 export type ParseModuleOptions = {
     dirname?: string;

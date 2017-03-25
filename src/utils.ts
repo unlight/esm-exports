@@ -75,3 +75,14 @@ export function findEntry(packageDir, { typings, main }) {
     }
     return findFile(main, packageDir);
 }
+
+export function readFile(filePath, options): Promise<string> {
+    return new Promise((resolve, reject) => {
+        fs.readFile(filePath, options, (err, data) => {
+            if (err) {
+                return reject(err);
+            }
+            resolve(data);
+        });
+    });
+}
