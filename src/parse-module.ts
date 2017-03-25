@@ -20,10 +20,9 @@ const parseModuleDefaults = {
 const SCOPE_TYPES = '@types/';
 
 function findInnerModules(basename: string, cwd: string): Promise<Entry[]> {
-    debugger;
     let p = Promise.resolve([]);
+    // TODO: async
     fs.readdirSync(cwd)
-        .filter(name => name !== '.' && name !== '..')
         .map(name => ({ name, packageFile: Path.resolve(cwd, name, 'package.json') }))
         .filter(({ packageFile }) => fs.existsSync(packageFile))
         .map(({ name }) => name)
@@ -53,7 +52,6 @@ export function parseModule(name: string, options: ParseModuleOptions = parseMod
                 return Promise.reject(undefined);
             }
             filepath = file;
-            debugger;
             return readFile(filepath, 'utf8');
         })
         .then((sourceText: string) => {

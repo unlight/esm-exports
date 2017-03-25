@@ -13,7 +13,7 @@
     "test": "npm run t",
     "test:w": "npm run mocha -- --watch src/**/*.spec.ts --watch-extensions ts",
     "release": "npm run clean && npm run compile",
-    "inspecttest": "inspect node_modules/ts-node/dist/_bin.js -F node_modules/mocha/bin/_mocha src/**/*.spec.ts"
+    "inspecttest": "inspect node_modules/ts-node/dist/_bin.js -F node_modules/mocha/bin/_mocha --timeout 555000 src/**/*.spec.ts"
   },
   "devDependencies": {
     "@angular/core": "^2.4.10",

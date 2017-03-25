@@ -36,7 +36,7 @@ it('gulp-tslint', async () => {
     assert(pluginOptions.module === 'gulp-tslint');
 });
 
-it.only('no falsy nodes', async () => {
+it('no falsy nodes', async () => {
     let nodes = await parseModule('@angular/core', { dirname: rootPath });
     let falsyNodes = nodes.filter(v => !v);
     assert(falsyNodes.length === 0);
@@ -50,9 +50,9 @@ it('parseModule unknown module', async () => {
 it('should find inner module properly', async () => {
     const nodes = await parseModule('@angular/core', { dirname: rootPath });
     let testing = nodes.filter(n => n.module === '@angular/core/testing');
-    assert(testing);
+    assert(testing.length);
     let inject = nodes.filter(n => n.name === 'inject');
-    assert(inject.length > 0);
+    assert.notEqual(inject.length, 0);
 });
 
 it('should not contain duplicated entries (modules)', async () => {

@@ -11,7 +11,7 @@ export type ParseFileOptions = {
 };
 
 export function parseFile(file: string, options: ParseFileOptions): Promise<Entry[]> {
-	const {dirname, module} = options;
+	const { dirname, module } = options;
 	let filepath: string;
 	return findFile(file, dirname)
 		.then(file => {
