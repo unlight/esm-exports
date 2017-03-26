@@ -3,7 +3,6 @@ import * as Path from 'path';
 import { Entry } from './entry';
 import * as _ from 'lodash';
 import { inject } from '@iamthes/inject';
-const FileSystem = fs;
 
 const checkExtensions = ['', '.ts', '.d.ts', '.js', '.tsx', '.jsx'];
 

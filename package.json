@@ -13,13 +13,14 @@
     "test": "npm run t",
     "test:w": "npm run mocha -- --watch src/**/*.spec.ts --watch-extensions ts",
     "release": "npm run clean && npm run compile",
+    "pretest": "npm run release",
     "inspecttest": "inspect node_modules/ts-node/dist/_bin.js -F node_modules/mocha/bin/_mocha --timeout 555000 src/**/*.spec.ts"
   },
   "devDependencies": {
-    "@angular/core": "^2.4.10",
+    "@angular/core": "^4.0.0",
     "@types/lodash": "^4.14.56",
     "@types/mocha": "^2.2.40",
-    "@types/node": "^7.0.8",
+    "@types/node": "^7.0.11",
     "@types/through2": "~2.0.32",
     "angular2-calendar": "~0.3.6",
     "chokidar-cli": "^1.2.0",
