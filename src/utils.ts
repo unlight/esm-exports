@@ -30,6 +30,7 @@ export function uniqEntryList(entryListCollection) {
         .value();
 }
 
+// TODO: Test case, map iterator returns false for all, and  directories and not watched
 export function fileList(basedir: string, mapIterator = (path: string) => path, File = inject('fs', () => fs)): Promise<string[]> {
     let result: string[] = [];
     return new Promise<string[]>(resolve => {
@@ -41,19 +42,22 @@ export function fileList(basedir: string, mapIterator = (path: string) => path, 
             const promises = [];
             files.forEach(file => {
                 let testPath = Path.join(basedir, file).replace(/\\/g, '/');
-                testPath = mapIterator(testPath);
-                if (!testPath) {
-                    return;
-                }
                 promises[promises.length] = new Promise<string>(resolve => {
                     File.stat(testPath, (err, stat) => {
                         if (err) {
                             return resolve();
                         }
                         if (stat.isDirectory()) {
-                            return fileList(testPath, mapIterator).then(r => result = result.concat(r));
+                            fileList(testPath, mapIterator)
+                                .then(r => result = result.concat(r))
+                                .then(() => resolve())
+                                .catch(() => resolve());
+                            return;
                         }
-                        result.push(testPath);
+                        testPath = mapIterator(testPath);
+                        if (testPath) {
+                            result.push(testPath);
+                        }
                         resolve();
                     });
                 });
