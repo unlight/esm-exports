@@ -29,3 +29,10 @@ it('not existing target', async () => {
 			assert(err);
 		})
 });
+
+it('relative target', async () => {
+	return directory('src')
+		.then(result => {
+			assert.notEqual(result.length, 0);
+		});
+});

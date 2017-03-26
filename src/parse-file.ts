@@ -1,7 +1,6 @@
 import { parse, ParseOptions } from './parse';
 import { Entry } from './entry';
-import { findFile } from './utils';
-const readFile: readFileResult = require('fs-readfile-promise');
+import { findFile, readFile } from './utils';
 
 type readFileResult = (file: string, encoding?: string) => Promise<string>;
 
@@ -11,7 +10,7 @@ export type ParseFileOptions = {
 };
 
 export function parseFile(file: string, options: ParseFileOptions): Promise<Entry[]> {
-	const {dirname, module} = options;
+	const { dirname, module } = options;
 	let filepath: string;
 	return findFile(file, dirname)
 		.then(file => {

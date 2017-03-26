@@ -7,14 +7,13 @@
   "scripts": {
     "clean": "rm -rf lib",
     "compile": "tsc",
-    "compile:w": "tsc -w",
-    "tsn": "ts-node -F",
-    "~mocha": "mocha --compilers ts:ts-node/register",
-    "mocha": "npm run tsn -- node_modules/mocha/bin/_mocha",
+    "compile:w": "tsc --watch",
+    "mocha": "ts-node -F node_modules/mocha/bin/_mocha",
     "t": "npm run mocha -- src/*.spec.ts",
     "test": "npm run t",
-    "test:w": "npm run mocha -- --watch src/*.spec.ts --watch-extensions spec.ts",
-    "release": "npm run clean && npm run compile"
+    "test:w": "npm run mocha -- --watch src/**/*.spec.ts --watch-extensions ts",
+    "release": "npm run clean && npm run compile",
+    "inspecttest": "inspect node_modules/ts-node/dist/_bin.js -F node_modules/mocha/bin/_mocha --timeout 555000 src/**/*.spec.ts"
   },
   "devDependencies": {
     "@angular/core": "^2.4.10",
@@ -33,13 +32,10 @@
     "tslint": "^4.5.1"
   },
   "dependencies": {
-    "fs-readfile-promise": "~3.0.0",
-    "is-relative-path": "~1.0.1",
+    "@iamthes/inject": "^1.0.0",
     "lodash": "^4.17.4",
-    "recursive-readdir": "~2.1.0",
     "resolve-pkg": "^1.0.0",
-    "typescript": "^2.2.1",
-    "unixify": "~0.2.1"
+    "typescript": "2.2.1"
   },
   "repository": {
     "type": "git",

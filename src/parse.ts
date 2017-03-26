@@ -6,8 +6,6 @@ import { Entry } from './entry';
 import { parseDeclaration } from './parse-declaration';
 import { parseKeyword } from './parse-keyword';
 import { uniqEntryList } from './utils';
-const isRelative = require('is-relative-path');
-const unixify = require('unixify');
 
 export type ParseOptions = {
     filepath?: string;
