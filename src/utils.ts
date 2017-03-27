@@ -4,12 +4,14 @@ import { Entry } from './entry';
 import * as _ from 'lodash';
 import { inject } from '@iamthes/inject';
 
-const checkExtensions = ['', '.ts', '.d.ts', '.js', '.tsx', '.jsx'];
+export const findFileExtensions = ['', '.ts', '.d.ts', '.js', '.tsx', '.jsx'];
+export const fileExtensions2 = ['.ts', '.js'];
+export const fileExtensions3 = ['.tsx', '.jsx'];
 
 export function findFile(name, dirname = '.'): Promise<string> {
     let file: string = null;
-    for (let i = 0; i < checkExtensions.length; i++) {
-        let extFile = name + checkExtensions[i];
+    for (let i = 0; i < findFileExtensions.length; i++) {
+        let extFile = name + findFileExtensions[i];
         let testFile = Path.resolve(dirname, extFile);
         try {
             var stat = fs.statSync(testFile);

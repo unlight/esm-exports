@@ -3,7 +3,7 @@ import { parseFile } from './parse-file';
 import flatten = require('lodash/flatten');
 import startsWith = require('lodash/startsWith');
 import { Entry } from './entry';
-import { fileList } from './utils';
+import { fileList, fileExtensions2, fileExtensions3 } from './utils';
 
 export function directory(target: string): Promise<Entry[]> {
     if (typeof target !== 'string') {
@@ -11,8 +11,8 @@ export function directory(target: string): Promise<Entry[]> {
     }
     const targetNodeModules = Path.normalize(Path.join(target, 'node_modules')).replace(/\\/g, '/');
     const mapIterator = (file: string) => {
-        if (['.ts', '.js'].indexOf(file.slice(-3)) === -1) return;
         if (startsWith(file, targetNodeModules)) return;
+        if (!(fileExtensions2.indexOf(file.slice(-3)) !== -1 || fileExtensions3.indexOf(file.slice(-4)) !== -1)) return;
         return file;
     };
     return fileList(target, mapIterator)

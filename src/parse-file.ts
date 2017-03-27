@@ -1,8 +1,6 @@
-import { parse, ParseOptions } from './parse';
+import { parse } from './parse';
 import { Entry } from './entry';
 import { findFile, readFile } from './utils';
-
-type readFileResult = (file: string, encoding?: string) => Promise<string>;
 
 export type ParseFileOptions = {
 	dirname?: string;

@@ -12,7 +12,7 @@ it('directory smoke test', () => {
 it('should parse directory', () => {
 	return directory(rootPath + '/src')
 		.then(result => {
-			var [parse] = filter(result, item => item.name === 'parse');
+			const [parse] = filter(result, item => item.name === 'parse');
 			assert(parse);
 		});
 });

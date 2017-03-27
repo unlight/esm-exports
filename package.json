@@ -15,7 +15,7 @@
     "test:w": "npm run mocha -- --watch src/**/*.spec.ts --watch-extensions ts",
     "release": "npm run clean && npm run compile",
     "pretest": "npm run release",
-    "inspecttest": "inspect node_modules/ts-node/dist/_bin.js -F node_modules/mocha/bin/_mocha --timeout 555000 src/**/*.spec.ts"
+    "inspect": "inspect node_modules/ts-node/dist/_bin.js -F node_modules/mocha/bin/_mocha --no-timeouts src/**/*.spec.ts"
   },
   "devDependencies": {
     "@angular/core": "^4.0.0",
@@ -24,7 +24,7 @@
     "@types/mocha": "^2.2.40",
     "@types/node": "^7.0.11",
     "@types/through2": "~2.0.32",
-    "angular2-calendar": "~0.3.6",
+    "angular2-calendar": "^0.3.7",
     "benchmark": "^2.1.3",
     "chokidar-cli": "^1.2.0",
     "concurrently": "^3.4.0",
@@ -36,7 +36,7 @@
     "tslint": "^4.5.1"
   },
   "dependencies": {
-    "@iamthes/inject": "^1.0.0",
+    "@iamthes/inject": "^1.0.1",
     "lodash": "^4.17.4",
     "resolve-pkg": "^1.0.0",
     "typescript": "2.2.1"
