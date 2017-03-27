@@ -92,3 +92,14 @@ export function readFile(filePath, options): Promise<string> {
         });
     });
 }
+
+export function readJson(filepath: string, File = inject('fs', () => fs)) {
+    return new Promise<any>((resolve, reject) => {
+        File.readFile(filepath, 'utf8', (err, data) => {
+            if (err) {
+                return reject(err);
+            }
+            resolve(JSON.parse(data));
+        });
+    });
+}

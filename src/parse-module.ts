@@ -5,7 +5,7 @@ import * as _ from 'lodash';
 import { Entry } from './entry';
 const resolvePkg = require('resolve-pkg');
 import { directory } from './directory';
-import { findFile, uniqEntryList, findEntry, readFile } from './utils';
+import { findFile, uniqEntryList, findEntry, readFile, readJson } from './utils';
 const resolve = require('resolve');
 
 export type ParseModuleOptions = {
@@ -44,9 +44,10 @@ export function parseModule(name: string, options: ParseModuleOptions = parseMod
     }
     let isTypeDefinition = _.startsWith(name, SCOPE_TYPES);
     let filepath: string;
-    let packageFile = Path.join(packageDir, 'package.json');
-    let pkgData = require(packageFile);
-    return findEntry(packageDir, pkgData)
+    return readJson(Path.join(packageDir, 'package.json'))
+        .then(pkgData => {
+            return findEntry(packageDir, pkgData);
+        })
         .then(file => {
             if (!file) {
                 return Promise.reject(undefined);
