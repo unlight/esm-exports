@@ -1,6 +1,6 @@
 /// <reference path="spec.reference.d.ts" />
 import * as assert from 'assert';
-import { parse } from './parse';
+import { parse, parseDefinitions } from './parse';
 
 it('smoke test', () => {
     assert(parse);
@@ -90,23 +90,6 @@ it('object binding', async () => {
     assert.equal(result1.name, 'ModuleStore');
 });
 
-it('declared module with inner declaration', async () => {
-    let code = `declare module "events" {
-    class internal extends NodeJS.EventEmitter { }
-
-    namespace internal {
-        export class EventEmitter extends internal {
-        }
-    }
-
-    export = internal;
-}`;
-    let nodes = await parse(code);
-    let [ee] = nodes.filter(n => n.name === 'EventEmitter');
-    assert(ee);
-    assert(ee.module === 'events');
-});
-
 it('should extract declared module http', async () => {
     let source = `declare module "http" {
         export var METHODS: string[];
@@ -114,19 +97,36 @@ it('should extract declared module http', async () => {
     }
     export var out1: number = 1;
     `;
-    let entries = await parse(source);
+    let entries = await parseDefinitions(source);
+    let out1 = entries.find(e => e.name === 'out1');
+    assert.ifError(out1);
     let httpEntries = entries.filter(e => e.module === 'http');
     assert.equal(httpEntries.length, 3);
 });
 
-it('should parse react tsx', async () => {
+it('should extract declared module events', async () => {
+    let source = `declare module "events" {
+        class internal extends NodeJS.EventEmitter { }
+        namespace internal {
+            export class EventEmitter extends internal {
+            }
+        }
+        export = internal;
+    }`;
+    let entries = await parseDefinitions(source);
+    let EventEmitter = entries.find(e => e.name === 'EventEmitter');
+    assert(EventEmitter);
+    assert.equal(EventEmitter.name, 'EventEmitter');
+    assert.equal(EventEmitter.module, 'events');
+});
+
+it.skip('declare namespace isDefault', async () => {
     let source = `
-export class AppComponent extends React.Component<any, any> {
-    render() {
-        return (<div>hello</div>);
-    }
-}
+        declare namespace through2 {
+        }
+        export = through2
     `;
     let [entry] = await parse(source);
-    assert.equal(entry.name, 'AppComponent');
+    assert.equal(entry.module, 'through2');
+    assert.equal(entry.isDefault, true);
 });

@@ -6,57 +6,89 @@ import { Entry } from './entry';
 import { parseDeclaration } from './parse-declaration';
 import { parseKeyword } from './parse-keyword';
 import { uniqEntryList } from './utils';
+const isRelative = require('is-relative-path');
+const unixify = require('unixify');
 
 export type ParseOptions = {
     filepath?: string;
     module?: string;
-    statements?: ts.Statement[];
+}
+
+export function parseDefinitions(sourceText: string, options: ParseOptions = {}): Entry[] {
+    const sourceFile = ts.createSourceFile('dummy.ts', sourceText, ts.ScriptTarget.ES2015, false);
+    let { filepath, module } = options;
+    let moduleEnd: number;
+    let result: Entry[] = [];
+    walk(sourceFile);
+    function walk(node: ts.Node) {
+        if (node.pos >= moduleEnd) {
+            module = undefined;
+        }
+        switch (node.kind) {
+            case ts.SyntaxKind.ModuleDeclaration: {
+                let isDeclare = Boolean(_.find(node.modifiers, m => m.kind === ts.SyntaxKind.DeclareKeyword));
+                if (!isDeclare) break;
+                module = _.get<string>(node, 'name.text');
+                moduleEnd = node.end;
+            } break;
+            case ts.SyntaxKind.ExportDeclaration: {
+                let statement = (node as ts.ExportDeclaration);
+                const names = [];
+                const exportAll = !(statement.exportClause && statement.exportClause.elements);
+                if (exportAll) {
+                    names.push(null);
+                } else if (statement.exportClause) {
+                    statement.exportClause.elements.forEach(e => names.push(e.name.text));
+                }
+                names;
+            } break;
+            case ts.SyntaxKind.ExportKeyword: {
+                if (!module) break;
+                let declarations = _.get<any[]>(node.parent, 'declarationList.declarations', []);
+                declarations.forEach(d => {
+                    let name = _.get<string>(d, 'name.text');
+                    let entry = new Entry({ name, module } as any);
+                    result.push(entry);
+                });
+                let name = _.get<string>(node.parent, 'name.text');
+                if (name) {
+                    let entry = new Entry({ name, module } as any);
+                    result.push(entry);
+                }
+            } break;
+            default:
+            // console.log("\n", (node as any));
+        }
+        ts.forEachChild(node, walk);
+    }
+    return result;
 }
 
 export function parse(sourceText: string, options: ParseOptions = {}): Promise<Entry[]> {
     const { filepath, module } = options;
-    let statements = _.get(options, 'statements') as ts.Statement[];
-    if (!statements) {
-        const sourceFile = ts.createSourceFile('dummy.ts', sourceText, ts.ScriptTarget.ES2015, false);
-        statements = sourceFile.statements;
-    }
-    return _.chain(statements)
-        .map((node: ts.Node) => {
+    const sourceFile = ts.createSourceFile('dummy.ts', sourceText, ts.ScriptTarget.ES2015, false);
+    return _.chain(sourceFile.statements)
+        .map((statement: ts.Statement) => {
             let names: string[];
-            if (node.kind === ts.SyntaxKind.ExportDeclaration) {
-                names = parseDeclaration(node);
-            } else if (_.find(node.modifiers, m => m.kind === ts.SyntaxKind.ExportKeyword)) {
-                names = parseKeyword(node);
-            } else if (node.kind === ts.SyntaxKind.ModuleDeclaration) {
-                if (_.find(node.modifiers, m => m.kind === ts.SyntaxKind.DeclareKeyword) && node.flags === ts.NodeFlags.None) {
-                    let module = (node as any).name.text;
-                    let statements = (node as any).body.statements;
-                    return parse(null, { module, statements });
-                } else if (node.flags === ts.NodeFlags.Namespace) {
-                    let statements = (node as any).body.statements;
-                    return parse(null, { module, statements });
-                } else {
-                    return [];
-                }
+            if (statement.kind === ts.SyntaxKind.ExportDeclaration) {
+                names = parseDeclaration(statement);
+            } else if (_.find(statement.modifiers, m => m.kind === ts.SyntaxKind.ExportKeyword)) {
+                names = parseKeyword(statement);
             } else {
                 return [];
             }
-            const specifier: string = _.get<string>(node, 'moduleSpecifier.text');
-            const isDefault = Boolean(_.find(node.modifiers, m => m.kind === ts.SyntaxKind.DefaultKeyword));
+            const specifier: string = _.get<string>(statement, 'moduleSpecifier.text');
+            const isDefault = Boolean(_.find(statement.modifiers, m => m.kind === ts.SyntaxKind.DefaultKeyword));
             return names.map(name => ({ name, specifier, isDefault }));
         })
         .flatten()
-        .map((p: any) => {
-            if (p instanceof Promise) {
-                return p;
-            }
-            let { name, specifier, isDefault } = p;
+        .map(({ name, specifier, isDefault }) => {
             if (!name && specifier && filepath) {
                 let dirname = Path.dirname(filepath);
                 return parseFile(specifier, { dirname, module });
             }
             let entry = new Entry({ name, filepath, specifier, module, isDefault });
-            return Promise.resolve(entry);
+            return Promise.resolve([entry]);
         })
         .thru(promises => Promise.all(promises))
         .value()
