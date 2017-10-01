@@ -1,6 +1,6 @@
-/// <reference path='../node_modules/@types/node/index.d.ts' />
-/// <reference path='../node_modules/@types/benchmark/index.d.ts' />
-/// <reference path='../node_modules/typescript/lib/lib.es2015.d.ts' />
+/// <reference types="node" />
+/// <reference types="benchmark" />
+
 import { Suite } from 'benchmark';
 import * as _ from 'lodash';
 

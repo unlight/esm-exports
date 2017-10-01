@@ -1,4 +1,5 @@
-/// <reference path="spec.reference.d.ts" />
+/// <reference types="node" />
+/// <reference types="mocha" />
 import * as assert from 'assert';
 import { directory } from './directory';
 import filter = require('lodash/filter');

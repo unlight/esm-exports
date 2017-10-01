@@ -1,11 +1,12 @@
 import * as Path from 'path';
 import * as fs from 'fs';
-import { parse, parseDefinitions } from './parse';
+import { parse } from './parse';
 import * as _ from 'lodash';
 import { Entry } from './entry';
 const resolvePkg = require('resolve-pkg');
 import { directory } from './directory';
 import { findFile, uniqEntryList, findEntry, readFile, readJson } from './utils';
+import { parseDefinitions } from './parse-definitions';
 const resolve = require('resolve');
 
 export type ParseModuleOptions = {

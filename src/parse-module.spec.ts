@@ -1,4 +1,5 @@
-/// <reference path="spec.reference.d.ts" />
+/// <reference types="node" />
+/// <reference types="mocha" />
 import * as assert from 'assert';
 import { parseModule } from './parse-module';
 import { Entry } from './entry';
