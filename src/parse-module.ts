@@ -1,12 +1,12 @@
 import * as Path from 'path';
 import * as fs from 'fs';
 import { parse } from './parse';
-import * as _ from 'lodash';
+import startsWith = require('lodash/startsWith');
+import remove = require('lodash/remove');
 import { Entry } from './entry';
 const resolvePkg = require('resolve-pkg');
 import { directory } from './directory';
 import { findFile, uniqEntryList, findEntry, readFile, readJson } from './utils';
-const resolve = require('resolve');
 
 export type ParseModuleOptions = {
     dirname?: string;
@@ -42,7 +42,7 @@ export function parseModule(name: string, options: ParseModuleOptions = parseMod
     if (!packageDir) {
         return Promise.resolve([]);
     }
-    let isTypeDefinition = _.startsWith(name, SCOPE_TYPES);
+    let isTypeDefinition = startsWith(name, SCOPE_TYPES);
     let filepath: string;
     return readJson(Path.join(packageDir, 'package.json'))
         .then(pkgData => {
@@ -60,7 +60,7 @@ export function parseModule(name: string, options: ParseModuleOptions = parseMod
             return parse(sourceText, { filepath, module })
                 .then(entryList => {
                     if (isTypeDefinition) {
-                        _.remove(entryList, e => _.startsWith(e.module, SCOPE_TYPES));
+                        remove(entryList, e => startsWith(e.module, SCOPE_TYPES));
                     }
                     return entryList;
                 });
@@ -68,7 +68,7 @@ export function parseModule(name: string, options: ParseModuleOptions = parseMod
         .catch(err => {
             return Promise.resolve([]);
         })
-        .then(result => {
+        .then((result: Entry[]) => {
             return findInnerModules(name, packageDir)
                 .catch(err => Promise.resolve([]))
                 .then(entries => result.concat(entries));

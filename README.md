@@ -2,6 +2,7 @@
 Parse ecmascript modules and collect names of export vars, functions, etc.
 
 ## CHANGELOG
+* 0.8.4 - removed unused package
 * 0.8.0 - read recursive dir improvements
 * 0.7.0 - catch if recursive fails
 * 0.6.1 - added support tsx/jsx

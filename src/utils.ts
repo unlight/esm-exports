@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import * as Path from 'path';
 import { Entry } from './entry';
 import * as _ from 'lodash';
-import { inject } from '@iamthes/inject';
+import { inject } from 'njct';
 
 export const findFileExtensions = ['', '.ts', '.d.ts', '.js', '.tsx', '.jsx'];
 export const fileExtensions2 = ['.ts', '.js'];
@@ -84,7 +84,7 @@ export function findEntry(packageDir, { typings, main }) {
 
 export function readFile(filePath, options): Promise<string> {
     return new Promise((resolve, reject) => {
-        fs.readFile(filePath, options, (err, data) => {
+        fs.readFile(filePath, options, (err, data: string) => {
             if (err) {
                 return reject(err);
             }

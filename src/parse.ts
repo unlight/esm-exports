@@ -6,6 +6,7 @@ import { Entry } from './entry';
 import { parseDeclaration } from './parse-declaration';
 import { parseKeyword } from './parse-keyword';
 import { uniqEntryList } from './utils';
+import get = require('lodash/get');
 
 export type ParseOptions = {
     filepath?: string;
@@ -15,12 +16,12 @@ export type ParseOptions = {
 
 export function parse(sourceText: string, options: ParseOptions = {}): Promise<Entry[]> {
     const { filepath, module } = options;
-    let statements = _.get(options, 'statements') as ts.Statement[];
+    let statements = get(options, 'statements') as ts.Statement[];
     if (!statements) {
         const sourceFile = ts.createSourceFile('dummy.ts', sourceText, ts.ScriptTarget.ES2015, false);
-        statements = sourceFile.statements;
+        statements = sourceFile.statements as any;
     }
-    return _.chain(statements)
+    return (_.chain as any)(statements)
         .map((node: ts.Node) => {
             let names: string[];
             if (node.kind === ts.SyntaxKind.ExportDeclaration) {
@@ -41,7 +42,7 @@ export function parse(sourceText: string, options: ParseOptions = {}): Promise<E
             } else {
                 return [];
             }
-            const specifier: string = _.get<string>(node, 'moduleSpecifier.text');
+            const specifier: string = get<string>(node as any, 'moduleSpecifier.text', null);
             const isDefault = Boolean(_.find(node.modifiers, m => m.kind === ts.SyntaxKind.DefaultKeyword));
             return names.map(name => ({ name, specifier, isDefault }));
         })
