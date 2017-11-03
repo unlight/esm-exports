@@ -6,34 +6,25 @@
   "typings": "lib/index.d.ts",
   "scripts": {
     "clean": "rm -rf lib",
-    "compile": "tsc",
-    "compile:w": "tsc --watch",
-    "tsn": "ts-node -F",
+    "build": "tsc",
     "mocha": "ts-node -F node_modules/mocha/bin/_mocha",
     "t": "npm run mocha -- src/*.spec.ts",
     "test": "npm run t",
     "test:w": "npm run mocha -- --watch src/**/*.spec.ts --watch-extensions ts",
-    "release": "npm run clean && npm run compile",
-    "pretest": "npm run release",
-    "inspect": "inspect node_modules/ts-node/dist/_bin.js -F node_modules/mocha/bin/_mocha --no-timeouts src/**/*.spec.ts"
+    "prerelease": "npm run clean",
+    "release": "npm run build",
+    "inspect": "inspect node_modules/ts-node/dist/_bin.js -F node_modules/mocha/bin/_mocha --no-timeouts src/**/*.spec.ts",
+    "prepublish": "npm run install:playground && npm run release",
+    "install:playground": "npm i @angular/core @nestjs/common @types/lodash @types/through2 angular2-calendar chokidar-cli gulp-tslint pkg-dir rxjs tslint"
   },
   "devDependencies": {
-    "@angular/core": "^4.4.6",
     "@types/benchmark": "^1.0.30",
-    "@types/lodash": "^4.14.80",
     "@types/mocha": "^2.2.44",
     "@types/node": "^8.0.47",
-    "@types/through2": "~2.0.33",
-    "angular2-calendar": "^0.3.7",
     "benchmark": "^2.1.4",
-    "chokidar-cli": "^1.2.0",
     "concurrently": "^3.5.0",
-    "gulp-tslint": "^8.1.2",
     "mocha": "^4.0.1",
-    "pkg-dir": "~2.0.0",
-    "rxjs": "^5.5.2",
-    "ts-node": "^3.3.0",
-    "tslint": "^5.8.0"
+    "ts-node": "^3.3.0"
   },
   "dependencies": {
     "njct": "^1.0.0",

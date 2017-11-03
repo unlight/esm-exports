@@ -84,3 +84,8 @@ it('globals should be eliminated', async () => {
     assert.equal(bastards.length, 0);
 });
 
+it('@nestjs/common', async () => {
+    const nodes = await parseModule('@nestjs/common', { dirname: rootPath });
+    assert(nodes.length > 0);
+    assert(nodes.find(n => n.name === 'UseGuards'));
+});
