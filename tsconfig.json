@@ -9,6 +9,7 @@
     "declaration": false,
     "outDir": "lib",
     "pretty": false,
+    "removeComments": false,
     "inlineSourceMap": true,
     "lib": [
       "es2017"

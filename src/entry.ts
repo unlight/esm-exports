@@ -1,3 +1,11 @@
+type EntryConstructor = {
+    name: string;
+    module: string;
+    filepath?: string;
+    specifier?: string;
+    isDefault?: boolean;
+}
+
 export class Entry {
 	/**
 	 * Export name.
@@ -6,11 +14,11 @@ export class Entry {
 	/**
 	 * Canonicalized absolute pathname.
 	 */
-    filepath: string;
+    filepath?: string;
 	/**
 	 * [specifier description]
 	 */
-    specifier: string;
+    specifier?: string;
 	/**
 	 * Node module name.
 	 */
@@ -21,7 +29,7 @@ export class Entry {
 	 */
     isDefault: boolean;
 
-    constructor({ name, filepath, specifier, module, isDefault }) {
+    constructor({ name, filepath, specifier, module, isDefault }: EntryConstructor) {
         this.name = name;
         this.filepath = filepath;
         this.specifier = specifier;
