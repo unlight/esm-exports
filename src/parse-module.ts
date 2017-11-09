@@ -1,6 +1,6 @@
 import * as Path from 'path';
 import * as fs from 'fs';
-import { parse } from './parse';
+import { parse, parseDefinitions } from './parse';
 import * as _ from 'lodash';
 import { Entry } from './entry';
 const resolvePkg = require('resolve-pkg');
