@@ -5,34 +5,33 @@ it('smoke test', () => {
     assert(parse);
 });
 
-it('var export', async function() {
+it('var export', async () => {
     let code = `export var aaa = 1`;
     let [result] = await parse(code);
-    debugger
     assert.equal(result.name, 'aaa');
 });
 
-it('several var export', async function() {
+it('several var export', async () => {
     let code = `export var aaa, bbb`;
     let [result, result2] = await parse(code);
     assert.equal(result.name, 'aaa');
     assert.equal(result2.name, 'bbb');
 });
 
-it('export all', async function() {
+it('export all', async () => {
     let code = `export * from './provider'`;
     let [result] = await parse(code);
     assert.equal(result.specifier, './provider');
 });
 
-it('export some from module', async function() {
+it('export some from module', async () => {
     let code = `export {var1} from './provider'`;
     let [result] = await parse(code);
     assert.equal(result.name, 'var1');
     assert.equal(result.specifier, './provider');
 });
 
-it('pick export', async function() {
+it('pick export', async () => {
     let code = `export { CalendarEvent, EventAction } from 'calendar-utils'`;
     var [first, second] = await parse(code);
     assert.equal(first.name, 'CalendarEvent');
@@ -40,38 +39,38 @@ it('pick export', async function() {
     assert.equal(second.name, 'EventAction');
 });
 
-it('export declare class', async function() {
+it('export declare class', async () => {
     let code = `export declare class Calendar`;
     let [result] = await parse(code);
     assert.equal(result.name, 'Calendar');
 });
 
-it('export class', async function() {
+it('export class', async () => {
     let code = `export class Aaa`;
     let [result] = await parse(code);
     assert.equal(result.name, 'Aaa');
 });
 
-it('export interface', async function() {
+it('export interface', async () => {
     let code = `export interface Entry {}`;
     let [result] = await parse(code);
     assert.equal(result.name, 'Entry');
 });
 
-it('export function', async function() {
+it('export function', async () => {
     let code = `export function dummy() {}`;
     let [result] = await parse(code);
     assert.equal(result.name, 'dummy');
 });
 
-it('export several vars', async function() {
+it('export several vars', async () => {
     let code = `export {somevar, otherVar}`;
     let [result, other] = await parse(code);
     assert.equal(result.name, 'somevar');
     assert.equal(other.name, 'otherVar');
 });
 
-it('export default', async function() {
+it('export default', async () => {
     let code = `export default function foo() {}`;
     var [entry] = await parse(code);
     assert.equal(entry.name, 'foo');

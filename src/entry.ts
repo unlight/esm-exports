@@ -4,7 +4,7 @@ type EntryConstructor = {
     filepath?: string;
     specifier?: string;
     isDefault?: boolean;
-}
+};
 
 export class Entry {
 	/**

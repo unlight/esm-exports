@@ -5,14 +5,13 @@ import { get } from './get';
 export type ParseOptions = {
     filepath?: string;
     module?: string;
-}
+};
 
 function hasDefaultKeyword(node: ts.Node) {
     return Boolean(node.modifiers && node.modifiers.find(m => m.kind === ts.SyntaxKind.DefaultKeyword));
 }
 
 export function parse(sourceText: string, options: ParseOptions = {}): Entry[] {
-    debugger;
     const sourceFile = ts.createSourceFile('dummy.ts', sourceText, ts.ScriptTarget.ES2015, true);
     let { filepath, module } = options;
     let moduleEnd: number;
@@ -23,17 +22,18 @@ export function parse(sourceText: string, options: ParseOptions = {}): Entry[] {
         if (node.pos >= moduleEnd) {
             module = undefined;
         }
-        (node.getText());
+        // (node.getText());
         switch (node.kind) {
             case ts.SyntaxKind.ModuleDeclaration: {
-                '233';
+                // TODO: Try to remove?
                 const isDeclare = Boolean(node.modifiers && node.modifiers.find(m => m.kind === ts.SyntaxKind.DeclareKeyword));
-                if (!isDeclare) break;
+                if (!isDeclare) {
+                    break;
+                }
                 module = get('name.text', node) as string;
                 moduleEnd = node.end;
             } break;
             case ts.SyntaxKind.ExportDeclaration: {
-                '244';
                 const node = statement as ts.ExportDeclaration;
                 const names: string[] = [];
                 const exportAll = !(node.exportClause && node.exportClause.elements);
@@ -49,7 +49,6 @@ export function parse(sourceText: string, options: ParseOptions = {}): Entry[] {
                 });
             } break;
             case ts.SyntaxKind.ExportKeyword: {
-                '84';
                 const declarations = get('declarationList.declarations', node.parent) || [];
                 declarations.forEach(d => {
                     const name: string = get('name.text', d);
@@ -68,6 +67,7 @@ export function parse(sourceText: string, options: ParseOptions = {}): Entry[] {
                     result.push(new Entry({ name, module, isDefault }));
                 }
             } break;
+            default: break;
             // case ts.SyntaxKind.ExportAssignment: {
             //     debugger;
             // } break;
