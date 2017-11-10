@@ -23,7 +23,7 @@ export function parse(sourceText: string, options: ParseOptions = {}): Entry[] {
             module = undefined;
         }
         // (node.getText());
-        switch (node.kind) {
+        switch (node.kind) { // eslint-disable-line tslint/config
             case ts.SyntaxKind.ModuleDeclaration: {
                 // TODO: Try to remove?
                 const isDeclare = Boolean(node.modifiers && node.modifiers.find(m => m.kind === ts.SyntaxKind.DeclareKeyword));
@@ -67,7 +67,6 @@ export function parse(sourceText: string, options: ParseOptions = {}): Entry[] {
                     result.push(new Entry({ name, module, isDefault }));
                 }
             } break;
-            default: break;
             // case ts.SyntaxKind.ExportAssignment: {
             //     debugger;
             // } break;

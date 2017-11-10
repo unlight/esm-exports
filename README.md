@@ -1,7 +1,8 @@
 # esm-exports
 Parse ecmascript modules and collect names of export vars, functions, etc.
 
-## CHANGELOG
+CHANGELOG
+---
 * 0.8.0 - read recursive dir improvements
 * 0.7.0 - catch if recursive fails
 * 0.6.1 - added support tsx/jsx
@@ -16,6 +17,9 @@ Parse ecmascript modules and collect names of export vars, functions, etc.
 * 0.0.11 - fixed: invalid path throws error
 * 0.0.9 - fixed: handle typings without extension
 * 0.0.8 - first release
+
+TODO
+---
 
 DEBUG
 ---

@@ -1,6 +1,6 @@
 {
   "name": "esm-exports",
-  "version": "1.0.0-pre.0",
+  "version": "1.0.0-alpha.0",
   "description": "Parse ecmascript modules and collect names of export vars, functions, etc.",
   "main": "lib",
   "typings": "src/index.ts",
@@ -13,7 +13,7 @@
     "test:d": "node --inspect-brk node_modules/ts-node/dist/_bin.js -F node_modules/mocha/bin/_mocha --no-timeouts src/**/*.spec.ts",
     "tscheck": "echo tscheck... && tsc --noEmit",
     "tscheck:w": "npm run tscheck -- --watch",
-    "tsclint": "tsc --noEmit --pretty false --strictNullChecks --forceConsistentCasingInFileNames --noImplicitReturns --noImplicitThis --noUnusedLocals",
+    "tsclint": "tsc --noEmit --pretty false --strictNullChecks --forceConsistentCasingInFileNames --noImplicitReturns --noImplicitThis --noUnusedLocals --noUnusedParameters",
     "tsclint:w": "npm run tsclint -- --watch",
     "eslint": "eslint --ext ts src",
     "eslint:fix": "eslint src --ext \"ts\" --fix",
@@ -26,12 +26,13 @@
     "prepublishOnly": "npm run build"
   },
   "dependencies": {
+    "resolve": "^1.5.0",
     "tslib": "^1.8.0",
-    "typescript": "^2.6.1"
   },
   "devDependencies": {
     "@types/mocha": "^2.2.44",
     "@types/node": "^8.0.50",
+    "@types/resolve": "0.0.4",
     "chokidar-cli": "^1.2.0",
     "concurrently": "^3.5.0",
     "eslint": "^4.10.0",
@@ -40,8 +41,10 @@
     "eslint-plugin-typescript": "^0.8.0",
     "eslint-plugin-unicorn": "^3.0.0",
     "mocha": "^4.0.1",
+    "pkg-dir": "^2.0.0",
     "rimraf": "^2.6.2",
     "ts-node": "^3.3.0",
+    "typescript": "^2.6.1",
     "typescript-eslint-parser": "^8.0.1"
   },
   "directories": {
