@@ -53,5 +53,8 @@ export function module(name: string, options: ModuleOptions = {}): Promise<Entry
         return Promise.all(promises).then(() => {
             return entries;
         });
+    }).then(entries => {
+        // TODO: Find inner modules.
+        return entries;
     });
 }

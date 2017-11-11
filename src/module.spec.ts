@@ -4,11 +4,11 @@ import { module as parse } from './module';
 const pkgDir = require('pkg-dir');
 const rootPath = pkgDir.sync();
 
-it.only('parse module smoke', () => {
+it('parse module smoke', () => {
     assert(parse);
 });
 
-it.only('angular2-calendar', async function() {
+it('angular2-calendar', async function() {
     const result = await parse('angular2-calendar', { basedir: rootPath });
     const [first] = result;
     assert.equal(first.module, 'angular2-calendar');
@@ -17,14 +17,14 @@ it.only('angular2-calendar', async function() {
     assert.equal(calendarEventTitleEntry.module, 'angular2-calendar');
 });
 
-it.only('rxjs module, node_modules names should be uniq', async () => {
+it('rxjs module, node_modules names should be uniq', async () => {
     const result = await parse('rxjs', { basedir: rootPath });
     const names = result.map(item => item.name);
     const uniqNames = Array.from(new Set(names));
     assert.equal(uniqNames.length, names.length);
 });
 
-it.only('gulp-tslint', async () => {
+it('gulp-tslint', async () => {
     const nodes = await parse('gulp-tslint', { basedir: rootPath });
     const falsyNodes = nodes.filter(v => !v);
     assert(falsyNodes.length === 0);
@@ -33,33 +33,33 @@ it.only('gulp-tslint', async () => {
     assert(pluginOptions.module === 'gulp-tslint');
 });
 
-// it.only('no falsy nodes', async () => {
-//     let nodes = await parse('@angular/core', { basedir: rootPath });
-//     let falsyNodes = nodes.filter(v => !v);
-//     assert(falsyNodes.length === 0);
-// });
+it('no falsy nodes', async () => {
+    const nodes = await parse('@angular/core', { basedir: rootPath });
+    const falsyNodes = nodes.filter(v => !v);
+    assert(falsyNodes.length === 0);
+});
 
-// it.only('parse unknown module', async () => {
-//     const nodes = await parse('unknown_module_foo', { basedir: rootPath });
-//     assert(nodes.length === 0);
-// });
+it.skip('parse unknown module', async () => {
+    const nodes = await parse('unknown_module_foo', { basedir: rootPath });
+    assert(nodes.length === 0);
+});
 
-// it.only('should find inner module properly', async () => {
-//     const nodes = await parse('@angular/core', { basedir: rootPath });
-//     let testing = nodes.filter(n => n.module === '@angular/core/testing');
-//     assert(testing.length);
-//     let inject = nodes.filter(n => n.name === 'inject');
-//     assert.notEqual(inject.length, 0);
-// });
+it.only('should find inner module properly', async () => {
+    const nodes = await parse('@angular/core', { basedir: rootPath });
+    const testing = nodes.filter(n => n.module === '@angular/core/testing');
+    assert(testing.length);
+    const inject = nodes.filter(n => n.name === 'inject');
+    assert.notEqual(inject.length, 0);
+});
 
 // it.only('should not contain duplicated entries (modules)', async () => {
 //     const nodes = await parse('@angular/core', { basedir: rootPath });
-//     let inject = nodes.filter(n => n.name === 'inject');
+//     const inject = nodes.filter(n => n.name === 'inject');
 //     assert.equal(inject.length, 1);
 // });
 
 // it.only('should not contain duplicated entries (src)', () => {
-//     let entries = [
+//     const entries = [
 //         new Entry({ name: 'name1', filepath: '/directory/file1' } as any),
 //         new Entry({ name: 'name1', filepath: '/directory/file1' } as any),
 //     ]
