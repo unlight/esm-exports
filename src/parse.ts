@@ -3,8 +3,8 @@ import { Entry } from './entry';
 import { get } from './get';
 
 export type ParseOptions = {
-    filepath?: string;
     module?: string;
+    basedir?: string;
 };
 
 function hasDefaultKeyword(node: ts.Node) {
@@ -13,7 +13,7 @@ function hasDefaultKeyword(node: ts.Node) {
 
 export function parse(sourceText: string, options: ParseOptions = {}): Entry[] {
     const sourceFile = ts.createSourceFile('dummy.ts', sourceText, ts.ScriptTarget.ES2015, true);
-    let { filepath, module } = options;
+    let { module } = options;
     let moduleEnd: number;
     let result: Entry[] = [];
     walk(sourceFile);
