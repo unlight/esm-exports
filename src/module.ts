@@ -17,7 +17,11 @@ const resolveOptions: AsyncOpts = {
     },
 };
 
-export function module(name: string): Promise<Entry[]> {
+type ModuleOptions = {
+    basedir?: string;
+}
+
+export function module(name: string, options: ModuleOptions = {}): Promise<Entry[]> {
     return new Promise<{ entries: Entry[], resolved: string }>((done, reject) => {
         resolve(name, resolveOptions, (err, resolved) => {
             if (err) return reject(err);
@@ -33,10 +37,19 @@ export function module(name: string): Promise<Entry[]> {
         const unnamed = entries.filter(m => m.name == null);
         // TODO: Remove unnamed from entries.
         const basedir = dirname(resolved);
-        // TODO: m.specifier can be directory (or specifier without extension we must use resolve mechanism here)
-        const promises = unnamed.map(m => file(m.specifier, { basedir, module: name }).then(items => {
-            entries.push(...items);
-        }));
+        const promises = unnamed.map(m => {
+            return new Promise<Entry[]>((done, reject) => {
+                resolve(m.specifier, { ...resolveOptions, basedir }, (err, resolved) => {
+                    if (err) return reject(err);
+                    if (resolved) {
+                        return file(resolved, { module: name }).then(done, reject);
+                    }
+                    done([]);
+                });
+            }).then(items => {
+                entries.push(...items);
+            });
+        });
         return Promise.all(promises).then(() => {
             return entries;
         });
