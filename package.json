@@ -5,7 +5,8 @@
   "main": "lib",
   "typings": "src/index.ts",
   "scripts": {
-    "setup": "npm i --no-save angular2-calendar rxjs gulp-tslint @angular/core",
+    "fixtures": "npm i --no-save angular2-calendar rxjs gulp-tslint @angular/core",
+    "pretest": "npm run fixtures",
     "test": "npm run eslint && npm run tscheck && npm run t",
     "t": "npm run mocha -- src/*.spec.ts",
     "test:r": "npm run mocha -- src/*.spec.ts",
@@ -24,7 +25,9 @@
     "clean": "rimraf lib",
     "prerelease": "npm run clean",
     "release": "npm run build",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "setup": "npm i -g commitizen standard-version && commitizen init cz-conventional-changelog --save-dev",
+    "commit": "git-cz"
   },
   "dependencies": {
     "resolve": "^1.5.0",
@@ -36,6 +39,7 @@
     "@types/resolve": "0.0.4",
     "chokidar-cli": "^1.2.0",
     "concurrently": "^3.5.0",
+    "cz-conventional-changelog": "^2.1.0",
     "eslint": "^4.11.0",
     "eslint-plugin-import": "^2.8.0",
     "eslint-plugin-tslint": "^1.0.2",
@@ -53,5 +57,27 @@
   },
   "engines": {
     "npm": ">=3"
-  }
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/unlight/typescript-exports.git"
+  },
+  "keywords": [
+    "esm",
+    "typescript",
+    "parser",
+    "es2015",
+    "exports"
+  ],
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/unlight/typescript-exports/issues"
+  },
+  "homepage": "https://github.com/unlight/typescript-exports#readme"
 }
