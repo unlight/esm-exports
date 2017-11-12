@@ -1,6 +1,6 @@
 type EntryConstructor = {
-    name: string;
-    module: string;
+    name?: string;
+    module?: string;
     filepath?: string;
     specifier?: string;
     isDefault?: boolean;
@@ -10,7 +10,7 @@ export class Entry {
 	/**
 	 * Export name.
 	 */
-    name: string;
+    name?: string;
 	/**
 	 * Canonicalized absolute pathname.
 	 */
@@ -22,7 +22,7 @@ export class Entry {
 	/**
 	 * Node module name.
 	 */
-    module: string;
+    module?: string;
 
 	/**
 	 * Flag indicates export default.

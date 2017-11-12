@@ -6,45 +6,56 @@ import { AsyncOpts } from 'resolve';
 import { dirname, resolve as resolvePath } from 'path';
 import { readdir, stat } from 'fs';
 
-const SCOPE_TYPES = '@types/';
-
 const resolveOptions: AsyncOpts = {
     extensions: findFileExtensions,
     packageFilter: (pkg: any) => {
         const { typings, module } = pkg;
-        if (typings) pkg.main = typings;
-        else if (module) pkg.main = module;
+        if (typings) {
+            pkg.main = typings;
+        } else if (module) {
+            pkg.main = module;
+        }
         return pkg;
     },
 };
 
 type ModuleOptions = {
     basedir?: string;
-}
+};
 
 export function module(name: string, options: ModuleOptions = {}): Promise<Entry[]> {
-    return new Promise<{ entries: Entry[], resolved: string }>((done, reject) => {
+    return new Promise<{ entries: Entry[], resolved?: string }>((done, reject) => {
         resolve(name, resolveOptions, (err, resolved) => {
-            if (err) return reject(err);
+            if (err) {
+                return reject(err);
+            }
             if (resolved) {
                 return file(resolved, { module: name }).then(entries => done({ entries, resolved }), reject);
             }
-            done({ entries: [], resolved: null });
+            done({ entries: [], resolved: undefined });
         });
     }).then(function parseEntries({ entries, resolved }): Promise<Entry[]> {
         if (!resolved) {
             return Promise.resolve(entries);
         }
         let unnamed: Entry[];
-        [unnamed, entries] = entries.reduce((result, m) => (result[Number(m.name != null)].push(m), result), [[], []]);
+        [unnamed, entries] = entries.reduce((result: Entry[][], m) => {
+            result[Number(m.name != null)].push(m);
+            return result;
+        }, [[], []]);
         if (unnamed.length === 0) {
             return Promise.resolve(entries);
         }
         const basedir = dirname(resolved);
         const promises = unnamed.map(m => {
             return new Promise<Entry[]>((done, reject) => {
+                if (!m.specifier) {
+                    return done([]);
+                }
                 resolve(m.specifier, { ...resolveOptions, basedir }, (err, resolved) => {
-                    if (err) return reject(err);
+                    if (err) {
+                        return reject(err);
+                    }
                     if (resolved) {
                         return file(resolved, { module: name }).then(items => {
                             return parseEntries({ entries: items, resolved }).then(done);
@@ -64,14 +75,18 @@ export function module(name: string, options: ModuleOptions = {}): Promise<Entry
         const submodules: string[] = [];
         return new Promise<string[]>((done, reject) => {
             readdir(dirpath, (err, items) => {
-                if (err) return reject(err);
+                if (err) {
+                    return reject(err);
+                }
                 let count = items.length;
                 if (count === 0) {
                     done([]);
                 }
                 items.forEach(item => {
                     stat(resolvePath(dirpath, item), (err, stats) => {
-                        if (err) return reject(err);
+                        if (err) {
+                            return reject(err);
+                        }
                         if (stats.isDirectory()) {
                             submodules.push(`${name}/${item}`);
                         }
@@ -87,8 +102,8 @@ export function module(name: string, options: ModuleOptions = {}): Promise<Entry
                     entries.push(...items);
                 }, err => {
                     if (err && err.code === 'MODULE_NOT_FOUND') {
-                        return Promise.resolve([])
-                    };
+                        return Promise.resolve([]);
+                    }
                     return err;
                 }));
                 return Promise.all(promises).then(() => entries);
@@ -98,7 +113,7 @@ export function module(name: string, options: ModuleOptions = {}): Promise<Entry
     }).catch(err => {
         if (err && err.code === 'MODULE_NOT_FOUND') {
             return Promise.resolve([]);
-        };
+        }
         return err;
     });
 }

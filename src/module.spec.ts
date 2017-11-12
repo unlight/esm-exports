@@ -20,7 +20,6 @@ it('angular2-calendar', async function() {
 it.skip('rxjs module, node_modules names should be uniq', async () => {
     const result = await parse('rxjs', { basedir: rootPath });
     const names = result.map(item => item.name);
-    console.log("names", names);
     const uniqNames: string[] = Array.from(new Set(names));
     assert.equal(uniqNames.length, names.length);
 });
@@ -82,4 +81,3 @@ it('globals should be eliminated', async () => {
     const bastards = nodes.filter(m => m.module === '@types/node');
     assert.equal(bastards.length, 0);
 });
-

@@ -8,8 +8,8 @@ export type ParseOptions = {
     filepath?: string;
 };
 
-function hasDefaultKeyword(node: ts.Node) {
-    return Boolean(node.modifiers && node.modifiers.find(m => m.kind === ts.SyntaxKind.DefaultKeyword));
+function hasDefaultKeyword(node?: ts.Node) {
+    return Boolean(node && node.modifiers && node.modifiers.find(m => m.kind === ts.SyntaxKind.DefaultKeyword));
 }
 
 export function parse(sourceText: string, options: ParseOptions = {}): Entry[] {
@@ -35,10 +35,10 @@ export function parse(sourceText: string, options: ParseOptions = {}): Entry[] {
             } break;
             case ts.SyntaxKind.ExportDeclaration: {
                 const node = statement as ts.ExportDeclaration;
-                const names: string[] = [];
+                const names: Array<(string | undefined)> = [];
                 const exportAll = !(node.exportClause && node.exportClause.elements);
                 if (exportAll) {
-                    names.push(null);
+                    names.push(undefined);
                 } else if (node.exportClause) {
                     node.exportClause.elements.forEach(e => names.push(e.name.text));
                 }
