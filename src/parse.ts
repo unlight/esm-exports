@@ -5,6 +5,7 @@ import { get } from './get';
 export type ParseOptions = {
     module?: string;
     basedir?: string;
+    filepath?: string;
 };
 
 function hasDefaultKeyword(node: ts.Node) {
@@ -13,7 +14,7 @@ function hasDefaultKeyword(node: ts.Node) {
 
 export function parse(sourceText: string, options: ParseOptions = {}): Entry[] {
     const sourceFile = ts.createSourceFile('dummy.ts', sourceText, ts.ScriptTarget.ES2015, true);
-    let { module } = options;
+    let { module, filepath } = options;
     let moduleEnd: number;
     let result: Entry[] = [];
     walk(sourceFile);
@@ -25,7 +26,6 @@ export function parse(sourceText: string, options: ParseOptions = {}): Entry[] {
         // (node.getText());
         switch (node.kind) { // eslint-disable-line tslint/config
             case ts.SyntaxKind.ModuleDeclaration: {
-                // TODO: Try to remove?
                 const isDeclare = Boolean(node.modifiers && node.modifiers.find(m => m.kind === ts.SyntaxKind.DeclareKeyword));
                 if (!isDeclare) {
                     break;
@@ -45,7 +45,7 @@ export function parse(sourceText: string, options: ParseOptions = {}): Entry[] {
                 const specifier: string = get('moduleSpecifier.text', node);
                 const isDefault = hasDefaultKeyword(node);
                 names.forEach(name => {
-                    result.push(new Entry({ name, module, specifier, isDefault }));
+                    result.push(new Entry({ name, module, filepath, specifier, isDefault }));
                 });
             } break;
             case ts.SyntaxKind.ExportKeyword: {
@@ -53,18 +53,18 @@ export function parse(sourceText: string, options: ParseOptions = {}): Entry[] {
                 declarations.forEach(d => {
                     const name: string = get('name.text', d);
                     if (name) {
-                        result.push(new Entry({ name, module }));
+                        result.push(new Entry({ name, module, filepath }));
                     }
                     const names = get('name.elements', d) || [];
                     names.forEach(d => {
                         const name: string = get('name.text', d);
-                        result.push(new Entry({ name, module }));
+                        result.push(new Entry({ name, module, filepath }));
                     });
                 });
                 const name: string = get('name.text', node.parent);
                 if (name) {
                     const isDefault = hasDefaultKeyword(node.parent);
-                    result.push(new Entry({ name, module, isDefault }));
+                    result.push(new Entry({ name, module, filepath, isDefault }));
                 }
             } break;
             // case ts.SyntaxKind.ExportAssignment: {

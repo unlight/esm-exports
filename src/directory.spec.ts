@@ -1,5 +1,6 @@
 import * as assert from 'assert';
 import { directory } from './directory';
+import { normalize } from 'path';
 const pkgDir = require('pkg-dir');
 const rootPath = pkgDir.sync();
 
@@ -10,8 +11,9 @@ it('directory smoke test', () => {
 it('should parse directory', async () => {
     const result = await directory(`${rootPath}/src`);
     assert(result.length > 0);
-    const parse = result.filter(value => value.name === 'parse');
+    const [parse] = result.filter(value => value.name === 'parse');
     assert(parse);
+    assert.equal(normalize(parse.filepath), normalize(`${rootPath}/src/index.ts`));
 });
 
 it('directory target null', async () => {

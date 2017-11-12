@@ -1,7 +1,7 @@
 import { readFile } from 'fs';
 import { ParseOptions, parse } from './parse';
 import { Entry } from './entry';
-import { resolve } from 'path';
+import { resolve as resolvePath } from 'path';
 
 type FileOptions = {
     basedir?: string;
@@ -9,11 +9,11 @@ type FileOptions = {
 }
 
 export function file(path: string, options: FileOptions = {}): Promise<Entry[]> {
-    const filepath = resolve(options.basedir, path);
-    return new Promise((resolve, reject) => {
+    const filepath = resolvePath(options.basedir || '.', path);
+    return new Promise((done, reject) => {
         readFile(filepath, { encoding: 'utf8' }, (err, data: string) => {
             if (err) return reject(err);
-            resolve(parse(data, options));
+            done(parse(data, { ...options, filepath }));
         });
     });
 }

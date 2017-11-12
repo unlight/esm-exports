@@ -3,7 +3,8 @@ import { findFileExtensions } from './directory';
 import { file } from './file';
 import { Entry } from './entry';
 import { AsyncOpts } from 'resolve';
-import { dirname } from 'path';
+import { dirname, resolve as resolvePath } from 'path';
+import { readdir, stat } from 'fs';
 
 const SCOPE_TYPES = '@types/';
 
@@ -30,19 +31,24 @@ export function module(name: string, options: ModuleOptions = {}): Promise<Entry
             }
             done({ entries: [], resolved: null });
         });
-    }).then(({ entries, resolved }) => {
+    }).then(function parseEntries({ entries, resolved }): Promise<Entry[]> {
         if (!resolved) {
-            return entries;
+            return Promise.resolve(entries);
         }
-        const unnamed = entries.filter(m => m.name == null);
-        // TODO: Remove unnamed from entries.
+        let unnamed: Entry[];
+        [unnamed, entries] = entries.reduce((result, m) => (result[Number(m.name != null)].push(m), result), [[], []]);
+        if (unnamed.length === 0) {
+            return Promise.resolve(entries);
+        }
         const basedir = dirname(resolved);
         const promises = unnamed.map(m => {
             return new Promise<Entry[]>((done, reject) => {
                 resolve(m.specifier, { ...resolveOptions, basedir }, (err, resolved) => {
                     if (err) return reject(err);
                     if (resolved) {
-                        return file(resolved, { module: name }).then(done, reject);
+                        return file(resolved, { module: name }).then(items => {
+                            return parseEntries({ entries: items, resolved }).then(done);
+                        }, reject);
                     }
                     done([]);
                 });
@@ -54,7 +60,45 @@ export function module(name: string, options: ModuleOptions = {}): Promise<Entry
             return entries;
         });
     }).then(entries => {
-        // TODO: Find inner modules.
-        return entries;
+        const dirpath = resolvePath(options.basedir || '.', 'node_modules', name);
+        const submodules: string[] = [];
+        return new Promise<string[]>((done, reject) => {
+            readdir(dirpath, (err, items) => {
+                if (err) return reject(err);
+                let count = items.length;
+                if (count === 0) {
+                    done([]);
+                }
+                items.forEach(item => {
+                    stat(resolvePath(dirpath, item), (err, stats) => {
+                        if (err) return reject(err);
+                        if (stats.isDirectory()) {
+                            submodules.push(`${name}/${item}`);
+                        }
+                        if (--count === 0) {
+                            done(submodules);
+                        }
+                    });
+                });
+            });
+        }).then(submodules => {
+            if (submodules.length > 0) {
+                const promises = submodules.map(m => module(m, options).then(items => {
+                    entries.push(...items);
+                }, err => {
+                    if (err && err.code === 'MODULE_NOT_FOUND') {
+                        return Promise.resolve([])
+                    };
+                    return err;
+                }));
+                return Promise.all(promises).then(() => entries);
+            }
+            return entries;
+        });
+    }).catch(err => {
+        if (err && err.code === 'MODULE_NOT_FOUND') {
+            return Promise.resolve([]);
+        };
+        return err;
     });
 }
