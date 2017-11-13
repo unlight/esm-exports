@@ -24,7 +24,7 @@
     "build": "tsc",
     "clean": "rimraf lib",
     "prerelease": "npm run clean",
-    "release": "npm run build",
+    "release": "standard-version",
     "prepublishOnly": "npm run build",
     "setup": "npm i -g commitizen standard-version && commitizen init cz-conventional-changelog --save-dev",
     "commit": "git-cz"

@@ -83,11 +83,8 @@ export function module(name: string, options: ModuleOptions = {}): Promise<Entry
                     done([]);
                 }
                 items.forEach(item => {
-                    stat(resolvePath(dirpath, item), (err, stats) => {
-                        if (err) {
-                            return reject(err);
-                        }
-                        if (stats.isDirectory()) {
+                    stat(resolvePath(dirpath, item, 'package.json'), (err, stats) => {
+                        if (stats && stats.isFile()) {
                             submodules.push(`${name}/${item}`);
                         }
                         if (--count === 0) {
