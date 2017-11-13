@@ -1,7 +1,7 @@
 import { readdir, stat } from 'fs';
 import { Entry } from './entry';
 import { file as parse } from './file';
-import { extname, resolve as resolvePath } from 'path';
+import { extname, resolve as resolvePath, parse as parsePath } from 'path';
 
 export const findFileExtensions = ['.ts', '.d.ts', '.js', '.tsx', '.jsx'];
 
@@ -30,6 +30,7 @@ export function directory(path: string, options: DirectoryOptions = {}): Promise
             return Promise.resolve([]);
         }
         return new Promise<{ directories: string[], files: string[] }>((done, reject) => {
+            const names = Object.create(null);
             items.forEach(item => {
                 stat(resolvePath(dirpath, item), (err, stats) => {
                     if (err) {
@@ -38,9 +39,12 @@ export function directory(path: string, options: DirectoryOptions = {}): Promise
                     if (stats.isDirectory()) {
                         directories.push(item);
                     } else if (stats.isFile()) {
-                        const extension = extname(item);
-                        if (findFileExtensions.includes(extension)) {
-                            files.push(item);
+                        const { name, ext } = parsePath(item);
+                        if (names[name] === undefined) {
+                            if (findFileExtensions.includes(ext)) {
+                                files.push(item);
+                                names[name] = true;
+                            }
                         }
                     }
                     count--;
