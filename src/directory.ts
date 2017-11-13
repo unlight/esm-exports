@@ -30,7 +30,7 @@ export function directory(path: string, options: DirectoryOptions = {}): Promise
             return Promise.resolve([]);
         }
         return new Promise<{ directories: string[], files: string[] }>((done, reject) => {
-            const names = Object.create(null);
+            const names: { [name: string]: [number, string] } = Object.create(null);
             items.forEach(item => {
                 stat(resolvePath(dirpath, item), (err, stats) => {
                     if (err) {
@@ -40,16 +40,17 @@ export function directory(path: string, options: DirectoryOptions = {}): Promise
                         directories.push(item);
                     } else if (stats.isFile()) {
                         const { name, ext } = parsePath(item);
-                        if (names[name] === undefined) {
-                            if (findFileExtensions.includes(ext)) {
-                                files.push(item);
-                                names[name] = true;
+                        const extIndex = findFileExtensions.indexOf(ext);
+                        if (extIndex !== - 1) {
+                            let [nameIndex] = names[name] || [Infinity];
+                            if (extIndex < nameIndex) {
+                                names[name] = [extIndex, item];
                             }
                         }
                     }
                     count--;
                     if (count === 0) {
-                        done({ directories, files });
+                        done({ directories, files: Object.values(names).map(([, file]) => file) });
                     }
                 });
             });

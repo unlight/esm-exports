@@ -56,7 +56,7 @@
     "lib": "lib"
   },
   "engines": {
-    "node" : ">=6",
+    "node": ">=6",
     "npm": ">=3"
   },
   "config": {
