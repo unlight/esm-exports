@@ -4,6 +4,7 @@ import { file as parse } from './file';
 import { extname, resolve as resolvePath, parse as parsePath } from 'path';
 
 export const findFileExtensions = ['.ts', '.d.ts', '.js', '.tsx', '.jsx'];
+const ignoreDirectoryList = ['node_modules'];
 
 type DirectoryOptions = {
     basedir?: string;
@@ -37,7 +38,9 @@ export function directory(path: string, options: DirectoryOptions = {}): Promise
                         return reject(err);
                     }
                     if (stats.isDirectory()) {
-                        directories.push(item);
+                        if (!ignoreDirectoryList.includes(item)) {
+                            directories.push(item);
+                        }
                     } else if (stats.isFile()) {
                         const { name, ext } = parsePath(item);
                         const extIndex = findFileExtensions.indexOf(ext);

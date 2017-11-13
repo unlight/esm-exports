@@ -30,3 +30,11 @@ it('relative target', async () => {
     const result = await directory('src');
     assert.notEqual(result.length, 0);
 });
+
+it('should ignore node_modules', async () => {
+    const result = await directory(`${rootPath}`);
+    const ts = result.filter(item => item.module === 'typescript');
+    assert.equal(ts.length, 0);
+    const nodeModules = result.filter(item => item.filepath && item.filepath.indexOf('node_modules') !== -1);
+    assert.equal(nodeModules.length, 0);
+});
