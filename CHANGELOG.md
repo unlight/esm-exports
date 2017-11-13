@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.1.0-alpha.2"></a>
+# [1.1.0-alpha.2](https://github.com/unlight/typescript-exports/compare/v1.1.0-alpha.1...v1.1.0-alpha.2) (2017-11-13)
+
+
+
 <a name="1.1.0-alpha.1"></a>
 # [1.1.0-alpha.1](https://github.com/unlight/typescript-exports/compare/v0.8.3...v1.1.0-alpha.1) (2017-11-13)
 
