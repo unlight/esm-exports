@@ -2,5 +2,6 @@
 *.log
 /.vscode/
 /tsconfig.json
-/src/
 /fixtures/
+/.eslintrc.js
+/.editorconfig
