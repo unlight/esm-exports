@@ -2,6 +2,7 @@ import { readdir, stat } from 'fs';
 import { Entry } from './entry';
 import { file as parse } from './file';
 import { extname, resolve as resolvePath, parse as parsePath } from 'path';
+const objectValues = require('object-values');
 
 export const findFileExtensions = ['.ts', '.d.ts', '.js', '.tsx', '.jsx'];
 const ignoreDirectoryList = ['node_modules'];
@@ -53,7 +54,7 @@ export function directory(path: string, options: DirectoryOptions = {}): Promise
                     }
                     count--;
                     if (count === 0) {
-                        done({ directories, files: Object.values(names).map(([, file]) => file) });
+                        done({ directories, files: objectValues(names).map(([, file]) => file) });
                     }
                 });
             });
