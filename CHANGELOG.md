@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.1.0-alpha.4"></a>
+# [1.1.0-alpha.4](https://github.com/unlight/typescript-exports/compare/v1.1.0-alpha.3...v1.1.0-alpha.4) (2017-11-14)
+
+
+### Bug Fixes
+
+* Ponyfill for Object.values ([cb7cabe](https://github.com/unlight/typescript-exports/commit/cb7cabe))
+
+
+
 <a name="1.1.0-alpha.3"></a>
 # [1.1.0-alpha.3](https://github.com/unlight/typescript-exports/compare/v1.1.0-alpha.2...v1.1.0-alpha.3) (2017-11-13)
 
@@ -9,13 +19,6 @@ All notable changes to this project will be documented in this file. See [standa
 ### Bug Fixes
 
 * Ignore node_modules ([dff6187](https://github.com/unlight/typescript-exports/commit/dff6187))
-
-
-
-<a name="1.1.0-alpha.2"></a>
-# [1.1.0-alpha.2](https://github.com/unlight/typescript-exports/compare/v1.1.0-alpha.1...v1.1.0-alpha.2) (2017-11-13)
-
-
 
 <a name="1.1.0-alpha.1"></a>
 # [1.1.0-alpha.1](https://github.com/unlight/typescript-exports/compare/v0.8.3...v1.1.0-alpha.1) (2017-11-13)
