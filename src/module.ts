@@ -6,7 +6,7 @@ import { AsyncOpts } from 'resolve';
 import { dirname, resolve as resolvePath } from 'path';
 import { readdir, stat } from 'fs';
 
-const resolveOptions: AsyncOpts = {
+export const resolveOptions: AsyncOpts = {
     extensions: fileExtensions,
     packageFilter: (pkg: any) => {
         const { typings, module } = pkg;
@@ -34,7 +34,7 @@ export function module(name: string, options: ModuleOptions = {}): Promise<Entry
             }
             done({ entries: [], resolved: undefined });
         });
-    }).then(function parseEntries({ entries, resolved }): Promise<Entry[]> {
+    }).then(function next({ entries, resolved }): Promise<Entry[]> {
         if (!resolved) {
             return Promise.resolve(entries);
         }
@@ -58,7 +58,7 @@ export function module(name: string, options: ModuleOptions = {}): Promise<Entry
                     }
                     if (resolved) {
                         return file(resolved, { module: name }).then(items => {
-                            return parseEntries({ entries: items, resolved }).then(done);
+                            return next({ entries: items, resolved }).then(done);
                         }, reject);
                     }
                     done([]);

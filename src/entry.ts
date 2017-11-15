@@ -31,10 +31,10 @@ export class Entry {
 
     constructor({ name, filepath, specifier, module, isDefault }: EntryConstructor) {
         this.name = name;
-        this.filepath = filepath;
         this.specifier = specifier;
-        this.module = module;
         this.isDefault = Boolean(isDefault);
+        this.module = module;
+        this.filepath = filepath;
     }
 
     hash() {

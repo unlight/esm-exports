@@ -15,6 +15,7 @@ it('angular2-calendar', async function() {
     const calendarEventTitleEntry = result.find(item => item.name === 'CalendarEventTitle');
     assert(calendarEventTitleEntry);
     assert.equal(calendarEventTitleEntry.module, 'angular2-calendar');
+    assert(result.filter(m => !m.name).length === 0, 'all entries must have name');
 });
 
 it.skip('rxjs module, node_modules names should be uniq', async () => {
@@ -22,62 +23,71 @@ it.skip('rxjs module, node_modules names should be uniq', async () => {
     const names = result.map(item => item.name);
     const uniqNames: string[] = Array.from(new Set(names));
     assert.equal(uniqNames.length, names.length);
+    assert(result.filter(m => !m.name).length === 0, 'all entries must have name');
 });
 
 it('gulp-tslint', async () => {
-    const nodes = await parse('gulp-tslint', { basedir: rootPath });
-    const falsyNodes = nodes.filter(v => !v);
+    const result = await parse('gulp-tslint', { basedir: rootPath });
+    const falsyNodes = result.filter(v => !v);
     assert(falsyNodes.length === 0);
-    const pluginOptions = nodes.find(v => v.name === 'PluginOptions');
+    const pluginOptions = result.find(v => v.name === 'PluginOptions');
     assert(pluginOptions);
     assert(pluginOptions.module === 'gulp-tslint');
+    assert(result.filter(m => !m.name).length === 0, 'all entries must have name');
 });
 
 it('no falsy nodes', async () => {
-    const nodes = await parse('@angular/core', { basedir: rootPath });
-    const falsyNodes = nodes.filter(v => !v);
+    const result = await parse('@angular/core', { basedir: rootPath });
+    const falsyNodes = result.filter(v => !v);
     assert(falsyNodes.length === 0);
+    assert(result.filter(m => !m.name).length === 0, 'all entries must have name');
 });
 
 it('parse unknown module', async () => {
-    const nodes = await parse('unknown_module_foo', { basedir: rootPath });
-    assert(nodes.length === 0);
+    const result = await parse('unknown_module_foo', { basedir: rootPath });
+    assert(result.length === 0);
+    assert(result.filter(m => !m.name).length === 0, 'all entries must have name');
 });
 
 it('inner module', async () => {
-    const nodes = await parse('@angular/core/testing', { basedir: rootPath });
-    const inject = nodes.find(n => n.name === 'inject');
+    const result = await parse('@angular/core/testing', { basedir: rootPath });
+    const inject = result.find(n => n.name === 'inject');
     assert(inject);
-    const TestBed = nodes.find(n => n.name === 'TestBed');
+    const TestBed = result.find(n => n.name === 'TestBed');
     assert(TestBed);
+    assert(result.filter(m => !m.name).length === 0, 'all entries must have name');
 });
 
 it('should find inner module properly', async () => {
-    const nodes = await parse('@angular/core', { basedir: rootPath });
-    const testing = nodes.filter(n => n.module === '@angular/core/testing');
+    const result = await parse('@angular/core', { basedir: rootPath });
+    const testing = result.filter(n => n.module === '@angular/core/testing');
     assert(testing.length);
-    const inject = nodes.filter(n => n.name === 'inject');
+    const inject = result.filter(n => n.name === 'inject');
     assert.notEqual(inject.length, 0);
+    assert(result.filter(m => !m.name).length === 0, 'all entries must have name');
 });
 
 it('should not contain duplicated entries (modules)', async () => {
-    const nodes = await parse('@angular/core', { basedir: rootPath });
-    const inject = nodes.filter(n => n.name === 'inject');
+    const result = await parse('@angular/core', { basedir: rootPath });
+    const inject = result.filter(n => n.name === 'inject');
     assert.equal(inject.length, 1);
-    const TestBed = nodes.filter(n => n.name === 'TestBed');
+    const TestBed = result.filter(n => n.name === 'TestBed');
     assert.equal(TestBed.length, 1);
+    assert(result.filter(m => !m.name).length === 0, 'all entries must have name');
 });
 
 it('types node', async () => {
-    const nodes = await parse('@types/node', { basedir: rootPath });
-    const buffer = nodes.filter(m => m.module === 'buffer');
-    const events = nodes.filter(m => m.module === 'events');
+    const result = await parse('@types/node', { basedir: rootPath });
+    const buffer = result.filter(m => m.module === 'buffer');
+    const events = result.filter(m => m.module === 'events');
     assert(events.length > 0);
     assert(buffer.length > 0);
+    assert(result.filter(m => !m.name).length === 0, 'all entries must have name');
 });
 
 it('globals should be eliminated', async () => {
-    const nodes = await parse('@types/node', { basedir: rootPath });
-    const bastards = nodes.filter(m => m.module === '@types/node');
+    const result = await parse('@types/node', { basedir: rootPath });
+    const bastards = result.filter(m => m.module === '@types/node');
     assert.equal(bastards.length, 0);
+    assert(result.filter(m => !m.name).length === 0, 'all entries must have name');
 });
