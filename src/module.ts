@@ -1,5 +1,5 @@
 import resolve = require('resolve');
-import { findFileExtensions } from './directory';
+import { fileExtensions } from './file-extensions';
 import { file } from './file';
 import { Entry } from './entry';
 import { AsyncOpts } from 'resolve';
@@ -7,7 +7,7 @@ import { dirname, resolve as resolvePath } from 'path';
 import { readdir, stat } from 'fs';
 
 const resolveOptions: AsyncOpts = {
-    extensions: findFileExtensions,
+    extensions: fileExtensions,
     packageFilter: (pkg: any) => {
         const { typings, module } = pkg;
         if (typings) {

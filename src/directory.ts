@@ -2,9 +2,9 @@ import { readdir, stat } from 'fs';
 import { Entry } from './entry';
 import { file as parse } from './file';
 import { extname, resolve as resolvePath, parse as parsePath } from 'path';
-const objectValues = require('object-values');
+import { fileExtensions } from './file-extensions';
 
-export const findFileExtensions = ['.ts', '.d.ts', '.js', '.tsx', '.jsx'];
+const objectValues = require('object-values');
 const ignoreDirectoryList = ['node_modules'];
 
 type DirectoryOptions = {
@@ -44,7 +44,7 @@ export function directory(path: string, options: DirectoryOptions = {}): Promise
                         }
                     } else if (stats.isFile()) {
                         const { name, ext } = parsePath(item);
-                        const extIndex = findFileExtensions.indexOf(ext);
+                        const extIndex = fileExtensions.indexOf(ext);
                         if (extIndex !== - 1) {
                             let [nameIndex] = names[name] || [Infinity];
                             if (extIndex < nameIndex) {
