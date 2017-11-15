@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.1.0-alpha.5"></a>
+# [1.1.0-alpha.5](https://github.com/unlight/typescript-exports/compare/v1.1.0-alpha.3...v1.1.0-alpha.5) (2017-11-15)
+
+
+### Bug Fixes
+
+* Ponyfill for Object.values ([cb7cabe](https://github.com/unlight/typescript-exports/commit/cb7cabe))
+
+
+
 <a name="1.1.0-alpha.4"></a>
 # [1.1.0-alpha.4](https://github.com/unlight/typescript-exports/compare/v1.1.0-alpha.3...v1.1.0-alpha.4) (2017-11-14)
 
