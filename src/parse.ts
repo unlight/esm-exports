@@ -68,6 +68,7 @@ export function parse(sourceText: string, options: ParseOptions = {}): Entry[] {
                 }
             } break;
             // case ts.SyntaxKind.ExportAssignment: {
+            //     console.log("node", node);
             //     debugger;
             // } break;
         }

@@ -133,3 +133,13 @@ it.skip('declare namespace', async () => {
     assert.equal(entry.module, 'through2');
     assert.equal(entry.isDefault, true);
 });
+
+it.skip('export as namespace', () => {
+    let source = `
+        export = _;
+        export as namespace _;
+    `;
+    const result = parse(source);
+    console.log("result", result);
+});
+
