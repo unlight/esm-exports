@@ -1,5 +1,8 @@
-~*
-/node_modules/
-/.vscode/
-/lib/
+/node_modules
+/.idea
+/.awcache
+/.vscode
+/.nyc_output
 *.log
+~*
+/lib/

@@ -1,38 +1,41 @@
-/// <reference path="spec.reference.d.ts" />
 import * as assert from 'assert';
 import { directory } from './directory';
-import filter = require('lodash/filter');
+import { normalize } from 'path';
 const pkgDir = require('pkg-dir');
 const rootPath = pkgDir.sync();
 
 it('directory smoke test', () => {
-	assert(directory);
+    assert(directory);
 });
 
-it('should parse directory', () => {
-	return directory(rootPath + '/src')
-		.then(result => {
-			const [parse] = filter(result, item => item.name === 'parse');
-			assert(parse);
-		});
+it('should parse directory', async () => {
+    const result = await directory(`${rootPath}/src`);
+    assert(result.filter(m => !m.name).length === 0, 'all entries must have name');
+    assert(result.length > 0);
+    const [parse] = result.filter(value => value.name === 'parse');
+    assert(parse);
+    assert.equal(normalize(parse.filepath), normalize(`${rootPath}/src/index.ts`));
 });
 
-it('directory target null', () => {
-	return directory(null).catch(err => {
-		assert(err);
-	});
+it('directory target null', async () => {
+    await directory(null).catch(err => assert(err));
 });
 
 it('not existing target', async () => {
-	return directory(rootPath + '/foo')
-		.catch(err => {
-			assert(err);
-		})
+    const result = await directory(`${rootPath}/foo`).catch(err => assert(err));
 });
 
 it('relative target', async () => {
-	return directory('src')
-		.then(result => {
-			assert.notEqual(result.length, 0);
-		});
+    const result = await directory('src');
+    assert(result.filter(m => !m.name).length === 0, 'all entries must have name');
+    assert.notEqual(result.length, 0);
+});
+
+it('should ignore node_modules', async () => {
+    const result = await directory(`${rootPath}`);
+    assert(result.filter(m => !m.name).length === 0, 'all entries must have name');
+    const ts = result.filter(item => item.module === 'typescript');
+    assert.equal(ts.length, 0);
+    const nodeModules = result.filter(item => item.filepath && item.filepath.indexOf('node_modules') !== -1);
+    assert.equal(nodeModules.length, 0);
 });
