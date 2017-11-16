@@ -1,6 +1,6 @@
 {
   "name": "esm-exports",
-  "version": "1.1.0-alpha.5",
+  "version": "1.1.0-alpha.6",
   "description": "Parse ecmascript modules and collect names of export vars, functions, etc.",
   "main": "lib",
   "typings": "src/index.ts",

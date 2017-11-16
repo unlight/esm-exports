@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.1.0-alpha.6"></a>
+# [1.1.0-alpha.6](https://github.com/unlight/typescript-exports/compare/v1.1.0-alpha.5...v1.1.0-alpha.6) (2017-11-16)
+
+
+### Bug Fixes
+
+* Use module options on initial parse ([6ff64a1](https://github.com/unlight/typescript-exports/commit/6ff64a1))
+
+
+
 <a name="1.1.0-alpha.5"></a>
 # [1.1.0-alpha.5](https://github.com/unlight/typescript-exports/compare/v1.1.0-alpha.3...v1.1.0-alpha.5) (2017-11-15)
 
