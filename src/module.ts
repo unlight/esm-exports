@@ -25,7 +25,7 @@ type ModuleOptions = {
 
 export function module(name: string, options: ModuleOptions = {}): Promise<Entry[]> {
     return new Promise<{ entries: Entry[], resolved?: string }>((done, reject) => {
-        resolve(name, resolveOptions, (err, resolved) => {
+        resolve(name, { ...resolveOptions, ...options }, (err, resolved) => {
             if (err) {
                 return reject(err);
             }

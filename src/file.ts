@@ -1,8 +1,7 @@
 import { readFile } from 'fs';
 import { parse } from './parse';
 import { Entry } from './entry';
-import { resolve as resolvePath } from 'path';
-import { dirname } from 'path';
+import { dirname, resolve as resolvePath } from 'path';
 import { resolveOptions } from './module';
 import resolve = require('resolve');
 
