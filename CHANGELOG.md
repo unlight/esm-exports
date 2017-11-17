@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.2.0"></a>
+# [1.2.0](https://github.com/unlight/typescript-exports/compare/v1.1.0-alpha.6...v1.2.0) (2017-11-17)
+
+
+### Features
+
+* Can parse some commonjs modules ([1c8efe5](https://github.com/unlight/typescript-exports/commit/1c8efe5))
+
+
+
+<a name="0.8.5"></a>
+## [0.8.5](https://github.com/unlight/typescript-exports/compare/v0.8.4...v0.8.5) (2017-11-03)
+
+
+
+<a name="0.8.4"></a>
+## [0.8.4](https://github.com/unlight/typescript-exports/compare/v0.8.3...v0.8.4) (2017-10-31)
+
+
+
 <a name="1.1.0-alpha.6"></a>
 # [1.1.0-alpha.6](https://github.com/unlight/typescript-exports/compare/v1.1.0-alpha.5...v1.1.0-alpha.6) (2017-11-16)
 
