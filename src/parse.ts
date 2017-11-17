@@ -23,7 +23,6 @@ export function parse(sourceText: string, options: ParseOptions = {}): Entry[] {
         if (node.pos >= moduleEnd) {
             module = undefined;
         }
-        // (node.getText());
         switch (node.kind) { // eslint-disable-line tslint/config
             case ts.SyntaxKind.ModuleDeclaration: {
                 const isDeclare = Boolean(node.modifiers && node.modifiers.find(m => m.kind === ts.SyntaxKind.DeclareKeyword));
@@ -67,10 +66,9 @@ export function parse(sourceText: string, options: ParseOptions = {}): Entry[] {
                     result.push(new Entry({ name, module, filepath, isDefault }));
                 }
             } break;
-            // case ts.SyntaxKind.ExportAssignment: {
-            //     console.log("node", node);
-            //     debugger;
-            // } break;
+            case ts.SyntaxKind.ExportAssignment: {
+                result.push(new Entry({ module, cjs: true, ts: true }));
+            } break;
         }
         ts.forEachChild(node, walk);
     }

@@ -91,3 +91,12 @@ it('globals should be eliminated', async () => {
     assert.equal(bastards.length, 0);
     assert(result.filter(m => !m.name).length === 0, 'all entries must have name');
 });
+
+it('commonjs modules pkg-dir', async () => {
+    const result = await parse('pkg-dir', { basedir: rootPath });
+    assert(result.length > 0);
+    assert(result.filter(m => m.module !== 'pkg-dir').length === 0);
+    const [entry] = result;
+    assert(entry.module === 'pkg-dir');
+    assert(entry.cjs === true);
+});

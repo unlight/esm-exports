@@ -3,7 +3,7 @@ import { fileExtensions } from './file-extensions';
 import { file } from './file';
 import { Entry } from './entry';
 import { AsyncOpts } from 'resolve';
-import { dirname, resolve as resolvePath } from 'path';
+import { dirname, extname, resolve as resolvePath } from 'path';
 import { readdir, stat } from 'fs';
 
 export const resolveOptions: AsyncOpts = {
@@ -37,6 +37,10 @@ export function module(name: string, options: ModuleOptions = {}): Promise<Entry
     }).then(function next({ entries, resolved }): Promise<Entry[]> {
         if (!resolved) {
             return Promise.resolve(entries);
+        }
+        if (entries.length === 0 && extname(resolved) === '.js') {
+            // Looks like commonjs module.
+            return Promise.resolve([new Entry({ module: name, cjs: true })]);
         }
         let unnamed: Entry[];
         [unnamed, entries] = entries.reduce((result: Entry[][], m) => {

@@ -4,6 +4,8 @@ type EntryConstructor = {
     filepath?: string;
     specifier?: string;
     isDefault?: boolean;
+    cjs?: boolean;
+    ts?: boolean;
 };
 
 export class Entry {
@@ -23,21 +25,24 @@ export class Entry {
 	 * Node module name.
 	 */
     module?: string;
-
 	/**
 	 * Flag indicates export default.
 	 */
     isDefault: boolean;
+    cjs: boolean;
+    ts: boolean;
 
-    constructor({ name, filepath, specifier, module, isDefault }: EntryConstructor) {
+    constructor({ name, filepath, specifier, module, isDefault, cjs, ts }: EntryConstructor) {
         this.name = name;
         this.specifier = specifier;
         this.isDefault = Boolean(isDefault);
         this.module = module;
         this.filepath = filepath;
+        this.cjs = cjs;
+        this.ts = ts;
     }
 
-    hash() {
-        return `${this.name}/${this.module ? this.module : this.filepath}`;
-    }
+    // hash() {
+    //     return `${this.name}/${this.module ? this.module : this.filepath}`;
+    // }
 }

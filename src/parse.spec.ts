@@ -96,10 +96,10 @@ it('should extract declared module http', async () => {
     }
     export var out1: number = 1;
     `;
-    let entries = await parse(source);
-    let out1 = entries.find(e => e.name === 'out1');
+    let result = await parse(source);
+    let out1 = result.find(e => e.name === 'out1');
     assert(out1);
-    let httpEntries = entries.filter(e => e.module === 'http');
+    let httpEntries = result.filter(e => e.module === 'http');
     assert.equal(httpEntries.length, 3);
     assert.equal(httpEntries[0].name, 'METHODS');
     assert.equal(httpEntries[1].name, 'c1');
@@ -121,25 +121,3 @@ it('should extract declared module events', async () => {
     assert.equal(event.name, 'EventEmitter');
     assert.equal(event.module, 'events');
 });
-
-// TODO: How it should behave?
-it.skip('declare namespace', async () => {
-    let source = `
-        declare namespace through2 {
-        }
-        export = through2
-    `;
-    let [entry] = await parse(source);
-    assert.equal(entry.module, 'through2');
-    assert.equal(entry.isDefault, true);
-});
-
-it.skip('export as namespace', () => {
-    let source = `
-        export = _;
-        export as namespace _;
-    `;
-    const result = parse(source);
-    console.log("result", result);
-});
-

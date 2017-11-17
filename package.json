@@ -1,6 +1,6 @@
 {
   "name": "esm-exports",
-  "version": "1.1.0-alpha.6",
+  "version": "1.1.0",
   "description": "Parse ecmascript modules and collect names of export vars, functions, etc.",
   "main": "lib",
   "typings": "src/index.ts",
@@ -25,6 +25,7 @@
     "clean": "rimraf lib",
     "prerelease": "npm run clean",
     "release": "standard-version",
+    "release:undo": "git reset --hard HEAD~ -- && node -p \"let {execSync: x} = require('child_process'); `${x(`git tag -d ${x(`git for-each-ref refs/tags --sort=-taggerdate --format=%(refname:short) --count=1`)}`)}`\"",
     "prepublishOnly": "npm run build",
     "setup": "npm i -g commitizen standard-version && commitizen init cz-conventional-changelog --save-dev",
     "commit": "git-cz"
@@ -37,7 +38,7 @@
   },
   "devDependencies": {
     "@types/mocha": "^2.2.44",
-    "@types/node": "^8.0.52",
+    "@types/node": "^8.0.53",
     "@types/resolve": "0.0.4",
     "chokidar-cli": "^1.2.0",
     "concurrently": "^3.5.0",
