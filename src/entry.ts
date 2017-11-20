@@ -37,7 +37,7 @@ export class Entry {
         this.specifier = specifier;
         this.isDefault = Boolean(isDefault);
         this.module = module;
-        this.filepath = filepath;
+        this.filepath = (!module) ? filepath : undefined;
         this.cjs = cjs;
         this.ts = ts;
     }
