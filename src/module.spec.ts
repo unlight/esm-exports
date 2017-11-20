@@ -78,17 +78,13 @@ it('should not contain duplicated entries (modules)', async () => {
 
 it('types node', async () => {
     const result = await parse('@types/node', { basedir: rootPath });
+    const bastards = result.filter(m => m.module === '@types/node');
+    assert.equal(bastards.length, 0, 'globals should be eliminated');
     const buffer = result.filter(m => m.module === 'buffer');
     const events = result.filter(m => m.module === 'events');
     assert(events.length > 0);
     assert(buffer.length > 0);
-    assert(result.filter(m => !m.name).length === 0, 'all entries must have name');
-});
-
-it('globals should be eliminated', async () => {
-    const result = await parse('@types/node', { basedir: rootPath });
-    const bastards = result.filter(m => m.module === '@types/node');
-    assert.equal(bastards.length, 0);
+    const spawnSyncList = result.filter(m => m.name === 'spawnSync' && m.module === 'child_precess');
     assert(result.filter(m => !m.name).length === 0, 'all entries must have name');
 });
 
