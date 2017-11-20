@@ -40,7 +40,7 @@
     "@types/mocha": "^2.2.44",
     "@types/node": "^8.0.53",
     "@types/resolve": "0.0.4",
-    "benchmarko": "0.0.1",
+    "benchmarko": "0.0.2",
     "chokidar-cli": "^1.2.0",
     "concurrently": "^3.5.0",
     "cz-conventional-changelog": "^2.1.0",
