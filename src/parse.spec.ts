@@ -121,3 +121,29 @@ it('should extract declared module events', async () => {
     assert.equal(event.name, 'EventEmitter');
     assert.equal(event.module, 'events');
 });
+
+it('not too deep parse', async () => {
+    const source = `
+    export function deep() {
+        const x = {a: {c: {d: 1}}};
+        return () => a => b => c => () => ({
+            export = x;
+        });
+    };
+}`;
+    const result = await parse(source);
+    assert.equal(result.length, 1);
+    assert.equal(result[0].name, 'deep');
+});
+
+// it('duplicates must be removed', async () => {
+//     const source = `declare module "child_process" {
+//     export function spawnSync(command: string): SpawnSyncReturns<Buffer>;
+//     export function spawnSync(command: string, options?: SpawnSyncOptionsWithStringEncoding): SpawnSyncReturns<string>;
+// }`;
+//     debugger
+//     const result = await parse(source);
+//     assert.equal(result.length, 1);
+//     assert.equal(result[0].name, 'spawnSync');
+//     assert.equal(result[0].module, 'child_process');
+// });

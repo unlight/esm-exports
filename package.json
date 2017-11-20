@@ -28,7 +28,8 @@
     "release:undo": "git reset --hard HEAD~ -- && node -p \"let {execSync: x} = require('child_process'); `${x(`git tag -d ${x(`git for-each-ref refs/tags --sort=-taggerdate --format=%(refname:short) --count=1`)}`)}`\"",
     "prepublishOnly": "npm run build",
     "setup": "npm i -g commitizen standard-version && commitizen init cz-conventional-changelog --save-dev",
-    "commit": "git-cz"
+    "commit": "git-cz",
+    "benchmark": "ts-node node_modules/benchmarko/lib/bin.js -f benchmarks/parse-module-node"
   },
   "dependencies": {
     "object-values": "^1.0.0",

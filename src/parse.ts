@@ -70,7 +70,15 @@ export function parse(sourceText: string, options: ParseOptions = {}): Entry[] {
                 result.push(new Entry({ module, cjs: true, ts: true }));
             } break;
         }
-        ts.forEachChild(node, walk);
+        if (node.kind === ts.SyntaxKind.SourceFile
+            || node.kind === ts.SyntaxKind.ModuleDeclaration
+            || get('parent.kind', node) === ts.SyntaxKind.SourceFile
+            || get('parent.kind', node) === ts.SyntaxKind.ModuleDeclaration
+            || get('parent.parent.kind', node) === ts.SyntaxKind.SourceFile
+            || get('parent.parent.kind', node) === ts.SyntaxKind.ModuleDeclaration
+        ) {
+            ts.forEachChild(node, walk);
+        }
     }
     return result;
 }
