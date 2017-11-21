@@ -136,14 +136,12 @@ it('not too deep parse', async () => {
     assert.equal(result[0].name, 'deep');
 });
 
-// it('duplicates must be removed', async () => {
-//     const source = `declare module "child_process" {
-//     export function spawnSync(command: string): SpawnSyncReturns<Buffer>;
-//     export function spawnSync(command: string, options?: SpawnSyncOptionsWithStringEncoding): SpawnSyncReturns<string>;
-// }`;
-//     debugger
-//     const result = await parse(source);
-//     assert.equal(result.length, 1);
-//     assert.equal(result[0].name, 'spawnSync');
-//     assert.equal(result[0].module, 'child_process');
-// });
+it('duplicates must be removed', async () => {
+    const source = `
+    export function spawnSync(command: string): SpawnSyncReturns<Buffer>;
+    export function spawnSync(command: string, options?: SpawnSyncOptionsWithStringEncoding): SpawnSyncReturns<string>;
+`;
+    const result = await parse(source);
+    assert.equal(result.length, 1);
+    assert.equal(result[0].name, 'spawnSync');
+});

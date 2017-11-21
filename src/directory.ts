@@ -1,7 +1,7 @@
 import { readdir, stat } from 'fs';
 import { Entry } from './entry';
 import { file as parse } from './file';
-import { extname, resolve as resolvePath, parse as parsePath } from 'path';
+import { resolve as resolvePath, parse as parsePath } from 'path';
 import { fileExtensions } from './file-extensions';
 
 const objectValues = require('object-values');
@@ -26,7 +26,6 @@ export function directory(path: string, options: DirectoryOptions = {}): Promise
         });
     }).then((items: string[]) => {
         const directories: string[] = [];
-        const files: string[] = [];
         let count = items.length;
         if (count === 0) {
             return Promise.resolve([]);

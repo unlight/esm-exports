@@ -9,6 +9,9 @@ type EntryConstructor = {
 };
 
 export class Entry {
+
+    private static count = 1;
+
 	/**
 	 * Export name.
 	 */
@@ -29,8 +32,8 @@ export class Entry {
 	 * Flag indicates export default.
 	 */
     isDefault: boolean;
-    cjs: boolean;
-    ts: boolean;
+    cjs?: boolean;
+    ts?: boolean;
 
     constructor({ name, filepath, specifier, module, isDefault, cjs, ts }: EntryConstructor) {
         this.name = name;
@@ -42,7 +45,11 @@ export class Entry {
         this.ts = ts;
     }
 
-    // hash() {
-    //     return `${this.name}/${this.module ? this.module : this.filepath}`;
-    // }
+    private get counter() {
+        return Entry.count++;
+    }
+
+    id() {
+        return `${this.name || this.counter}${this.isDefault ? '*' : '' }/${this.module ? this.module : this.filepath}`;
+    }
 }

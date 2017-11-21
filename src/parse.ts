@@ -12,11 +12,25 @@ function hasDefaultKeyword(node?: ts.Node) {
     return Boolean(node && node.modifiers && node.modifiers.find(m => m.kind === ts.SyntaxKind.DefaultKeyword));
 }
 
+class EntrySet {
+
+    readonly result: Entry[] = [];
+    private set = new Set<string>();
+
+    push(entry: Entry) {
+        const id = entry.id();
+        if (!this.set.has(id)) {
+            this.set.add(id);
+            this.result.push(entry);
+        }
+    }
+}
+
 export function parse(sourceText: string, options: ParseOptions = {}): Entry[] {
     const sourceFile = ts.createSourceFile('dummy.ts', sourceText, ts.ScriptTarget.ES2015, true);
     let { module, filepath } = options;
     let moduleEnd: number;
-    let result: Entry[] = [];
+    const entrySet = new EntrySet();
     walk(sourceFile);
     function walk(statement: ts.Node) {
         const node = statement;
@@ -44,41 +58,45 @@ export function parse(sourceText: string, options: ParseOptions = {}): Entry[] {
                 const specifier: string = get('moduleSpecifier.text', node);
                 const isDefault = hasDefaultKeyword(node);
                 names.forEach(name => {
-                    result.push(new Entry({ name, module, filepath, specifier, isDefault }));
+                    const entry = new Entry({ name, module, filepath, specifier, isDefault });
+                    entrySet.push(entry);
                 });
             } break;
             case ts.SyntaxKind.ExportKeyword: {
                 const declarations = get('declarationList.declarations', node.parent) || [];
                 declarations.forEach(d => {
-                    const name: string = get('name.text', d);
+                    const name: string = d && d.name && d.name.text;
                     if (name) {
-                        result.push(new Entry({ name, module, filepath }));
+                        const entry = new Entry({ name, module, filepath });
+                        entrySet.push(entry);
                     }
                     const names = get('name.elements', d) || [];
                     names.forEach(d => {
-                        const name: string = get('name.text', d);
-                        result.push(new Entry({ name, module, filepath }));
+                        const name: string = d && d.name && d.name.text;
+                        const entry = new Entry({ name, module, filepath });
+                        entrySet.push(entry);
                     });
                 });
                 const name: string = get('name.text', node.parent);
                 if (name) {
                     const isDefault = hasDefaultKeyword(node.parent);
-                    result.push(new Entry({ name, module, filepath, isDefault }));
+                    const entry = new Entry({ name, module, filepath, isDefault });
+                    entrySet.push(entry);
                 }
             } break;
             case ts.SyntaxKind.ExportAssignment: {
-                result.push(new Entry({ module, cjs: true, ts: true }));
+                entrySet.result.push(new Entry({ module, cjs: true, ts: true }));
             } break;
         }
         if (node.kind === ts.SyntaxKind.SourceFile
             || node.kind === ts.SyntaxKind.ModuleDeclaration
-            || get('parent.kind', node) === ts.SyntaxKind.SourceFile
-            || get('parent.kind', node) === ts.SyntaxKind.ModuleDeclaration
-            || get('parent.parent.kind', node) === ts.SyntaxKind.SourceFile
-            || get('parent.parent.kind', node) === ts.SyntaxKind.ModuleDeclaration
+            || (node.parent && node.parent.kind === ts.SyntaxKind.SourceFile)
+            || (node.parent && node.parent.kind === ts.SyntaxKind.ModuleDeclaration)
+            || (node.parent && node.parent.parent && node.parent.parent.kind === ts.SyntaxKind.SourceFile)
+            || (node.parent && node.parent.parent && node.parent.parent.kind === ts.SyntaxKind.ModuleDeclaration)
         ) {
             ts.forEachChild(node, walk);
         }
     }
-    return result;
+    return entrySet.result;
 }
