@@ -2,6 +2,32 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="2.0.0"></a>
+# [2.0.0](https://github.com/unlight/typescript-exports/compare/v1.2.0...v2.0.0) (2017-11-21)
+
+
+### Bug Fixes
+
+* **parse:** Removed duplicated entries ([8811669](https://github.com/unlight/typescript-exports/commit/8811669)), closes [#2](https://github.com/unlight/typescript-exports/issues/2)
+
+
+### Features
+
+* **benchmark:** Run benchmarks between two commits ([8ecf3b2](https://github.com/unlight/typescript-exports/commit/8ecf3b2))
+* **entry:** Keep only module or filepath ([968c9f8](https://github.com/unlight/typescript-exports/commit/968c9f8))
+
+
+### Performance Improvements
+
+* **parse:** Check depth is set to 3 ([24c320f](https://github.com/unlight/typescript-exports/commit/24c320f))
+
+
+### BREAKING CHANGES
+
+* **entry:** Entry class do not contains filepath property if module is defined
+
+
+
 <a name="1.2.0"></a>
 # [1.2.0](https://github.com/unlight/typescript-exports/compare/v1.1.0-alpha.6...v1.2.0) (2017-11-17)
 
