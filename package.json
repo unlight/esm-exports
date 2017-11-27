@@ -5,7 +5,7 @@
   "main": "lib",
   "typings": "src/index.ts",
   "scripts": {
-    "fixtures": "npm i --no-save angular2-calendar rxjs gulp-tslint @angular/core",
+    "fixtures": "npm i --no-save angular2-calendar rxjs gulp-tslint @angular/core @types/express",
     "pretest": "npm run fixtures",
     "test": "npm run eslint && npm run tscheck && npm run t",
     "t": "npm run mocha -- src/*.spec.ts",

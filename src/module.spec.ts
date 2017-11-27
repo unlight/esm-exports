@@ -96,3 +96,11 @@ it('commonjs modules pkg-dir', async () => {
     assert(entry.module === 'pkg-dir');
     assert(entry.cjs === true);
 });
+
+it('types express', async () => {
+    const result = await parse('@types/express', { basedir: rootPath });
+    assert(result.length > 0);
+    const request = result.find(n => n.name === 'Request');
+    assert(request);
+    assert(request.module === 'express');
+});

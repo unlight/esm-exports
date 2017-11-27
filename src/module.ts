@@ -23,9 +23,13 @@ type ModuleOptions = {
     basedir?: string;
 };
 
-export function module(name: string, options: ModuleOptions = {}): Promise<Entry[]> {
+export function module(id: string, options: ModuleOptions = {}): Promise<Entry[]> {
+    let name = id;
+    if (name.indexOf('@types/') === 0) {
+        name = name.slice(7);
+    }
     return new Promise<{ entries: Entry[], resolved?: string }>((done, reject) => {
-        resolve(name, { ...resolveOptions, ...options }, (err, resolved) => {
+        resolve(id, { ...resolveOptions, ...options }, (err, resolved) => {
             if (err) {
                 return reject(err);
             }
@@ -75,7 +79,7 @@ export function module(name: string, options: ModuleOptions = {}): Promise<Entry
             return entries;
         });
     }).then(entries => {
-        const dirpath = resolvePath(options.basedir || '.', 'node_modules', name);
+        const dirpath = resolvePath(options.basedir || '.', 'node_modules', id);
         const submodules: string[] = [];
         return new Promise<string[]>((done, reject) => {
             readdir(dirpath, (err, items) => {
@@ -89,7 +93,7 @@ export function module(name: string, options: ModuleOptions = {}): Promise<Entry
                 items.forEach(item => {
                     stat(resolvePath(dirpath, item, 'package.json'), (err, stats) => {
                         if (stats && stats.isFile()) {
-                            submodules.push(`${name}/${item}`);
+                            submodules.push(`${id}/${item}`);
                         }
                         if (--count === 0) {
                             done(submodules);

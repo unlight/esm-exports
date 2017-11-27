@@ -5,98 +5,98 @@ it('smoke test', () => {
     assert(parse);
 });
 
-it('var export', async () => {
+it('var export', () => {
     let code = `export var aaa = 1`;
-    let [result] = await parse(code);
+    let [result] = parse(code);
     assert.equal(result.name, 'aaa');
 });
 
-it('several var export', async () => {
+it('several var export', () => {
     let code = `export var aaa, bbb`;
-    let [result, result2] = await parse(code);
+    let [result, result2] = parse(code);
     assert.equal(result.name, 'aaa');
     assert.equal(result2.name, 'bbb');
 });
 
-it('export all', async () => {
+it('export all', () => {
     let code = `export * from './provider'`;
-    let [result] = await parse(code);
+    let [result] = parse(code);
     assert.equal(result.specifier, './provider');
 });
 
-it('export some from module', async () => {
+it('export some from module', () => {
     let code = `export {var1} from './provider'`;
-    let [result] = await parse(code);
+    let [result] = parse(code);
     assert.equal(result.name, 'var1');
     assert.equal(result.specifier, './provider');
 });
 
-it('pick export', async () => {
+it('pick export', () => {
     let code = `export { CalendarEvent, EventAction } from 'calendar-utils'`;
-    var [first, second] = await parse(code);
+    var [first, second] = parse(code);
     assert.equal(first.name, 'CalendarEvent');
     assert.equal(first.specifier, 'calendar-utils');
     assert.equal(second.name, 'EventAction');
 });
 
-it('export declare class', async () => {
+it('export declare class', () => {
     let code = `export declare class Calendar`;
-    let [result] = await parse(code);
+    let [result] = parse(code);
     assert.equal(result.name, 'Calendar');
 });
 
-it('export class', async () => {
+it('export class', () => {
     let code = `export class Aaa`;
-    let [result] = await parse(code);
+    let [result] = parse(code);
     assert.equal(result.name, 'Aaa');
 });
 
-it('export interface', async () => {
+it('export interface', () => {
     let code = `export interface Entry {}`;
-    let [result] = await parse(code);
+    let [result] = parse(code);
     assert.equal(result.name, 'Entry');
 });
 
-it('export function', async () => {
+it('export function', () => {
     let code = `export function dummy() {}`;
-    let [result] = await parse(code);
+    let [result] = parse(code);
     assert.equal(result.name, 'dummy');
 });
 
-it('export several vars', async () => {
+it('export several vars', () => {
     let code = `export {somevar, otherVar}`;
-    let [result, other] = await parse(code);
+    let [result, other] = parse(code);
     assert.equal(result.name, 'somevar');
     assert.equal(other.name, 'otherVar');
 });
 
-it('export default', async () => {
+it('export default', () => {
     let code = `export default function foo() {}`;
-    var [entry] = await parse(code);
+    var [entry] = parse(code);
     assert.equal(entry.name, 'foo');
     assert.equal(entry.isDefault, true);
 });
 
-it('empty source', async () => {
+it('empty source', () => {
     let code = ``;
-    var result = await parse(code);
+    var result = parse(code);
     assert.deepEqual(result, []);
 });
 
-it('object binding', async () => {
+it('object binding', () => {
     let code = `export const {ModuleStore} = $traceurRuntime;`;
-    let [result1] = await parse(code);
+    let [result1] = parse(code);
     assert.equal(result1.name, 'ModuleStore');
 });
 
-it('should extract declared module http', async () => {
+it('should extract declared module http', () => {
     let source = `declare module "http" {
         export var METHODS: string[];
         export const c1, c2: any;
     }
     export var out1: number = 1;
     `;
-    let result = await parse(source);
+    let result = parse(source);
     let out1 = result.find(e => e.name === 'out1');
     assert(out1);
     let httpEntries = result.filter(e => e.module === 'http');
@@ -106,7 +106,7 @@ it('should extract declared module http', async () => {
     assert.equal(httpEntries[2].name, 'c2');
 });
 
-it('should extract declared module events', async () => {
+it('should extract declared module events', () => {
     let source = `declare module "events" {
         class internal extends NodeJS.EventEmitter { }
         namespace internal {
@@ -115,14 +115,14 @@ it('should extract declared module events', async () => {
         }
         export = internal;
     }`;
-    let entries = await parse(source);
+    let entries = parse(source);
     let event = entries.find(e => e.name === 'EventEmitter');
     assert(event);
     assert.equal(event.name, 'EventEmitter');
     assert.equal(event.module, 'events');
 });
 
-it('not too deep parse', async () => {
+it('not too deep parse', () => {
     const source = `
     export function deep() {
         const x = {a: {c: {d: 1}}};
@@ -131,17 +131,34 @@ it('not too deep parse', async () => {
         });
     };
 }`;
-    const result = await parse(source);
+    const result = parse(source);
     assert.equal(result.length, 1);
     assert.equal(result[0].name, 'deep');
 });
 
-it('duplicates must be removed', async () => {
+it('duplicates must be removed', () => {
     const source = `
     export function spawnSync(command: string): SpawnSyncReturns<Buffer>;
     export function spawnSync(command: string, options?: SpawnSyncOptionsWithStringEncoding): SpawnSyncReturns<string>;
 `;
-    const result = await parse(source);
+    const result = parse(source);
     assert.equal(result.length, 1);
     assert.equal(result[0].name, 'spawnSync');
+});
+
+it('simulated commonjs', () => {
+    const source = `
+declare namespace e {
+    interface Request extends core.Request { }
+}
+declare namespace d {
+    declare const x = 1;
+    function y() {}
+}
+export = e;
+`;
+    const result = parse(source);
+    assert.equal(result.length, 1);
+    assert.equal(result[0].name, 'Request');
+    assert.equal(result[0].cjs, true);
 });
