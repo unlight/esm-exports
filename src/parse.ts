@@ -51,10 +51,10 @@ function getDeclarations(node: ts.Node, options: any) {
 
 export function parse(sourceText: string, options: ParseOptions = {}): Entry[] {
     const sourceFile = ts.createSourceFile('dummy.ts', sourceText, ts.ScriptTarget.ES2015, true);
-    let { module, filepath } = options;
+    let { module, filepath } = options; // eslint-disable-line tslint/config
     let moduleEnd: number | undefined;
     let moduleName: string | undefined;
-    let moduleBlockDeclarations: { [k: string]: Entry[] } = {};
+    const moduleBlockDeclarations: { [k: string]: Entry[] } = {};
     const entrySet = new EntrySet();
     walk(sourceFile);
     function walk(statement: ts.Node) {

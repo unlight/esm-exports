@@ -12,25 +12,25 @@ export class Entry {
 
     private static count = 1;
 
-	/**
-	 * Export name.
-	 */
+    /**
+     * Export name.
+     */
     name?: string;
-	/**
-	 * Canonicalized absolute pathname.
-	 */
+    /**
+     * Canonicalized absolute pathname.
+     */
     filepath?: string;
-	/**
-	 * [specifier description]
-	 */
+    /**
+     * [specifier description]
+     */
     specifier?: string;
-	/**
-	 * Node module name.
-	 */
+    /**
+     * Node module name.
+     */
     module?: string;
-	/**
-	 * Flag indicates export default.
-	 */
+    /**
+     * Flag indicates export default.
+     */
     isDefault: boolean;
     cjs?: boolean;
     ts?: boolean;

@@ -12,6 +12,8 @@ const tslintRules = Object.assign({}, tslintRulesRecommended, {
     "no-shadowed-variable": false,
     "only-arrow-functions": false,
     "no-var-requires": false,
+    "interface-over-type-literal": false,
+    "align": false,
 });
 
 module.exports = {

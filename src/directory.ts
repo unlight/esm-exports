@@ -13,7 +13,7 @@ type DirectoryOptions = {
 
 export function directory(path: string, options: DirectoryOptions = {}): Promise<Entry[]> {
     try {
-        var dirpath = resolvePath(options.basedir || '.', path);
+        var dirpath = resolvePath(options.basedir || '.', path); // eslint-disable-line tslint/config
     } catch (err) {
         return Promise.reject(err);
     }
@@ -45,7 +45,7 @@ export function directory(path: string, options: DirectoryOptions = {}): Promise
                         const { name, ext } = parsePath(item);
                         const extIndex = fileExtensions.indexOf(ext);
                         if (extIndex !== - 1) {
-                            let [nameIndex] = names[name] || [Infinity];
+                            const [nameIndex] = names[name] || [Infinity];
                             if (extIndex < nameIndex) {
                                 names[name] = [extIndex, item];
                             }
