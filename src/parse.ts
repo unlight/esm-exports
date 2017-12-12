@@ -117,8 +117,9 @@ export function parse(sourceText: string, options: ParseOptions = {}): Entry[] {
             } break;
             case ts.SyntaxKind.ExportAssignment: {
                 const expr = (node as any).expression && (node as any).expression.text;
-                if (expr && moduleBlockDeclarations[expr]) {
-                    moduleBlockDeclarations[expr].forEach(entry => {
+                const declarations = expr && moduleBlockDeclarations && moduleBlockDeclarations[expr];
+                if (Array.isArray(declarations)) {
+                    declarations.forEach(entry => {
                         entry.cjs = true;
                         entry.ts = true;
                         entrySet.push(entry);
