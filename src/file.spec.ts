@@ -14,3 +14,8 @@ it('import all should contain name', async () => {
     const [x2] = result.filter(m => m.name === 'x2');
     assert.equal(x2.filepath, normalize(`${rootPath}/fixtures/component/index.ts`));
 });
+
+it('try to parse unexisting file', async () => {
+    const result = await file(`${rootPath}/fixtures/lead-to-unknown.ts`);
+    assert(result.length === 0);
+});

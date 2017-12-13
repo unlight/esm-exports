@@ -116,9 +116,9 @@ export function module(id: string, options: ModuleOptions = {}): Promise<Entry[]
             return entries;
         });
     }).catch(err => {
-        if (err && err.code === 'MODULE_NOT_FOUND') {
+        if (err && (err.code === 'MODULE_NOT_FOUND' || err.code === 'ENOENT')) {
             return Promise.resolve([]);
         }
-        return err;
+        return Promise.reject(err);
     });
 }

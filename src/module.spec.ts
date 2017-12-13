@@ -104,3 +104,12 @@ it('types express', async () => {
     assert(request);
     assert(request.module === 'express');
 });
+
+it('types fs-extra', async () => {
+    const result = await parse('@types/fs-extra', { basedir: rootPath });
+    assert(result.length > 0);
+    const [copy] = result.filter(m => m.name === 'copy');
+    assert(copy);
+    const [copyOptions] = result.filter(m => m.name === 'CopyOptions');
+    assert(copyOptions);
+});

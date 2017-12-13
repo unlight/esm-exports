@@ -59,7 +59,7 @@ export function parse(sourceText: string, options: ParseOptions = {}): Entry[] {
     walk(sourceFile);
     function walk(statement: ts.Node) {
         const node = statement;
-        if (node.pos >= moduleEnd) {
+        if (node.pos >= moduleEnd!) {
             module = options.module;
             moduleName = undefined;
             moduleEnd = undefined;

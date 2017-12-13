@@ -34,18 +34,24 @@ export function file(path: string, options: FileOptions = {}): Promise<Entry[]> 
             }
             const basedir = dirname(filepath);
             const promises = unnamed.map(m => {
-                return new Promise<Entry[]>((done, reject) => {
+                return new Promise<Entry[]>((done) => {
                     if (!m.specifier) {
-                        return done([]);
+                        done([]);
+                        return;
                     }
                     resolve(m.specifier, { ...resolveOptions, basedir }, (err, resolved) => {
+                        // Supress error, file do not exists or not readable
+                        // E.g. export * from "fs"
                         if (err) {
-                            return reject(err);
+                            done([]);
+                            return;
                         }
                         if (resolved) {
                             return file(resolved, options).then(items => {
                                 done(items);
-                            }, reject);
+                            }, () => {
+                                done([]);
+                            });
                         }
                         done([]);
                     });
