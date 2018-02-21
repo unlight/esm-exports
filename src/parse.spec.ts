@@ -169,3 +169,18 @@ export = e;
     assert.equal(result[0].name, 'Request');
     assert.equal(result[0].cjs, true);
 });
+
+it('preact declaration', () => {
+    const source = `
+declare namespace preact {
+    function rerender();
+    type AnyComponent = {};
+}
+declare module "preact" {
+    export = preact;
+}
+`;
+    const result = parse(source);
+    assert(result[0].name === 'rerender');
+    assert(result[1].name === 'AnyComponent');
+});

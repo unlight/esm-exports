@@ -113,3 +113,8 @@ it('types fs-extra', async () => {
     const [copyOptions] = result.filter(m => m.name === 'CopyOptions');
     assert(copyOptions);
 });
+
+it('preact', async () => {
+    const result = await parse('preact', { basedir: rootPath });
+    assert(result.length > 0);
+});

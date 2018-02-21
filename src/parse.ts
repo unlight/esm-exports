@@ -74,7 +74,7 @@ export function parse(sourceText: string, options: ParseOptions = {}): Entry[] {
                 if (moduleName) {
                     if (resolve.isCore(moduleName)) {
                         module = moduleName;
-                    } else {
+                    } else if (!Array.isArray(moduleBlockDeclarations[moduleName]))  {
                         moduleBlockDeclarations[moduleName] = [];
                     }
                 }
