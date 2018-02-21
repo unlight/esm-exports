@@ -77,8 +77,7 @@ it('export default', () => {
     assert.equal(entry.isDefault, true);
 });
 
-it.only('export default var', () => {
-    debugger;
+it('export default var', () => {
     const code = `export default component`;
     const [entry] = parse(code);
     assert.equal(entry.name, 'component');

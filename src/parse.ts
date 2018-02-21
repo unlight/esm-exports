@@ -116,16 +116,19 @@ export function parse(sourceText: string, options: ParseOptions = {}): Entry[] {
                 entries.forEach(entry => entrySet.push(entry));
             } break;
             case ts.SyntaxKind.ExportAssignment: {
-                const expr = (node as any).expression && (node as any).expression.text;
-                const declarations = expr && moduleBlockDeclarations && moduleBlockDeclarations[expr];
+                const expression = (node as any).expression;
+                const text = expression && expression.text;
+                const declarations = text && moduleBlockDeclarations && moduleBlockDeclarations[text];
                 if (Array.isArray(declarations)) {
                     declarations.forEach(entry => {
                         entry.cjs = true;
                         entry.ts = true;
                         entrySet.push(entry);
                     });
-                } else {
+                } else if (module) {
                     entrySet.result.push(new Entry({ module, cjs: true, ts: true }));
+                } else if (expression && expression.kind === ts.SyntaxKind.Identifier && text) {
+                    entrySet.result.push(new Entry({ name: text, module, filepath, isDefault: true }));
                 }
             } break;
         }
