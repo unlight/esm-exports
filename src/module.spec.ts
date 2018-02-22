@@ -21,7 +21,7 @@ it('angular2-calendar', async function() {
 it('rxjs module, node_modules names should be uniq', async () => {
     const result = await parse('rxjs', { basedir: rootPath });
     const names = result.map(item => item.name);
-    const uniqNames: string[] = Array.from(new Set(names));
+    const uniqNames: string[] = [...new Set(names)];
     assert.equal(uniqNames.length, names.length);
     assert(result.filter(m => !m.name).length === 0, 'all entries must have name');
 });
