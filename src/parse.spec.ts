@@ -77,6 +77,13 @@ it('export default', () => {
     assert.equal(entry.isDefault, true);
 });
 
+it('export default var', () => {
+    const code = `export default component`;
+    const [entry] = parse(code);
+    assert.equal(entry.name, 'component');
+    assert.equal(entry.isDefault, true);
+});
+
 it('empty source', () => {
     const code = ``;
     const result = parse(code);
@@ -161,4 +168,19 @@ export = e;
     assert.equal(result.length, 1);
     assert.equal(result[0].name, 'Request');
     assert.equal(result[0].cjs, true);
+});
+
+it('preact declaration', () => {
+    const source = `
+declare namespace preact {
+    function rerender();
+    type AnyComponent = {};
+}
+declare module "preact" {
+    export = preact;
+}
+`;
+    const result = parse(source);
+    assert(result[0].name === 'rerender');
+    assert(result[1].name === 'AnyComponent');
 });
