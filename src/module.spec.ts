@@ -118,3 +118,16 @@ it('preact', async () => {
     const result = await parse('preact', { basedir: rootPath });
     assert(result.length > 0);
 });
+
+it('hover', async () => {
+    const result = await parse('hover', { basedir: rootPath });
+    assert(result.length > 0);
+});
+
+it('type-zoo', async () => {
+    const result = await parse('type-zoo', { basedir: rootPath });
+    assert.notEqual(result.length, 0);
+    assert(result.find(f => f.name === 'Diff'));
+    assert(result.find(f => f.name === 'NonNullable'));
+    assert(result.find(f => f.name === 'unknown'));
+});

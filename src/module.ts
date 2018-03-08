@@ -25,18 +25,34 @@ type ModuleOptions = {
 
 export function module(id: string, options: ModuleOptions = {}): Promise<Entry[]> {
     let name = id;
+    let isTypes = false;
     if (name.indexOf('@types/') === 0) {
+        isTypes = true;
         name = name.slice(7);
     }
     return new Promise<{ entries: Entry[], resolved?: string }>((done, reject) => {
-        resolve(id, { ...resolveOptions, ...options }, (err, resolved) => {
+        resolve(id, { ...resolveOptions, ...options }, (err: Error & { code?: string }, resolved) => {
+            const next = (resolved: string) => {
+                if (resolved) {
+                    return file(resolved, { module: name }).then(entries => done({ entries, resolved }), reject);
+                }
+                done({ entries: [], resolved: undefined });
+            };
             if (err) {
-                return reject(err);
+                if (err.code === 'MODULE_NOT_FOUND' && !isTypes) {
+                    resolve(`${id}/types`, { ...resolveOptions, ...options }, (err, resolved) => {
+                        if (err) {
+                            return reject(err);
+                        } else {
+                            return next(resolved);
+                        }
+                    });
+                } else {
+                    reject(err);
+                }
+            } else {
+                next(resolved);
             }
-            if (resolved) {
-                return file(resolved, { module: name }).then(entries => done({ entries, resolved }), reject);
-            }
-            done({ entries: [], resolved: undefined });
         });
     }).then(function next({ entries, resolved }): Promise<Entry[]> {
         if (!resolved) {
