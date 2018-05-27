@@ -20,9 +20,9 @@ it('angular2-calendar', async function() {
 
 it('rxjs module, node_modules names should be uniq', async () => {
     const result = await parse('rxjs', { basedir: rootPath });
-    const names = result.map(item => item.name);
-    const uniqNames: string[] = [...new Set(names)];
-    assert.equal(uniqNames.length, names.length);
+    const ids = result.map(item => item.id());
+    const uniqIds: string[] = [...new Set(ids)];
+    assert.equal(uniqIds.length, ids.length);
     assert(result.filter(m => !m.name).length === 0, 'all entries must have name');
 });
 
@@ -69,7 +69,7 @@ it('should find inner module properly', async () => {
 
 it('should not contain duplicated entries (modules)', async () => {
     const result = await parse('@angular/core', { basedir: rootPath });
-    const inject = result.filter(n => n.name === 'inject');
+    const inject = result.filter(n => n.name === 'inject' && n.module === '@angular/core');
     assert.equal(inject.length, 1);
     const TestBed = result.filter(n => n.name === 'TestBed');
     assert.equal(TestBed.length, 1);
@@ -127,7 +127,6 @@ it('hover', async () => {
 it('type-zoo', async () => {
     const result = await parse('type-zoo', { basedir: rootPath });
     assert.notEqual(result.length, 0);
-    assert(result.find(f => f.name === 'Diff'));
-    assert(result.find(f => f.name === 'NonNullable'));
+    assert(result.find(f => f.name === 'Required'));
     assert(result.find(f => f.name === 'unknown'));
 });
