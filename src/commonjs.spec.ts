@@ -1,7 +1,7 @@
 import { parse } from './index';
 import assert = require('assert');
 
-it('assert with additional functions', () => {
+it.only('assert with additional functions', () => {
     const source = `
 declare module "assert" {
     function internal(value: any, message?: string): void;
@@ -15,6 +15,7 @@ declare module "assert" {
     assert(result.length === 2);
     const [entry2, entry1] = result;
 
+    assert.equal(entry1.name, 'internal');
     assert.equal(entry1.module, 'assert');
     assert.equal(entry1.isDefault, false);
     assert.equal(entry1.cjs, true);

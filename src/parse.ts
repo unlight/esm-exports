@@ -56,6 +56,7 @@ export function parse(sourceText: string, options: ParseOptions = {}): Entry[] {
     let moduleName: string | undefined;
     const moduleBlockDeclarations: { [k: string]: Entry[] } = {};
     const entrySet = new EntrySet();
+    let exportExpression: ts.Expression;
     walk(sourceFile);
     function walk(statement: ts.Node) {
         const node = statement;
@@ -74,8 +75,6 @@ export function parse(sourceText: string, options: ParseOptions = {}): Entry[] {
                 if (moduleName) {
                     if (resolve.isCore(moduleName)) {
                         module = moduleName;
-                    } else if (!Array.isArray(moduleBlockDeclarations[moduleName]))  {
-                        moduleBlockDeclarations[moduleName] = [];
                     }
                 }
                 moduleEnd = node.end;
@@ -89,8 +88,11 @@ export function parse(sourceText: string, options: ParseOptions = {}): Entry[] {
             case ts.SyntaxKind.EnumDeclaration:
             case ts.SyntaxKind.VariableDeclaration: {
                 if (node.parent!.kind === ts.SyntaxKind.ModuleBlock) {
-                    if (moduleName && moduleBlockDeclarations[moduleName]) {
+                    if (moduleName) {
                         const entries = getDeclarations(node, { module, filepath });
+                        if (!Array.isArray(moduleBlockDeclarations[moduleName])) {
+                            moduleBlockDeclarations[moduleName] = [];
+                        }
                         moduleBlockDeclarations[moduleName].push(...entries);
                     }
                 }
@@ -116,20 +118,7 @@ export function parse(sourceText: string, options: ParseOptions = {}): Entry[] {
                 entries.forEach(entry => entrySet.push(entry));
             } break;
             case ts.SyntaxKind.ExportAssignment: {
-                const expression = (node as any).expression;
-                const text = expression && expression.text;
-                const declarations = text && moduleBlockDeclarations && moduleBlockDeclarations[text];
-                if (Array.isArray(declarations)) {
-                    declarations.forEach(entry => {
-                        entry.cjs = true;
-                        entry.ts = true;
-                        entrySet.push(entry);
-                    });
-                } else if (module) {
-                    entrySet.result.push(new Entry({ module, cjs: true, ts: true }));
-                } else if (expression && expression.kind === ts.SyntaxKind.Identifier && text) {
-                    entrySet.result.push(new Entry({ name: text, module, filepath, isDefault: true }));
-                }
+                exportExpression = (node as ts.ExportAssignment).expression;
             } break;
         }
         if (node.kind === ts.SyntaxKind.SourceFile
@@ -140,6 +129,25 @@ export function parse(sourceText: string, options: ParseOptions = {}): Entry[] {
             || (node.parent && node.parent.parent && node.parent.parent.kind === ts.SyntaxKind.ModuleDeclaration)
         ) {
             ts.forEachChild(node, walk);
+        }
+    }
+    // console.log("module", module);
+    // console.log("moduleBlockDeclarations", moduleBlockDeclarations);
+    // console.log("exportExpression.getText()", exportExpression.getText());
+    // console.log("entrySet.result", entrySet.result);
+    if (exportExpression) {
+        const exportText = exportExpression.getText();
+        const declarations = moduleBlockDeclarations[exportText];
+        if (Array.isArray(declarations)) {
+            declarations.forEach(entry => {
+                entry.cjs = true;
+                entry.ts = true;
+                entrySet.push(entry);
+            });
+        } else if (module) {
+            entrySet.result.push(new Entry({ module, cjs: true, ts: true }));
+        } else if (exportExpression.kind === ts.SyntaxKind.Identifier && exportText) {
+            entrySet.result.push(new Entry({ name: exportText, module, filepath, isDefault: true }));
         }
     }
     return entrySet.result;
