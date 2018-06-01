@@ -41,7 +41,7 @@ it('node core with additional functions', () => {
     assert.equal(entry2.isDefault, false);
 });
 
-it.skip('commonjs module.exports 1', () => {
+it('commonjs module.exports 1', () => {
     const source = `module.exports.myfunc = () => {}`;
     const [entry] = parse(source);
     assert(entry);

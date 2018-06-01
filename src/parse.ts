@@ -120,6 +120,16 @@ export function parse(sourceText: string, options: ParseOptions = {}): Entry[] {
             case ts.SyntaxKind.ExportAssignment: {
                 exportExpression = (node as ts.ExportAssignment).expression;
             } break;
+            case ts.SyntaxKind.BinaryExpression: {
+                const node = (statement as ts.BinaryExpression);
+                if (node.left.kind === ts.SyntaxKind.PropertyAccessExpression && (node.left as ts.PropertyAccessExpression).expression.kind === ts.SyntaxKind.PropertyAccessExpression) {
+                    const property = node.left as ts.PropertyAccessExpression;
+                    if (property.expression.getText() === 'module.exports') {
+                        const name = property.name.text;
+                        entrySet.push(new Entry({ name, module, filepath, cjs: true }));
+                    }
+                }
+            } break;
         }
         if (node.kind === ts.SyntaxKind.SourceFile
             || node.kind === ts.SyntaxKind.ModuleDeclaration
