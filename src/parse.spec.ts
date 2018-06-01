@@ -1,5 +1,6 @@
 import * as assert from 'assert';
 import { parse } from './parse';
+import { Entry } from './entry';
 
 it('smoke test', () => {
     assert(parse);
@@ -80,6 +81,7 @@ it('export default', () => {
 it('export default var', () => {
     const code = `export default component`;
     const [entry] = parse(code);
+    assert(entry);
     assert.equal(entry.name, 'component');
     assert.equal(entry.isDefault, true);
 });
@@ -164,7 +166,7 @@ declare namespace d {
 }
 export = e;
 `;
-    const result = parse(source);
+    const result = parse(source, { module: 'somecjs' });
     assert.equal(result.length, 1);
     assert.equal(result[0].name, 'Request');
     assert.equal(result[0].cjs, true);
@@ -180,7 +182,35 @@ declare module "preact" {
     export = preact;
 }
 `;
-    const result = parse(source);
+    const result = parse(source, { module: 'preact' });
     assert(result[0].name === 'rerender');
     assert(result[1].name === 'AnyComponent');
+});
+
+it.skip('react definitions', () => {
+    const source = `
+export = React;
+export as namespace React;
+declare namespace React {
+    type ReactType<P = any> = string | ComponentType<P>;
+    interface Component<P = {}, S = {}> extends ComponentLifecycle<P, S> { }
+    class PureComponent<P = {}, S = {}> extends Component<P, S> { }
+}
+`;
+    const result = parse(source);
+    assert(result.length > 0);
+});
+
+it('webpack', () => {
+    const source = `
+        export = webpack;
+        declare function webpack(options?: webpack.Configuration): webpack.Compiler;
+        declare namespace webpack {
+            interface Configuration {
+            }
+        }
+    `;
+    const result = parse(source, { module: 'webpack' });
+    const configuration: Entry = result.find(e => e.name === 'Configuration');
+    assert(configuration);
 });
