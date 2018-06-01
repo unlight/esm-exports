@@ -131,10 +131,7 @@ export function parse(sourceText: string, options: ParseOptions = {}): Entry[] {
             ts.forEachChild(node, walk);
         }
     }
-    // console.log("module", module);
-    // console.log("moduleBlockDeclarations", moduleBlockDeclarations);
-    // console.log("exportExpression.getText()", exportExpression.getText());
-    // console.log("entrySet.result", entrySet.result);
+
     if (exportExpression) {
         const exportText = exportExpression.getText();
         const declarations = moduleBlockDeclarations[exportText];
@@ -150,5 +147,6 @@ export function parse(sourceText: string, options: ParseOptions = {}): Entry[] {
             entrySet.result.push(new Entry({ name: exportText, module, filepath, isDefault: true }));
         }
     }
+
     return entrySet.result;
 }
