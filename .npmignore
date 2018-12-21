@@ -5,3 +5,4 @@
 /fixtures/
 /.eslintrc.js
 /.editorconfig
+/benchmarks

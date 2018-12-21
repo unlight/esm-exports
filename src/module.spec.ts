@@ -130,3 +130,7 @@ it('type-zoo', async () => {
     assert(result.find(f => f.name === 'Required'));
     assert(result.find(f => f.name === 'unknown'));
 });
+
+it.skip('material-design-iconic-font', async () => {
+    const result = await parse('material-design-iconic-font', { basedir: rootPath });
+});
