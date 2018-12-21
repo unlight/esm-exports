@@ -5,7 +5,7 @@
   "main": "dist",
   "typings": "dist/index.d.ts",
   "scripts": {
-    "fixtures": "npm i --no-save angular2-calendar rxjs gulp-tslint @angular/core @types/express @types/fs-extra preact type-zoo hover material-design-iconic-font@2.2.0",
+    "fixtures": "npm i --no-save angular2-calendar rxjs gulp-tslint @angular/core @types/express @types/fs-extra preact type-zoo@2 hover material-design-iconic-font@2.2.0",
     "pretest": "npm run fixtures",
     "test": "npm run eslint && npm run tscheck && npm run test:r",
     "test:r": "npm run mocha -- src/*.spec.ts",
