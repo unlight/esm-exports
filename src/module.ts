@@ -39,7 +39,7 @@ export function module(id: string, options: ModuleOptions = {}): Promise<Entry[]
                 done({ entries: [], resolved: undefined });
             };
             if (err) {
-                if (err.code === 'MODULE_NOT_FOUND' && !isTypes) {
+                if ((err.code === 'MODULE_NOT_FOUND' || err.code === 'INVALID_PACKAGE_MAIN') && !isTypes) {
                     resolve(`${id}/types`, { ...resolveOptions, ...options }, (err, resolved) => {
                         if (err) {
                             return reject(err);

@@ -131,6 +131,6 @@ it('type-zoo', async () => {
     assert(result.find(f => f.name === 'unknown'));
 });
 
-it.skip('material-design-iconic-font', async () => {
+it('material-design-iconic-font contains invalid package main', async () => {
     const result = await parse('material-design-iconic-font', { basedir: rootPath });
 });
