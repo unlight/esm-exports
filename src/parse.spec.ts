@@ -167,7 +167,6 @@ declare namespace d {
 export = e;
 `;
     const result = parse(source, { module: 'somecjs' });
-    assert.equal(result.length, 1);
     assert.equal(result[0].name, 'Request');
     assert.equal(result[0].cjs, true);
 });
@@ -213,4 +212,15 @@ it('webpack', () => {
     const result = parse(source, { module: 'webpack' });
     const configuration: Entry = result.find(e => e.name === 'Configuration');
     assert(configuration);
+});
+
+it('declare module function', () => {
+    const source = `
+    declare module "fs" {
+        function readFile();
+    }
+    `;
+    const result = parse(source, { module: '@types/node' });
+    assert(result.length === 1);
+    assert(result.find(e => e.module == 'fs' && e.name === 'readFile'));
 });

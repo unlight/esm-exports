@@ -66,11 +66,8 @@ export function parse(sourceText: string, options: ParseOptions = {}): Entry[] {
             moduleEnd = undefined;
         }
         switch (node.kind) { // eslint-disable-line tslint/config
-            case ts.SyntaxKind.ModuleDeclaration: {
-                const isDeclare = Boolean(node.modifiers && node.modifiers.find(m => m.kind === ts.SyntaxKind.DeclareKeyword));
-                if (!isDeclare) {
-                    break;
-                }
+            case ts.SyntaxKind.ModuleDeclaration: { // 238
+                // const isDeclare = Boolean(node.modifiers && node.modifiers.find(m => m.kind === ts.SyntaxKind.DeclareKeyword));
                 moduleName = (node as any).name && (node as any).name.text;
                 if (moduleName) {
                     if (resolve.isCore(moduleName)) {
@@ -80,13 +77,13 @@ export function parse(sourceText: string, options: ParseOptions = {}): Entry[] {
                 moduleEnd = node.end;
             } break;
             // case ts.SyntaxKind.VariableStatement:
-            case ts.SyntaxKind.VariableDeclarationList:
-            case ts.SyntaxKind.FunctionDeclaration:
-            case ts.SyntaxKind.ClassDeclaration:
-            case ts.SyntaxKind.InterfaceDeclaration:
-            case ts.SyntaxKind.TypeAliasDeclaration:
-            case ts.SyntaxKind.EnumDeclaration:
-            case ts.SyntaxKind.VariableDeclaration: {
+            case ts.SyntaxKind.VariableDeclarationList: // 232
+            case ts.SyntaxKind.FunctionDeclaration: // 233
+            case ts.SyntaxKind.ClassDeclaration: // 234
+            case ts.SyntaxKind.InterfaceDeclaration: // 235
+            case ts.SyntaxKind.TypeAliasDeclaration: // 236
+            case ts.SyntaxKind.EnumDeclaration: // 237
+            case ts.SyntaxKind.VariableDeclaration: { // 231
                 if (node.parent!.kind === ts.SyntaxKind.ModuleBlock) {
                     if (moduleName) {
                         const entries = getDeclarations(node, { module, filepath });
@@ -97,7 +94,7 @@ export function parse(sourceText: string, options: ParseOptions = {}): Entry[] {
                     }
                 }
             } break;
-            case ts.SyntaxKind.ExportDeclaration: {
+            case ts.SyntaxKind.ExportDeclaration: { // 249
                 const node = statement as ts.ExportDeclaration;
                 const names: Array<(string | undefined)> = [];
                 const exportAll = !(node.exportClause && node.exportClause.elements);
@@ -113,14 +110,14 @@ export function parse(sourceText: string, options: ParseOptions = {}): Entry[] {
                     entrySet.push(entry);
                 });
             } break;
-            case ts.SyntaxKind.ExportKeyword: {
+            case ts.SyntaxKind.ExportKeyword: { // 84
                 const entries = getDeclarations(node.parent!, { module, filepath });
                 entries.forEach(entry => entrySet.push(entry));
             } break;
             case ts.SyntaxKind.ExportAssignment: {
                 exportExpression = (node as ts.ExportAssignment).expression;
             } break;
-            case ts.SyntaxKind.BinaryExpression: {
+            case ts.SyntaxKind.BinaryExpression: { // 199
                 const node = (statement as ts.BinaryExpression);
                 if (node.left.kind === ts.SyntaxKind.PropertyAccessExpression && (node.left as ts.PropertyAccessExpression).expression.kind === ts.SyntaxKind.PropertyAccessExpression) {
                     const property = node.left as ts.PropertyAccessExpression;
@@ -156,6 +153,12 @@ export function parse(sourceText: string, options: ParseOptions = {}): Entry[] {
         } else if (exportExpression.kind === ts.SyntaxKind.Identifier && exportText) {
             entrySet.result.push(new Entry({ name: exportText, module, filepath, isDefault: true }));
         }
+    }
+    if (Object.keys(moduleBlockDeclarations).length > 0) {
+        Object.keys(moduleBlockDeclarations).forEach(mod => {
+            const entries = moduleBlockDeclarations[mod];
+            entries.forEach(e => entrySet.push(e));
+        });
     }
 
     return entrySet.result;

@@ -1,8 +1,19 @@
-~*
+# .gitignore
+/node_modules
+/.idea
+/.awcache
+/.vscode
+/.nyc_output
 *.log
-/.vscode/
+~*
+# .npmignore
 /tsconfig.json
-/fixtures/
 /.eslintrc.js
 /.editorconfig
-/benchmarks
+/.gitlab-ci.yml
+/gulpfile.ts
+/jest.config.js
+/.releaserc.json
+/.nycrc.json
+/tslint.json
+/ng-package.json
