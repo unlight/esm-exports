@@ -186,7 +186,7 @@ declare module "preact" {
     assert(result[1].name === 'AnyComponent');
 });
 
-it.skip('react definitions', () => {
+it('react definitions', () => {
     const source = `
 export = React;
 export as namespace React;
@@ -198,6 +198,9 @@ declare namespace React {
 `;
     const result = parse(source);
     assert(result.length > 0);
+    assert(result.find(e => e.name === 'ReactType'));
+    assert(result.find(e => e.name === 'Component'));
+    assert(result.find(e => e.name === 'PureComponent'));
 });
 
 it('webpack', () => {
