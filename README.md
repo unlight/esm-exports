@@ -1,15 +1,12 @@
 # esm-exports
 Parse ecmascript modules and collect names of export vars, functions, etc.
 
-CHANGELOG
----
-See list of changes in [CHANGELOG.md](CHANGELOG.md)
+## CHANGELOG
+See [CHANGELOG.md](CHANGELOG.md)
 
-TODO
----
+## TODO
 
-DEBUG
----
+## DEBUG
 ```
 npm run test:d
 ```
