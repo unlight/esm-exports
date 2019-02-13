@@ -107,14 +107,25 @@ export function module(id: string, options: ModuleOptions = {}): Promise<Entry[]
                     done([]);
                 }
                 items.forEach(item => {
-                    stat(resolvePath(dirpath, item, 'package.json'), (err, stats) => {
-                        if (stats && stats.isFile()) {
-                            submodules.push(`${id}/${item}`);
-                        }
-                        if (--count === 0) {
-                            done(submodules);
-                        }
-                    });
+                    // TODO: Fix me, remove isTypes
+                    if (isTypes && item.slice(-5) === '.d.ts') {
+                        const itemFile = resolvePath(dirpath, item);
+                        return file(itemFile, options).then(items => {
+                            entries.push(...items);
+                            if (--count === 0) {
+                                done(submodules);
+                            }
+                        });
+                    } else {
+                        stat(resolvePath(dirpath, item, 'package.json'), (err, stats) => {
+                            if (stats && stats.isFile()) {
+                                submodules.push(`${id}/${item}`);
+                            }
+                            if (--count === 0) {
+                                done(submodules);
+                            }
+                        });
+                    }
                 });
             });
         }).then(submodules => {

@@ -11,7 +11,7 @@ type DirectoryOptions = {
     basedir?: string;
 };
 
-export function directory(path: string, options: DirectoryOptions = {}): Promise<Entry[]> {
+export async function directory(path: string, options: DirectoryOptions = {}): Promise<Entry[]> {
     try {
         var dirpath = resolvePath(options.basedir || '.', path); // eslint-disable-line tslint/config
     } catch (err) {
@@ -30,7 +30,7 @@ export function directory(path: string, options: DirectoryOptions = {}): Promise
         if (count === 0) {
             return Promise.resolve([]);
         }
-        return new Promise<{ directories: string[], files: string[] }>((done, reject) => {
+        return new Promise<{ directories: string[]; files: string[] }>((done, reject) => {
             const names: { [name: string]: [number, string] } = Object.create(null);
             items.forEach(item => {
                 stat(resolvePath(dirpath, item), (err, stats) => {
@@ -51,7 +51,7 @@ export function directory(path: string, options: DirectoryOptions = {}): Promise
                             }
                         }
                     }
-                    count--;
+                    count = count - 1;
                     if (count === 0) {
                         done({ directories, files: objectValues(names).map(([, file]) => file) });
                     }
@@ -65,8 +65,8 @@ export function directory(path: string, options: DirectoryOptions = {}): Promise
                     result.push(...entries);
                 }));
             return Promise.all(promises)
-                .then(() => {
-                    const promises = directories.map(d => {
+                .then(async () => {
+                    const promises = directories.map(async (d) => {
                         return directory(d, options).then(entries => {
                             result.push(...entries);
                         });

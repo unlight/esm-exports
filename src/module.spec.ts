@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/tslint/config */
 import * as assert from 'assert';
 import { Entry } from './entry';
 import { module as parse } from './module';
@@ -8,7 +9,7 @@ it('parse module smoke', () => {
     assert(parse);
 });
 
-it('angular2-calendar', async function() {
+it('angular2-calendar', async () => {
     const result = await parse('angular2-calendar', { basedir: rootPath });
     const [first] = result;
     assert.equal(first.module, 'angular2-calendar');

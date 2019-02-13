@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/tslint/config */
 import { parse } from './index';
 import * as assert from 'assert';
 
@@ -35,21 +36,21 @@ it.skip('commonjs module.exports 2', () => {
     assert.equal(entry.isDefault, false);
 });
 
-it.skip('declare namespace', async () => {
+it.skip('declare namespace', () => {
     const source = `
         declare namespace through2 {
         }
         export = through2
     `;
-    const [entry] = await parse(source);
+    const [entry] = parse(source);
     assert.ifError(entry.module);
     assert.equal(entry.isDefault, true);
 });
 
-it.skip('export as namespace', () => {
-    const source = `
-        export = _;
-        export as namespace _;
-    `;
-    const result = parse(source);
-});
+// it.skip('export as namespace', () => {
+//     const source = `
+//         export = _;
+//         export as namespace _;
+//     `;
+//     const result = parse(source);
+// });

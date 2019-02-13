@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/tslint/config */
 import * as assert from 'assert';
 import { parse } from './parse';
 import { Entry } from './entry';
@@ -186,7 +187,7 @@ declare module "preact" {
     assert(result[1].name === 'AnyComponent');
 });
 
-it.skip('react definitions', () => {
+it('react definitions', () => {
     const source = `
 export = React;
 export as namespace React;
@@ -198,6 +199,9 @@ declare namespace React {
 `;
     const result = parse(source);
     assert(result.length > 0);
+    assert(result.find(e => e.name === 'ReactType'));
+    assert(result.find(e => e.name === 'Component'));
+    assert(result.find(e => e.name === 'PureComponent'));
 });
 
 it('webpack', () => {
@@ -222,5 +226,5 @@ it('declare module function', () => {
     `;
     const result = parse(source, { module: '@types/node' });
     assert(result.length === 1);
-    assert(result.find(e => e.module == 'fs' && e.name === 'readFile'));
+    assert(result.find(e => e.module === 'fs' && e.name === 'readFile'));
 });
