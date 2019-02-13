@@ -225,5 +225,5 @@ it('declare module function', () => {
     `;
     const result = parse(source, { module: '@types/node' });
     assert(result.length === 1);
-    assert(result.find(e => e.module == 'fs' && e.name === 'readFile'));
+    assert(result.find(e => e.module === 'fs' && e.name === 'readFile'));
 });
