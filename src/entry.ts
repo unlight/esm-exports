@@ -46,7 +46,7 @@ export class Entry {
     }
 
     private get counter() {
-        return Entry.count++;
+        return Entry.count++; // tslint:disable-line:no-increment-decrement
     }
 
     id() {

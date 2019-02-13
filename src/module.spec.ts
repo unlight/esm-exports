@@ -8,7 +8,7 @@ it('parse module smoke', () => {
     assert(parse);
 });
 
-it('angular2-calendar', async function() {
+it('angular2-calendar', async () => {
     const result = await parse('angular2-calendar', { basedir: rootPath });
     const [first] = result;
     assert.equal(first.module, 'angular2-calendar');
