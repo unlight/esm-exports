@@ -1,3 +1,17 @@
+# [3.0.0](https://github.com/unlight/esm-exports/compare/v2.3.1...v3.0.0) (2019-02-13)
+
+
+### Bug Fixes
+
+* Always collect export in declare module/names blocks ([0b8f307](https://github.com/unlight/esm-exports/commit/0b8f307))
+* pkg-dir added to dependency ([4573ed6](https://github.com/unlight/esm-exports/commit/4573ed6))
+* Updated TypeScript to version 3 ([155cdbc](https://github.com/unlight/esm-exports/commit/155cdbc))
+
+
+### BREAKING CHANGES
+
+* Declared items in declare module x construction considered always as exported
+
 # Change Log
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
