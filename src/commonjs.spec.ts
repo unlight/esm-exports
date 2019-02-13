@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/tslint/config */
 import { parse } from './index';
 import * as assert from 'assert';
 

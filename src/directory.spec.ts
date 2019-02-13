@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/tslint/config */
 import * as assert from 'assert';
 import { directory } from './directory';
 import { normalize } from 'path';
