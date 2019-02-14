@@ -3,45 +3,65 @@ import { Entry } from './entry';
 
 type WalkNodeOptions = {
     module?: string;
-    declaredModule?: string;
+    result: Entry[];
 };
 
-function walkNode(node: ts.Node, options: WalkNodeOptions = {}): any {
+export function main(sourceText: string, options: WalkNodeOptions = { result: [] }): Entry[] {
+    const sourceFile = ts.createSourceFile('dummy.ts', sourceText, ts.ScriptTarget.ESNext, true);
+    ts.forEachChild<ts.Node>(sourceFile, (node: any) => {
+        walkNode(node, options);
+        return undefined;
+    });
+    return options.result;
+}
+
+function walkNode(node: ts.Node, options: WalkNodeOptions): any {
     debugger;
     // console.log("node.kind", node.kind);
     if (node.kind === ts.SyntaxKind.Identifier) {
-        const name = (node as ts.Identifier).escapedText;
+        const name = (node as ts.Identifier).text;
+        const statement = getParentOf(node, [
+            ts.SyntaxKind.VariableStatement,
+            ts.SyntaxKind.InterfaceDeclaration,
+            ts.SyntaxKind.FunctionDeclaration,
+            ts.SyntaxKind.ExportDeclaration
+        ]);
+        if (statement &&
+            (statement.kind === ts.SyntaxKind.ExportDeclaration
+                || hasExportModifier(statement)
+            )) {
+            options.result.push(new Entry({ ...options, name }));
+        }
     } else if (node.kind === ts.SyntaxKind.ModuleDeclaration) {
         const children = node.getChildren();
         const moduleBlock = children.find(c => c.kind === ts.SyntaxKind.ModuleBlock) as ts.Block | undefined;
         if (!moduleBlock) {
             return;
         }
-        let declaredModule = (node as any).name.text;
-        return moduleBlock
+        moduleBlock
             .statements.filter((st: any) => st.name && ts.isIdentifier(st.name))
             .map((node: any) => node.name.text)
-            .map(name => new Entry({ ...options, name, module: declaredModule }));
+            .forEach(name => {
+                options.result.push(new Entry({ ...options, name, module: (node as any).name.text }));
+            });
     }
-    ts.forEachChild(node, walkNode);
+    ts.forEachChild(node, (node) => walkNode(node, options));
 }
 
-export function main(sourceText: string, options: WalkNodeOptions = {}) {
-    const sourceFile = ts.createSourceFile('dummy.ts', sourceText, ts.ScriptTarget.ESNext, true);
-    let result = [];
-    ts.forEachChild<ts.Node>(sourceFile, (node: any) => {
-        result = walkNode(node, options);
-        return undefined;
-    });
-    return result;
-}
-
-function hasParentOf(node: ts.Node, syntaxKinds: ts.SyntaxKind[]) {
+function getParentOf(node: ts.Node, syntaxKinds: ts.SyntaxKind[]) {
     while (true) {
         if (node && node.parent && syntaxKinds.includes(node.parent.kind)) {
-            return true;
+            return node.parent;
+        }
+        if (!node.parent) {
+            break;
         }
         node = node.parent;
     }
-    return false;
+    return undefined;
+}
+
+function hasExportModifier(node: ts.Node): boolean {
+    const result = node.modifiers && node.modifiers.find(m => m.kind === ts.SyntaxKind.ExportKeyword);
+    return result !== undefined;
 }
