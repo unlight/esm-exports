@@ -50,6 +50,6 @@ export class Entry {
     }
 
     id() {
-        return `${this.name || this.counter}${this.isDefault ? '*' : '' }/${this.module ? this.module : this.filepath}`;
+        return `${this.name || this.counter}${this.isDefault ? '*' : ''}/${this.module ? this.module : this.filepath}`;
     }
 }
