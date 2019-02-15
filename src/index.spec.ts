@@ -61,11 +61,6 @@ it('export declare class', () => {
     assert(result.find(x => x.name === 'Calendar'));
 });
 
-it('export all', () => {
-    const result = main(`export * from './provider'`);
-    assert(result.find(x => x.specifier === './provider'));
-});
-
 it('export some from module', () => {
     const result = main(`export {var1} from './provider'`);
     assert(result.find(x => x.name === 'var1'));
@@ -137,53 +132,35 @@ it('duplicates must be removed', () => {
     assert.equal(result[0].name, 'spawnSync');
 });
 
-// it('simulated commonjs', () => {
-//     const source = `
-// declare namespace e {
-//     interface Request extends core.Request { }
-// }
-// declare namespace d {
-//     declare const x = 1;
-//     function y() {}
-// }
-// export = e;
-// `;
-//     const result = main(source, { module: 'somecjs' });
-//     assert.equal(result[0].name, 'Request');
-//     assert.equal(result[0].cjs, true);
-// });
+it('preact declaration', () => {
+    const result = main(`
+declare namespace internal {
+    function rerender();
+    type AnyComponent = {};
+}
+declare module "preact" {
+    export = internal;
+}
+`, { module: 'preact', result: [] });
+    assert(result.find(x => x.name === 'rerender' && x.module === 'preact'));
+    assert(result.find(x => x.name === 'AnyComponent' && x.module === 'preact'));
+});
 
-// it('preact declaration', () => {
-//     const source = `
-// declare namespace preact {
-//     function rerender();
-//     type AnyComponent = {};
-// }
-// declare module "preact" {
-//     export = preact;
-// }
-// `;
-//     const result = main(source, { module: 'preact' });
-//     assert(result[0].name === 'rerender');
-//     assert(result[1].name === 'AnyComponent');
-// });
-
-// it('react definitions', () => {
-//     const source = `
-// export = React;
-// export as namespace React;
-// declare namespace React {
-//     type ReactType<P = any> = string | ComponentType<P>;
-//     interface Component<P = {}, S = {}> extends ComponentLifecycle<P, S> { }
-//     class PureComponent<P = {}, S = {}> extends Component<P, S> { }
-// }
-// `;
-//     const result = main(source);
-//     assert(result.length > 0);
-//     assert(result.find(e => e.name === 'ReactType'));
-//     assert(result.find(e => e.name === 'Component'));
-//     assert(result.find(e => e.name === 'PureComponent'));
-// });
+it('react definitions', () => {
+    const result = main(`
+export = React;
+export as namespace React;
+declare namespace React {
+    type ReactType<P = any> = string | ComponentType<P>;
+    interface Component<P = {}, S = {}> extends ComponentLifecycle<P, S> { }
+    class PureComponent<P = {}, S = {}> extends Component<P, S> { }
+}
+`, {result: [], module: 'react'});
+    assert(result.length > 0);
+    assert(result.find(x => x.module === 'react' && x.name === 'ReactType'));
+    assert(result.find(x => x.module === 'react' && x.name === 'Component'));
+    assert(result.find(x => x.module === 'react' && x.name === 'PureComponent'));
+});
 
 // it('webpack', () => {
 //     const source = `
@@ -208,4 +185,24 @@ it('duplicates must be removed', () => {
 //     const result = main(source, { module: '@types/node' });
 //     assert(result.length === 1);
 //     assert(result.find(e => e.module === 'fs' && e.name === 'readFile'));
+// });
+// it('export all', () => {
+//     const result = main(`export * from './provider'`);
+//     assert(result.find(x => x.specifier === './provider'));
+// });
+
+// it('simulated commonjs', () => {
+//     const result = main(`
+// declare namespace e {
+//     interface Request extends core.Request { }
+// }
+// declare namespace d {
+//     declare const x = 1;
+//     function y() {}
+// }
+// export = e;
+// `, { module: 'somecjs', result: [] });
+//     assert.equal(result[0].name, 'Request');
+//     console.log("result", result);
+//     assert.equal(result[0].cjs, true);
 // });

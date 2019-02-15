@@ -8,11 +8,9 @@ type WalkNodeOptions = {
 
 export function main(sourceText: string, options: WalkNodeOptions = { result: [] }): Entry[] {
     const sourceFile = ts.createSourceFile('dummy.ts', sourceText, ts.ScriptTarget.ESNext, true);
-    ts.forEachChild<ts.Node>(sourceFile, (node: any) => {
-        walkNode(node, options);
-        return undefined;
-    });
-    return options.result;
+    ts.forEachChild<ts.Node>(sourceFile, (node: any) => walkNode(node, options));
+    // todo: Improve performance here
+    return uniqBy(options.result, item => item.id());
 }
 
 function walkNode(node: ts.Node, options: WalkNodeOptions): any {
@@ -52,32 +50,11 @@ function walkNode(node: ts.Node, options: WalkNodeOptions): any {
         node.kind === ts.SyntaxKind.FunctionDeclaration
         || node.kind === ts.SyntaxKind.InterfaceDeclaration
         || node.kind === ts.SyntaxKind.ClassDeclaration
+        || node.kind === ts.SyntaxKind.TypeAliasDeclaration
     ) && (options.module != null || hasExportModifier(node))) {
         const isDefault = /*node.kind === ts.SyntaxKind.ExportAssignment || */ hasDefaultModifier(node);
         options.result.push(new Entry({ ...options, name: (node as any).name.text, isDefault }));
     }
-    // else if (node.kind === ts.SyntaxKind.Identifier) {
-    //     const name = (node as ts.Identifier).text;
-    //     const statement = getParentIf(node, [
-    //         ts.SyntaxKind.VariableStatement,
-    //         ts.SyntaxKind.InterfaceDeclaration,
-    //         ts.SyntaxKind.FunctionDeclaration,
-    //         ts.SyntaxKind.ExportDeclaration,
-    //         ts.SyntaxKind.ExportAssignment,
-    //         ts.SyntaxKind.ClassDeclaration,
-    //     ]);
-    //     if (statement && (
-    //         statement.kind === ts.SyntaxKind.ExportDeclaration
-    //         || statement.kind === ts.SyntaxKind.ExportAssignment
-    //         || hasExportModifier(statement)
-    //         || options.module != null
-    //     )) {
-    //         const isDefault = statement.kind === ts.SyntaxKind.ExportAssignment
-    //             || hasDefaultModifier(statement);
-    //         // const cjs = (statement as any).isExportEquals === true;
-    //         options.result.push(new Entry({ ...options, name, isDefault }));
-    //     }
-    // }
     // todo: Check depth
     node.forEachChild(node => walkNode(node, options));
 }
@@ -101,4 +78,8 @@ function hasDefaultModifier(node: ts.Node): boolean {
 
 function hasDeclareKeyword(node: ts.Node): boolean {
     return node.modifiers && node.modifiers.find(m => m.kind === ts.SyntaxKind.DeclareKeyword) !== undefined
+}
+
+function uniqBy(array, iteratee) {
+    return array.filter((value, index, self) => index === self.findIndex(other => iteratee(other) === iteratee(value)));
 }
