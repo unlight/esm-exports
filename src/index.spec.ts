@@ -128,15 +128,14 @@ it('not too deep parse', () => {
     assert(result.find(x => x.name === 'deep'));
 });
 
-// it('duplicates must be removed', () => {
-//     const source = `
-//     export function spawnSync(command: string): SpawnSyncReturns<Buffer>;
-//     export function spawnSync(command: string, options?: SpawnSyncOptionsWithStringEncoding): SpawnSyncReturns<string>;
-// `;
-//     const result = main(source);
-//     assert.equal(result.length, 1);
-//     assert.equal(result[0].name, 'spawnSync');
-// });
+it('duplicates must be removed', () => {
+    const result = main(`
+    export function spawnSync(command: string): SpawnSyncReturns<Buffer>;
+    export function spawnSync(command: string, options?: SpawnSyncOptionsWithStringEncoding): SpawnSyncReturns<string>;
+`);
+    assert.equal(result.length, 1);
+    assert.equal(result[0].name, 'spawnSync');
+});
 
 // it('simulated commonjs', () => {
 //     const source = `
