@@ -1,16 +1,25 @@
 import * as ts from 'typescript';
 import { Entry } from './entry';
+const readFile = require('fs-readfile-promise');
 
 type WalkNodeOptions = {
     module?: string;
-    result: Entry[];
+    result?: Entry[];
+    type?: 'text' | 'file';
 };
 
-export function main(sourceText: string, options: WalkNodeOptions = { result: [] }): Entry[] {
-    const sourceFile = ts.createSourceFile('dummy.ts', sourceText, ts.ScriptTarget.ESNext, true);
+export async function main(target: string, options: WalkNodeOptions = {}): Promise<Entry[]> {
+    let source: string = target;
+    if (!options.result) {
+        options.result = [];
+    }
+    if (options.type === 'file') {
+        source = await readFile(target).then(buffer => buffer.toString(), () => undefined);
+    }
+    const sourceFile = ts.createSourceFile('dummy.ts', source, ts.ScriptTarget.ESNext, true);
     ts.forEachChild<ts.Node>(sourceFile, (node: any) => walkNode(node, options));
     // todo: Improve performance here
-    return uniqBy(options.result, item => item.id());
+    return Promise.resolve(uniqBy(options.result, item => item.id()));
 }
 
 function walkNode(node: ts.Node, options: WalkNodeOptions): any {
@@ -45,13 +54,16 @@ function walkNode(node: ts.Node, options: WalkNodeOptions): any {
         options.result.push(new Entry({ ...options, name: (node as any).name.text }));
     } else if (node.kind === ts.SyntaxKind.ExportAssignment) {
         const name = (node as any).expression.text;
-        options.result.push(new Entry({ ...options, name, isDefault: true }));
-    } else if ((
-        node.kind === ts.SyntaxKind.FunctionDeclaration
-        || node.kind === ts.SyntaxKind.InterfaceDeclaration
-        || node.kind === ts.SyntaxKind.ClassDeclaration
-        || node.kind === ts.SyntaxKind.TypeAliasDeclaration
-    ) && (options.module != null || hasExportModifier(node))) {
+        if (options.module != null) {
+            options.result.forEach(x => {
+                if (x.module === name) {
+                    x.module = options.module;
+                }
+            });
+        } else {
+            options.result.push(new Entry({ ...options, name, isDefault: true }));
+        }
+    } else if (isDeclaration(node) && (options.module != null || hasExportModifier(node))) {
         const isDefault = /*node.kind === ts.SyntaxKind.ExportAssignment || */ hasDefaultModifier(node);
         options.result.push(new Entry({ ...options, name: (node as any).name.text, isDefault }));
     }
@@ -82,4 +94,11 @@ function hasDeclareKeyword(node: ts.Node): boolean {
 
 function uniqBy(array, iteratee) {
     return array.filter((value, index, self) => index === self.findIndex(other => iteratee(other) === iteratee(value)));
+}
+
+function isDeclaration(node: ts.Node) {
+    return node.kind === ts.SyntaxKind.FunctionDeclaration
+        || node.kind === ts.SyntaxKind.InterfaceDeclaration
+        || node.kind === ts.SyntaxKind.ClassDeclaration
+        || node.kind === ts.SyntaxKind.TypeAliasDeclaration;
 }

@@ -34,8 +34,10 @@ export class Entry {
     isDefault: boolean;
     cjs?: boolean;
     ts?: boolean;
+    private counter:number;
 
     constructor({ name, filepath, specifier, module, isDefault, cjs, ts }: EntryConstructor) {
+        this.counter = Entry.count++;
         this.name = name;
         this.specifier = specifier;
         this.isDefault = Boolean(isDefault);
@@ -43,10 +45,6 @@ export class Entry {
         this.filepath = (!module) ? filepath : undefined;
         this.cjs = cjs;
         this.ts = ts;
-    }
-
-    private get counter() {
-        return Entry.count++; // tslint:disable-line:no-increment-decrement
     }
 
     id() {
