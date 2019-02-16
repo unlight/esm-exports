@@ -34,10 +34,9 @@ export class Entry {
     isDefault: boolean;
     cjs?: boolean;
     ts?: boolean;
-    private counter:number;
+    private counter: number;
 
     constructor({ name, filepath, specifier, module, isDefault, cjs, ts }: EntryConstructor) {
-        this.counter = Entry.count++;
         this.name = name;
         this.specifier = specifier;
         this.isDefault = Boolean(isDefault);
@@ -45,6 +44,10 @@ export class Entry {
         this.filepath = (!module) ? filepath : undefined;
         this.cjs = cjs;
         this.ts = ts;
+        Object.defineProperty(this, 'counter', {
+            enumerable: false,
+            value: Entry.count++
+        });
     }
 
     id() {
