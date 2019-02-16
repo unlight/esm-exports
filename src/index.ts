@@ -54,6 +54,7 @@ export async function main(target: string, options: WalkNodeOptions = {}): Promi
     ts.forEachChild<ts.Node>(sourceFile, (node: any) => walkNode(node, options));
     // todo: Improve performance here
     if (options.type === 'file') {
+        d('result before specifier filter %O', options.result);
         const fileResult = flatten(await Promise.all(options.result
             .filter(entry => !entry.name && entry.specifier)
             .map(entry => {
@@ -67,6 +68,7 @@ export async function main(target: string, options: WalkNodeOptions = {}): Promi
         const specifiers = fileResult.map(entry => new Entry({ ...entry, filepath: file }));
         options.result.push(...specifiers, ...fileResult);
     }
+    d('result before final filter %O', options.result);
     return Promise.resolve(filterEntries(options.result, item => item.id()));
 }
 
@@ -102,14 +104,13 @@ function walkNode(node: ts.Node, options: WalkNodeOptions): any {
         options.result.push(new Entry({ ...options, name: (node as any).name.text }));
     } else if (node.kind === ts.SyntaxKind.ExportAssignment) {
         const name = (node as any).expression.text;
+        options.result.push(new Entry({ ...options, name, isDefault: true }));
         if (options.module != null) {
             options.result.forEach(x => {
                 if (x.module === name) {
                     x.module = options.module;
                 }
             });
-        } else {
-            options.result.push(new Entry({ ...options, name, isDefault: true }));
         }
     } else if (isDeclaration(node) && (options.module != null || hasExportModifier(node))) {
         const isDefault = /*node.kind === ts.SyntaxKind.ExportAssignment || */ hasDefaultModifier(node);
@@ -143,7 +144,7 @@ function hasDeclareKeyword(node: ts.Node): boolean {
 function filterEntries(array: Entry[], iteratee) {
     return array.filter((value, index, self) => {
         const item = iteratee(value);
-        return value.name && index === self.findIndex(other => iteratee(other) === item);
+        return value.name && (value.module || value.filepath) && index === self.findIndex(other => iteratee(other) === item);
     });
 }
 
