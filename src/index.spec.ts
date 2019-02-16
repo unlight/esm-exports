@@ -259,30 +259,27 @@ it('should parse directory', async () => {
 });
 
 it('directory target null', async () => {
-    await directory(undefined)
-        .catch(assert);
+    await main(undefined, { type: 'directory' });
 });
 
 it('not existing target', async () => {
-    await directory(`${rootPath}/foo`)
-        .catch(assert);
+    await main(`${rootPath}/foo`);
 });
 
-it('relative target', async () => {
-    result = await directory('src');
-    assert(result.filter(m => !m.name).length === 0, missingName);
+it('relative directory', async () => {
+    result = await main('src', { type: 'directory' });
+    assert.equal(result.filter(m => !m.name).length, 0, 'Missing names');
     assert.notEqual(result.length, 0);
 });
 
-it('should ignore node_modules', async () => {
-    result = await directory(`${rootPath}`);
-    assert(result.filter(m => !m.name).length === 0, missingName);
+it('should ignore node_modules', async function () {
+    result = await main(`${rootPath}/fixtures`, { type: 'directory' });
+    assert.equal(result.filter(m => !m.name).length, 0, 'Missing names');
     const ts = result.filter(item => item.module === 'typescript');
-    assert.equal(ts.length, 0);
+    assert.equal(ts.length, 0, 'Typescript modules');
     const nodeModules = result.filter(item => item.filepath && item.filepath.indexOf('node_modules') !== -1);
-    assert.equal(nodeModules.length, 0);
+    assert.equal(nodeModules.length, 0, 'node_modules in filepath');
 });
-
 
 it('node core with additional functions', () => {
     const source = `

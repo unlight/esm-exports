@@ -2,7 +2,7 @@ import * as ts from 'typescript';
 import { Entry } from './entry';
 import readFile from 'fs-readfile-promise';
 import * as resolve from 'resolve';
-import { dirname } from 'path';
+import * as path from 'path';
 import flatten from 'lodash.flatten';
 import debug from 'debug';
 import rreaddir from 'recursive-readdir';
@@ -34,6 +34,7 @@ export async function main(target: string, options: WalkNodeOptions = {}): Promi
     d('options %o', options);
     let source: string = target;
     let file: string;
+    let directory: string;
     if (!options.result) {
         options.result = [];
     }
@@ -41,8 +42,13 @@ export async function main(target: string, options: WalkNodeOptions = {}): Promi
         file = source;
         source = await readFile(file).then(buffer => buffer.toString(), () => undefined);
     } else if (options.type === 'directory') {
-        const files = await rreaddir(target);
-        return flatten(await Promise.all(files.map(filepath => main(filepath, { type: 'file', filepath }))));
+        directory = target;
+        try {
+            const files = await rreaddir(directory);
+            return flatten(await Promise.all(files.map(filepath => main(filepath, { type: 'file', filepath }))));
+        } catch (err) {
+            return [];
+        }
     }
     const sourceFile = ts.createSourceFile('dummy.ts', source, ts.ScriptTarget.ESNext, true);
     ts.forEachChild<ts.Node>(sourceFile, (node: any) => walkNode(node, options));
@@ -52,7 +58,7 @@ export async function main(target: string, options: WalkNodeOptions = {}): Promi
             .filter(entry => !entry.name && entry.specifier)
             .map(entry => {
                 try {
-                    var filepath = resolve.sync(entry.specifier, { ...(resolveOptions as any), basedir: dirname(file) });
+                    var filepath = resolve.sync(entry.specifier, { ...(resolveOptions as any), basedir: path.dirname(file) });
                 } catch (err) {
                     return [];
                 }
