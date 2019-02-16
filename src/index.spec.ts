@@ -250,12 +250,12 @@ it.skip('try to parse export from core', async () => {
 });
 
 it('should parse directory', async () => {
-    const result = await directory(`${rootPath}/src`);
-    assert(result.filter(m => !m.name).length === 0, missingName);
-    assert(result.length > 0);
-    const [parse] = result.filter(value => value.name === 'parse');
-    assert(parse);
-    assert.equal(normalize(parse.filepath), normalize(`${rootPath}/src/index.ts`));
+    result = await main(normalize(`${rootPath}/src`), { type: 'directory' });
+    entry = result.find(x => x.name === 'Entry');
+    assert.equal(entry.filepath, normalize(`${rootPath}/src/entry.ts`));
+    assert.equal(result.filter(m => !m.name).length, 0, 'Missing name');
+    entry = result.find(x => x.filepath === normalize(`${rootPath}/src/index.ts`));
+    assert(entry);
 });
 
 it('directory target null', async () => {
@@ -269,13 +269,13 @@ it('not existing target', async () => {
 });
 
 it('relative target', async () => {
-    const result = await directory('src');
+    result = await directory('src');
     assert(result.filter(m => !m.name).length === 0, missingName);
     assert.notEqual(result.length, 0);
 });
 
 it('should ignore node_modules', async () => {
-    const result = await directory(`${rootPath}`);
+    result = await directory(`${rootPath}`);
     assert(result.filter(m => !m.name).length === 0, missingName);
     const ts = result.filter(item => item.module === 'typescript');
     assert.equal(ts.length, 0);
@@ -329,16 +329,16 @@ it.skip('declare namespace', () => {
     assert.equal(entry.isDefault, true);
 });
 
-// it.skip('export as namespace', () => {
-//     const source = `
-//         export = _;
-//         export as namespace _;
-//     `;
-//     const result = parse(source);
-// });
+it.skip('export as namespace', () => {
+    const source = `
+        export = _;
+        export as namespace _;
+    `;
+    const result = parse(source);
+});
 
 it('should take only file by findFileExtensions', async () => {
-    const result = await directory(`${__dirname}/../fixtures`);
+    result = await directory(`${__dirname}/../fixtures`);
     assert(result);
     assert(result.filter(m => !m.name).length === 0, 'all entries must have name');
     assert(result.filter(x => x.name === 'NotADummyComponent').length === 0);
@@ -347,7 +347,7 @@ it('should take only file by findFileExtensions', async () => {
 });
 
 it('angular2-calendar', async () => {
-    const result = await parse('angular2-calendar', { basedir: rootPath });
+    result = await parse('angular2-calendar', { basedir: rootPath });
     const [first] = result;
     assert.equal(first.module, 'angular2-calendar');
     const calendarEventTitleEntry = result.find(item => item.name === 'CalendarEventTitle');
@@ -357,7 +357,7 @@ it('angular2-calendar', async () => {
 });
 
 it('rxjs module, node_modules names should be uniq', async () => {
-    const result = await parse('rxjs', { basedir: rootPath });
+    result = await parse('rxjs', { basedir: rootPath });
     const ids = result.map(item => item.id());
     const uniqIds: string[] = [...new Set(ids)];
     assert.equal(uniqIds.length, ids.length);
@@ -365,7 +365,7 @@ it('rxjs module, node_modules names should be uniq', async () => {
 });
 
 it('gulp-tslint', async () => {
-    const result = await parse('gulp-tslint', { basedir: rootPath });
+    result = await parse('gulp-tslint', { basedir: rootPath });
     const falsyNodes = result.filter(v => !v);
     assert(falsyNodes.length === 0);
     const pluginOptions = result.find(v => v.name === 'PluginOptions');
@@ -375,20 +375,20 @@ it('gulp-tslint', async () => {
 });
 
 it('no falsy nodes', async () => {
-    const result = await parse('@angular/core', { basedir: rootPath });
+    result = await parse('@angular/core', { basedir: rootPath });
     const falsyNodes = result.filter(v => !v);
     assert(falsyNodes.length === 0);
     assert(result.filter(m => !m.name).length === 0, 'all entries must have name');
 });
 
 it('parse unknown module', async () => {
-    const result = await parse('unknown_module_foo', { basedir: rootPath });
+    result = await parse('unknown_module_foo', { basedir: rootPath });
     assert(result.length === 0);
     assert(result.filter(m => !m.name).length === 0, 'all entries must have name');
 });
 
 it('inner module', async () => {
-    const result = await parse('@angular/core/testing', { basedir: rootPath });
+    result = await parse('@angular/core/testing', { basedir: rootPath });
     const inject = result.find(n => n.name === 'inject');
     assert(inject);
     const TestBed = result.find(n => n.name === 'TestBed');
@@ -397,7 +397,7 @@ it('inner module', async () => {
 });
 
 it('should find inner module properly', async () => {
-    const result = await parse('@angular/core', { basedir: rootPath });
+    result = await parse('@angular/core', { basedir: rootPath });
     const testing = result.filter(n => n.module === '@angular/core/testing');
     assert(testing.length);
     const inject = result.filter(n => n.name === 'inject');
@@ -406,7 +406,7 @@ it('should find inner module properly', async () => {
 });
 
 it('should not contain duplicated entries (modules)', async () => {
-    const result = await parse('@angular/core', { basedir: rootPath });
+    result = await parse('@angular/core', { basedir: rootPath });
     const inject = result.filter(n => n.name === 'inject' && n.module === '@angular/core');
     assert.equal(inject.length, 1);
     const TestBed = result.filter(n => n.name === 'TestBed');
@@ -415,7 +415,7 @@ it('should not contain duplicated entries (modules)', async () => {
 });
 
 it('types node', async () => {
-    const result = await parse('@types/node', { basedir: rootPath });
+    result = await parse('@types/node', { basedir: rootPath });
     const bastards = result.filter(m => m.module === '@types/node');
     assert.equal(bastards.length, 0, 'globals should be eliminated');
     const buffer = result.filter(m => m.module === 'buffer');
@@ -425,13 +425,13 @@ it('types node', async () => {
 });
 
 it.skip('types node events', async () => {
-    const result = await parse('@types/node', { basedir: rootPath });
+    result = await parse('@types/node', { basedir: rootPath });
     const events = result.filter(m => m.module === 'events');
     assert(events.length > 0);
 });
 
 it('commonjs modules pkg-dir', async () => {
-    const result = await parse('pkg-dir', { basedir: rootPath });
+    result = await parse('pkg-dir', { basedir: rootPath });
     assert(result.length > 0);
     assert(result.filter(m => m.module !== 'pkg-dir').length === 0);
     const [entry] = result;
@@ -440,7 +440,7 @@ it('commonjs modules pkg-dir', async () => {
 });
 
 it('types express', async () => {
-    const result = await parse('@types/express', { basedir: rootPath });
+    result = await parse('@types/express', { basedir: rootPath });
     assert(result.length > 0);
     const request = result.find(n => n.name === 'Request');
     assert(request);
@@ -448,7 +448,7 @@ it('types express', async () => {
 });
 
 it('types fs-extra', async () => {
-    const result = await parse('@types/fs-extra', { basedir: rootPath });
+    result = await parse('@types/fs-extra', { basedir: rootPath });
     assert(result.length > 0);
     const [copy] = result.filter(m => m.name === 'copy');
     assert(copy);
@@ -457,22 +457,22 @@ it('types fs-extra', async () => {
 });
 
 it('preact', async () => {
-    const result = await parse('preact', { basedir: rootPath });
+    result = await parse('preact', { basedir: rootPath });
     assert(result.length > 0);
 });
 
 it('hover', async () => {
-    const result = await parse('hover', { basedir: rootPath });
+    result = await parse('hover', { basedir: rootPath });
     assert(result.length > 0);
 });
 
 it('type-zoo', async () => {
-    const result = await parse('type-zoo', { basedir: rootPath });
+    result = await parse('type-zoo', { basedir: rootPath });
     assert.notEqual(result.length, 0);
     assert(result.find(f => f.name === 'Required'));
     assert(result.find(f => f.name === 'unknown'));
 });
 
 it('material-design-iconic-font contains invalid package main', async () => {
-    const result = await parse('material-design-iconic-font', { basedir: rootPath });
+    result = await parse('material-design-iconic-font', { basedir: rootPath });
 });

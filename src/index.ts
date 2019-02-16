@@ -5,13 +5,14 @@ import * as resolve from 'resolve';
 import { dirname } from 'path';
 import flatten from 'lodash.flatten';
 import debug from 'debug';
+import rreaddir from 'recursive-readdir';
 
 const d = debug('esm-exports');
 
 type WalkNodeOptions = {
     module?: string;
     result?: Entry[];
-    type?: 'text' | 'file';
+    type?: 'text' | 'file' | 'directory';
     filepath?: string;
 };
 
@@ -39,6 +40,9 @@ export async function main(target: string, options: WalkNodeOptions = {}): Promi
     if (options.type === 'file') {
         file = source;
         source = await readFile(file).then(buffer => buffer.toString(), () => undefined);
+    } else if (options.type === 'directory') {
+        const files = await rreaddir(target);
+        return flatten(await Promise.all(files.map(filepath => main(filepath, { type: 'file', filepath }))));
     }
     const sourceFile = ts.createSourceFile('dummy.ts', source, ts.ScriptTarget.ESNext, true);
     ts.forEachChild<ts.Node>(sourceFile, (node: any) => walkNode(node, options));
