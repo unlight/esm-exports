@@ -1,25 +1,63 @@
 import * as ts from 'typescript';
 import { Entry } from './entry';
-const readFile = require('fs-readfile-promise');
+import readFile from 'fs-readfile-promise';
+import * as resolve from 'resolve';
+import { dirname } from 'path';
+import flatten from 'lodash.flatten';
+import debug from 'debug';
+
+const d = debug('esm-exports');
 
 type WalkNodeOptions = {
     module?: string;
     result?: Entry[];
     type?: 'text' | 'file';
+    filepath?: string;
+};
+
+const resolveOptions: resolve.AsyncOpts = {
+    extensions: ['.ts', '.d.ts', '.js', '.tsx', '.jsx', '.mjs'],
+    packageFilter: (pkg: any) => {
+        const { typings, module } = pkg;
+        if (typings) {
+            pkg.main = typings;
+        } else if (module) {
+            pkg.main = module;
+        }
+        return pkg;
+    },
 };
 
 export async function main(target: string, options: WalkNodeOptions = {}): Promise<Entry[]> {
+    d('target %s', target);
+    d('options %o', options);
     let source: string = target;
+    let file: string;
     if (!options.result) {
         options.result = [];
     }
     if (options.type === 'file') {
-        source = await readFile(target).then(buffer => buffer.toString(), () => undefined);
+        file = source;
+        source = await readFile(file).then(buffer => buffer.toString(), () => undefined);
     }
     const sourceFile = ts.createSourceFile('dummy.ts', source, ts.ScriptTarget.ESNext, true);
     ts.forEachChild<ts.Node>(sourceFile, (node: any) => walkNode(node, options));
     // todo: Improve performance here
-    return Promise.resolve(uniqBy(options.result, item => item.id()));
+    if (options.type === 'file') {
+        const fileResult = flatten(await Promise.all(options.result
+            .filter(entry => !entry.name && entry.specifier)
+            .map(entry => {
+                try {
+                    var filepath = resolve.sync(entry.specifier, { ...(resolveOptions as any), basedir: dirname(file) });
+                } catch (err) {
+                    return [];
+                }
+                return main(filepath, { ...options, filepath, result: [] });
+            })));
+        const specifiers = fileResult.map(entry => new Entry({ ...entry, filepath: file }));
+        options.result.push(...specifiers, ...fileResult);
+    }
+    return Promise.resolve(filterEntries(options.result, item => item.id()));
 }
 
 function walkNode(node: ts.Node, options: WalkNodeOptions): any {
@@ -92,8 +130,11 @@ function hasDeclareKeyword(node: ts.Node): boolean {
     return node.modifiers && node.modifiers.find(m => m.kind === ts.SyntaxKind.DeclareKeyword) !== undefined
 }
 
-function uniqBy(array, iteratee) {
-    return array.filter((value, index, self) => index === self.findIndex(other => iteratee(other) === iteratee(value)));
+function filterEntries(array: Entry[], iteratee) {
+    return array.filter((value, index, self) => {
+        const item = iteratee(value);
+        return value.name && index === self.findIndex(other => iteratee(other) === item);
+    });
 }
 
 function isDeclaration(node: ts.Node) {
