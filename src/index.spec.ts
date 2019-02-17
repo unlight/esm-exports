@@ -249,9 +249,11 @@ it('try to parse unexisting file', async () => {
     assert.deepEqual(result, []);
 });
 
-it.skip('try to parse export from core', async () => {
-    result = await main(normalize(`${rootPath}/fixtures/export-from-core.ts`), { type: 'file' });
-    assert.deepEqual(result, []);
+it('directory with bad file export from core', async () => {
+    result = await main(normalize(`${rootPath}/fixtures/export-from-core`), { type: 'directory' });
+    entry = result[0];
+    assert.notEqual(result.length, 0);
+    assert.equal(entry.name, 'ok');
 });
 
 it('should parse directory', async () => {
@@ -302,111 +304,106 @@ it('node core with additional functions', async () => {
     assert.equal(entry.isDefault, false);
 });
 
-// it('commonjs module.exports 1', () => {
-//     const source = `module.exports.myfunc = () => {}`;
-//     const [entry] = main(source);
-//     assert(entry);
-//     assert.equal(entry.name, 'myfunc');
-//     assert.equal(entry.isDefault, false);
-// });
+it.skip('commonjs module.exports 1', async () => {
+    result = await main(`module.exports.myfunc = () => {}`);
+    entry = result[0];
+    assert.equal(entry.name, 'myfunc');
+    assert.equal(entry.isDefault, false);
+});
 
-// it.skip('commonjs module.exports 2', () => {
-//     const source = `this.myfunc = 1`;
-//     const [entry] = main(source);
-//     assert(entry);
-//     assert.equal(entry.name, 'myfunc');
-//     assert.equal(entry.isDefault, false);
-// });
+it.skip('commonjs module.exports 2', async () => {
+    const [entry] = await main(`this.myfunc = 1`);
+    assert(entry);
+    assert.equal(entry.name, 'myfunc');
+    assert.equal(entry.isDefault, false);
+});
 
-// it.skip('declare namespace', () => {
-//     const source = `
-//         declare namespace through2 {
-//         }
-//         export = through2
-//     `;
-//     const [entry] = main(source);
-//     assert.ifError(entry.module);
-//     assert.equal(entry.isDefault, true);
-// });
+it.skip('declare namespace', async () => {
+    ([entry] = await main(`
+        declare namespace through2 {
+        }
+        export = through2
+    `));
+    assert.ifError(entry.module);
+    assert.equal(entry.isDefault, true);
+});
 
-// it.skip('export as namespace', () => {
-//     const source = `
-//         export = _;
-//         export as namespace _;
-//     `;
-//     result = main(source);
-// });
+it.skip('export as namespace', async () => {
+    result = await main(`
+        export = _;
+        export as namespace _;
+    `);
+});
 
-// it('should take only file by findFileExtensions', async () => {
-//     result = await directory(`${__dirname}/../fixtures`);
-//     assert(result);
-//     assert(result.filter(m => !m.name).length === 0, 'all entries must have name');
-//     assert(result.filter(x => x.name === 'NotADummyComponent').length === 0);
-//     assert.equal(result[0].name, 'DummyComponent');
-//     assert.equal(result[0].filepath, normalize(`${__dirname}/../fixtures/dummy.component.ts`));
-// });
+it('should take only file by findFileExtensions', async () => {
+    result = await main(normalize(`${rootPath}/fixtures`), { type: 'directory' });
+    assert(result);
+    assert.equal(result.filter(m => !m.name).length, 0, 'all entries must have name');
+    assert.equal(result.filter(x => x.name === 'NotADummyComponent').length, 0, 'NotADummyComponent should not be found');
+    assert.equal(result[0].name, 'DummyComponent');
+    assert.equal(result[0].filepath, normalize(`${rootPath}/fixtures/dummy.component.ts`));
+});
 
-// it('angular2-calendar', async () => {
-//     result = await parse('angular2-calendar', { basedir: rootPath });
-//     const [first] = result;
-//     assert.equal(first.module, 'angular2-calendar');
-//     const calendarEventTitleEntry = result.find(item => item.name === 'CalendarEventTitle');
-//     assert(calendarEventTitleEntry);
-//     assert.equal(calendarEventTitleEntry.module, 'angular2-calendar');
-//     assert(result.filter(m => !m.name).length === 0, 'all entries must have name');
-// });
+it('angular2-calendar', async () => {
+    result = await main('angular2-calendar', { type: 'module' });
+    assert.notEqual(result.length, 0);
+    assert.equal(result.filter(x => x.module !== 'angular2-calendar').length, 0);
+    assert(result.find(item => item.name === 'CalendarEventTitle'), 'CalendarEventTitle');
+    assert(result.filter(m => !m.name).length === 0, 'all entries must have name');
+});
 
-// it('rxjs module, node_modules names should be uniq', async () => {
-//     result = await parse('rxjs', { basedir: rootPath });
-//     const ids = result.map(item => item.id());
-//     const uniqIds: string[] = [...new Set(ids)];
-//     assert.equal(uniqIds.length, ids.length);
-//     assert(result.filter(m => !m.name).length === 0, 'all entries must have name');
-// });
+it('rxjs module, node_modules names should be uniq', async () => {
+    result = await main('rxjs', { type: 'module' });
+    const ids = result.map(item => item.id());
+    const uniqIds: string[] = [...new Set(ids)];
+    assert.equal(uniqIds.length, ids.length, 'found duplicates or so');
+    assert(result.filter(m => !m.name).length === 0, 'all entries must have name');
+});
 
-// it('gulp-tslint', async () => {
-//     result = await parse('gulp-tslint', { basedir: rootPath });
-//     const falsyNodes = result.filter(v => !v);
-//     assert(falsyNodes.length === 0);
-//     const pluginOptions = result.find(v => v.name === 'PluginOptions');
-//     assert(pluginOptions);
-//     assert(pluginOptions.module === 'gulp-tslint');
-//     assert(result.filter(m => !m.name).length === 0, 'all entries must have name');
-// });
+it('gulp-tslint', async () => {
+    result = await main('gulp-tslint', { type: 'module' });
+    const falsyNodes = result.filter(v => !v);
+    assert(falsyNodes.length === 0);
+    const pluginOptions = result.find(v => v.name === 'PluginOptions');
+    assert(pluginOptions);
+    assert(pluginOptions.module === 'gulp-tslint');
+    assert(result.filter(m => !m.name).length === 0, 'all entries must have name');
+});
 
-// it('no falsy nodes', async () => {
-//     result = await parse('@angular/core', { basedir: rootPath });
-//     const falsyNodes = result.filter(v => !v);
-//     assert(falsyNodes.length === 0);
-//     assert(result.filter(m => !m.name).length === 0, 'all entries must have name');
-// });
+it('no falsy nodes', async function() {
+    result = await main('@angular/core', { type: 'module' });
+    const falsyNodes = result.filter(v => !v);
+    assert(falsyNodes.length === 0);
+    assert(result.filter(m => !m.name).length === 0, 'all entries must have name');
+});
 
-// it('parse unknown module', async () => {
-//     result = await parse('unknown_module_foo', { basedir: rootPath });
-//     assert(result.length === 0);
-//     assert(result.filter(m => !m.name).length === 0, 'all entries must have name');
-// });
+it('parse unknown module', async () => {
+    result = await main('unknown_module_foo', { type: 'module' });
+    assert.equal(result.length, 0);
+    assert(result.filter(m => !m.name).length === 0, 'all entries must have name');
+});
 
-// it('inner module', async () => {
-//     result = await parse('@angular/core/testing', { basedir: rootPath });
-//     const inject = result.find(n => n.name === 'inject');
-//     assert(inject);
-//     const TestBed = result.find(n => n.name === 'TestBed');
-//     assert(TestBed);
-//     assert(result.filter(m => !m.name).length === 0, 'all entries must have name');
-// });
+it('inner module', async () => {
+    result = await main('@angular/core/testing', { type: 'module' });
+    const inject = result.find(n => n.name === 'inject');
+    assert(inject);
+    const TestBed = result.find(n => n.name === 'TestBed');
+    assert(TestBed);
+    assert(result.filter(m => !m.name).length === 0, 'all entries must have name');
+});
 
-// it('should find inner module properly', async () => {
-//     result = await parse('@angular/core', { basedir: rootPath });
-//     const testing = result.filter(n => n.module === '@angular/core/testing');
-//     assert(testing.length);
-//     const inject = result.filter(n => n.name === 'inject');
-//     assert.notEqual(inject.length, 0);
-//     assert(result.filter(m => !m.name).length === 0, 'all entries must have name');
-// });
+it('should find inner module properly', async function() {
+    result = await main('@angular/core', { type: 'module' });
+    const testing = result.filter(n => n.module === '@angular/core/testing');
+    assert.notEqual(testing.length, 0, 'submodule entries');
+    const inject = result.filter(n => n.name === 'inject');
+    assert.notEqual(inject.length, 0);
+    const unnamed = result.filter(m => !m.name);
+    assert.equal(unnamed.length, 0, 'all entries must have name');
+});
 
 // it('should not contain duplicated entries (modules)', async () => {
-//     result = await parse('@angular/core', { basedir: rootPath });
+//     result = await main('@angular/core', { type: 'module' });
 //     const inject = result.filter(n => n.name === 'inject' && n.module === '@angular/core');
 //     assert.equal(inject.length, 1);
 //     const TestBed = result.filter(n => n.name === 'TestBed');
@@ -415,7 +412,7 @@ it('node core with additional functions', async () => {
 // });
 
 // it('types node', async () => {
-//     result = await parse('@types/node', { basedir: rootPath });
+//     result = await main('@types/node', { type: 'module' });
 //     const bastards = result.filter(m => m.module === '@types/node');
 //     assert.equal(bastards.length, 0, 'globals should be eliminated');
 //     const buffer = result.filter(m => m.module === 'buffer');
@@ -425,13 +422,13 @@ it('node core with additional functions', async () => {
 // });
 
 // it.skip('types node events', async () => {
-//     result = await parse('@types/node', { basedir: rootPath });
+//     result = await main('@types/node', { type: 'module' });
 //     const events = result.filter(m => m.module === 'events');
 //     assert(events.length > 0);
 // });
 
 // it('commonjs modules pkg-dir', async () => {
-//     result = await parse('pkg-dir', { basedir: rootPath });
+//     result = await main('pkg-dir', { type: 'module' });
 //     assert(result.length > 0);
 //     assert(result.filter(m => m.module !== 'pkg-dir').length === 0);
 //     const [entry] = result;
@@ -440,7 +437,7 @@ it('node core with additional functions', async () => {
 // });
 
 // it('types express', async () => {
-//     result = await parse('@types/express', { basedir: rootPath });
+//     result = await main('@types/express', { type: 'module' });
 //     assert(result.length > 0);
 //     const request = result.find(n => n.name === 'Request');
 //     assert(request);
@@ -448,7 +445,7 @@ it('node core with additional functions', async () => {
 // });
 
 // it('types fs-extra', async () => {
-//     result = await parse('@types/fs-extra', { basedir: rootPath });
+//     result = await main('@types/fs-extra', { type: 'module' });
 //     assert(result.length > 0);
 //     const [copy] = result.filter(m => m.name === 'copy');
 //     assert(copy);
@@ -457,22 +454,22 @@ it('node core with additional functions', async () => {
 // });
 
 // it('preact', async () => {
-//     result = await parse('preact', { basedir: rootPath });
+//     result = await main('preact', { type: 'module' });
 //     assert(result.length > 0);
 // });
 
 // it('hover', async () => {
-//     result = await parse('hover', { basedir: rootPath });
+//     result = await main('hover', { type: 'module' });
 //     assert(result.length > 0);
 // });
 
 // it('type-zoo', async () => {
-//     result = await parse('type-zoo', { basedir: rootPath });
+//     result = await main('type-zoo', { type: 'module' });
 //     assert.notEqual(result.length, 0);
 //     assert(result.find(f => f.name === 'Required'));
 //     assert(result.find(f => f.name === 'unknown'));
 // });
 
 // it('material-design-iconic-font contains invalid package main', async () => {
-//     result = await parse('material-design-iconic-font', { basedir: rootPath });
+//     result = await main('material-design-iconic-font', { type: 'module' });
 // });

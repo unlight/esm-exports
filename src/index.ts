@@ -6,13 +6,15 @@ import * as path from 'path';
 import flatten from 'lodash.flatten';
 import debug from 'debug';
 import rreaddir from 'recursive-readdir';
+import { IgnoreFunction } from 'recursive-readdir';
+import * as fs from 'fs';
 
 const d = debug('esm-exports');
 
 type WalkNodeOptions = {
     module?: string;
     result?: Entry[];
-    type?: 'text' | 'file' | 'directory';
+    type?: 'text' | 'file' | 'directory' | 'module';
     filepath?: string;
 };
 
@@ -40,18 +42,34 @@ export async function main(target: string, options: WalkNodeOptions = {}): Promi
     }
     if (options.type === 'file') {
         file = source;
-        source = await readFile(file).then(buffer => buffer.toString(), () => undefined);
+        source = await readFile(file).then(buffer => buffer.toString(), (err) => undefined);
     } else if (options.type === 'directory') {
         directory = target;
         try {
-            const files = await rreaddir(directory);
+            const files = await rreaddir(directory, [rreaddirIgnore] as IgnoreFunction[]);
             return flatten(await Promise.all(files.map(filepath => main(filepath, { type: 'file', filepath }))));
         } catch (err) {
             return [];
         }
+    } else if (options.type === 'module') {
+        try {
+            file = resolve.sync(target, resolveOptions as any);
+        } catch (err) {
+            return [];
+        }
+        // esm-exports\node_modules\@angular\core
+        options.result = await main(file, { ...options, module: target, type: 'file' });
+        const submodules = flatten(await Promise.all(fs.readdirSync(`node_modules/${target}`)
+            .filter(file => fs.existsSync(path.normalize(`node_modules/${target}/${file}/package.json`)))
+            .map((folder) => {
+                return main(`${target}/${folder}`, { ...options, module: `${target}/${folder}` });
+            })));
+        options.result.push(...submodules);
     }
-    const sourceFile = ts.createSourceFile('dummy.ts', source, ts.ScriptTarget.ESNext, true);
-    ts.forEachChild<ts.Node>(sourceFile, (node: any) => walkNode(node, options));
+    if (source) {
+        const sourceFile = ts.createSourceFile('dummy.ts', source, ts.ScriptTarget.ESNext, true);
+        ts.forEachChild<ts.Node>(sourceFile, (node: any) => walkNode(node, options));
+    }
     // todo: Improve performance here
     if (options.type === 'file') {
         d('result before specifier filter %O', options.result);
@@ -63,13 +81,27 @@ export async function main(target: string, options: WalkNodeOptions = {}): Promi
                 } catch (err) {
                     return [];
                 }
-                return main(filepath, { ...options, filepath, result: [] });
+                return main(filepath, { ...options, filepath, result: [] }).catch(err => []);
             })));
         const specifiers = fileResult.map(entry => new Entry({ ...entry, filepath: file }));
         options.result.push(...specifiers, ...fileResult);
     }
     d('result before final filter %O', options.result);
     return Promise.resolve(filterEntries(options.result, item => item.id()));
+}
+
+function rreaddirIgnore(file: string, stats: fs.Stats): boolean {
+    if (stats.isFile()) {
+        const ext = path.extname(file);
+        if (resolveOptions.extensions.indexOf(ext) === -1) {
+            return true;
+        }
+    } else if (stats.isDirectory()) {
+        if (path.basename(file) === 'node_modules') {
+            return true;
+        }
+    }
+    return false;
 }
 
 function walkNode(node: ts.Node, options: WalkNodeOptions): any {
