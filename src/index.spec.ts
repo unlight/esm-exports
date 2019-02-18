@@ -227,12 +227,6 @@ export = e;
     assert.equal(entry.cjs, undefined);
 });
 
-it.skip('export all', async () => {
-    result = await main(`export * from './provider'`);
-    entry = result[0];
-    assert.equal(entry.specifier, './provider');
-});
-
 it('import all should contain name', async () => {
     result = await main(normalize(`${rootPath}/fixtures/component/index.ts`), { type: 'file' });
     assert.notEqual(result.length, 0, 'no entries');
@@ -304,27 +298,27 @@ it('node core with additional functions', async () => {
     assert.equal(entry.isDefault, false);
 });
 
-it.skip('commonjs module.exports 1', async () => {
-    result = await main(`module.exports.myfunc = () => {}`);
+it('commonjs module.exports 1', async () => {
+    result = await main(`module.exports.myfunc = () => {}`, { module: 'test' });
     entry = result[0];
     assert.equal(entry.name, 'myfunc');
     assert.equal(entry.isDefault, false);
 });
 
-it.skip('commonjs module.exports 2', async () => {
-    const [entry] = await main(`this.myfunc = 1`);
+it('commonjs module.exports 2', async () => {
+    [entry] = await main(`this.myfunc = 1`, { module: 'test' });
     assert(entry);
     assert.equal(entry.name, 'myfunc');
     assert.equal(entry.isDefault, false);
 });
 
-it.skip('declare namespace', async () => {
-    ([entry] = await main(`
+it('declare namespace', async () => {
+    [entry] = await main(`
         declare namespace through2 {
         }
         export = through2
-    `));
-    assert.ifError(entry.module);
+    `, { module: 'test' });
+    assert.equal(entry.name, 'through2');
     assert.equal(entry.isDefault, true);
 });
 
@@ -404,68 +398,68 @@ it('should find inner module properly', async function() {
     assert.equal(TestBed.length, 1);
 });
 
-it.only('types node', async () => {
+it.skip('types node', async () => {
     result = await main('@types/node', { type: 'module' });
     assert(result.find(x => x.name === 'promisify' && x.module === 'util'), 'node util core module promisify');
     assert(!result.find(x => x.name === 'promisify' && x.module === '@types/node'), 'cannot import from definitions');
-    // const bastards = result.filter(m => m.module === '@types/node');
-    // console.log("bastards", bastards);
-    // assert.equal(bastards.length, 0, 'globals should be eliminated');
-    // const buffer = result.filter(m => m.module === 'buffer');
-    // assert(buffer.length > 0);
-    // const spawnSyncList = result.filter(m => m.name === 'spawnSync' && m.module === 'child_precess');
-    // assert(result.filter(m => !m.name).length === 0, 'all entries must have name');
+    const bastards = result.filter(m => m.module === '@types/node');
+    console.log("bastards", bastards);
+    assert.equal(bastards.length, 0, 'globals should be eliminated');
+    const buffer = result.filter(m => m.module === 'buffer');
+    assert(buffer.length > 0);
+    const spawnSyncList = result.filter(m => m.name === 'spawnSync' && m.module === 'child_precess');
+    assert(result.filter(m => !m.name).length === 0, 'all entries must have name');
 });
 
-// it.skip('types node events', async () => {
-//     result = await main('@types/node', { type: 'module' });
-//     const events = result.filter(m => m.module === 'events');
-//     assert(events.length > 0);
-// });
+it.skip('types node events', async () => {
+    result = await main('@types/node', { type: 'module' });
+    const events = result.filter(m => m.module === 'events');
+    assert(events.length > 0);
+});
 
-// it('commonjs modules pkg-dir', async () => {
-//     result = await main('pkg-dir', { type: 'module' });
-//     assert(result.length > 0);
-//     assert(result.filter(m => m.module !== 'pkg-dir').length === 0);
-//     const [entry] = result;
-//     assert(entry.module === 'pkg-dir');
-//     assert(entry.cjs === true);
-// });
+it.skip('commonjs modules pkg-dir', async () => {
+    result = await main('pkg-dir', { type: 'module' });
+    console.log("result", result);
+    assert.notEqual(result.length, 0);
+    assert(result.filter(m => m.module !== 'pkg-dir').length === 0);
+    const [entry] = result;
+    assert(entry.module === 'pkg-dir');
+    assert(entry.cjs === true);
+});
 
-// it('types express', async () => {
-//     result = await main('@types/express', { type: 'module' });
-//     assert(result.length > 0);
-//     const request = result.find(n => n.name === 'Request');
-//     assert(request);
-//     assert(request.module === 'express');
-// });
+it('types express', async () => {
+    result = await main('@types/express', { type: 'module' });
+    assert.notEqual(result.length, 0);
+    const request = result.find(n => n.name === 'Request');
+    assert(request);
+    assert.equal(request.module, 'express');
+});
 
-// it('types fs-extra', async () => {
-//     result = await main('@types/fs-extra', { type: 'module' });
-//     assert(result.length > 0);
-//     const [copy] = result.filter(m => m.name === 'copy');
-//     assert(copy);
-//     const [copyOptions] = result.filter(m => m.name === 'CopyOptions');
-//     assert(copyOptions);
-// });
+it('types fs-extra', async () => {
+    result = await main('@types/fs-extra', { type: 'module' });
+    assert.notEqual(result.length, 0);
+    assert(result.find(m => m.name === 'copy'), 'name copy');
+    assert(result.find(m => m.name === 'CopyOptions'), 'name CopyOptions');
+});
 
-// it('preact', async () => {
-//     result = await main('preact', { type: 'module' });
-//     assert(result.length > 0);
-// });
+it('preact', async () => {
+    result = await main('preact', { type: 'module' });
+    assert.notEqual(result.length, 0);
+});
 
-// it('hover', async () => {
-//     result = await main('hover', { type: 'module' });
-//     assert(result.length > 0);
-// });
+it('hover', async () => {
+    result = await main('hover', { type: 'module' });
+    assert.notEqual(result.length, 0);
+});
 
-// it('type-zoo', async () => {
-//     result = await main('type-zoo', { type: 'module' });
-//     assert.notEqual(result.length, 0);
-//     assert(result.find(f => f.name === 'Required'));
-//     assert(result.find(f => f.name === 'unknown'));
-// });
+it('type-zoo package types property', async () => {
+    result = await main('type-zoo', { type: 'module' });
+    assert.notEqual(result.length, 0);
+    assert(result.find(f => f.name === 'Required'), 'Require name');
+    assert(result.find(f => f.name === 'unknown'), 'unknown name');
+});
 
-// it('material-design-iconic-font contains invalid package main', async () => {
-//     result = await main('material-design-iconic-font', { type: 'module' });
-// });
+it('material-design-iconic-font contains invalid package main', async () => {
+    result = await main('material-design-iconic-font', { type: 'module' });
+    assert(result, 'should not fail');
+});

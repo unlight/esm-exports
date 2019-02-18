@@ -1,6 +1,6 @@
 import * as ts from 'typescript';
 import { Entry } from './entry';
-import readFile from 'fs-readfile-promise';
+import fsReadFilePromise from 'fs-readfile-promise';
 import * as resolve from 'resolve';
 import * as path from 'path';
 import flatten from 'lodash.flatten';
@@ -20,14 +20,15 @@ type WalkNodeOptions = {
 
 const resolveOptions: resolve.AsyncOpts = {
     extensions: ['.ts', '.d.ts', '.js', '.tsx', '.jsx', '.mjs'],
-    packageFilter: (pkg: any) => {
-        const { typings, module } = pkg;
-        if (typings) {
-            pkg.main = typings;
-        } else if (module) {
-            pkg.main = module;
+    packageFilter: (pk: any) => {
+        if (pk.typings) {
+            pk.main = pk.typings;
+        } else if (pk.types) {
+            pk.main = pk.types;
+        } else if (pk.module) {
+            pk.main = pk.module;
         }
-        return pkg;
+        return pk;
     },
 };
 
@@ -42,7 +43,7 @@ export async function main(target: string, options: WalkNodeOptions = {}): Promi
     }
     if (options.type === 'file') {
         file = target;
-        source = await readFile(file).then(buffer => buffer.toString(), (err) => undefined);
+        source = await fsReadFilePromise(file).then(buffer => buffer.toString(), (err) => undefined);
     } else if (options.type === 'directory') {
         directory = target;
         try {
@@ -54,11 +55,9 @@ export async function main(target: string, options: WalkNodeOptions = {}): Promi
     } else if (options.type === 'module') {
         try {
             file = resolve.sync(target, resolveOptions as any);
-            console.log("file", file);
         } catch (err) {
             return [];
         }
-        // esm-exports\node_modules\@angular\core
         options.result = await main(file, { ...options, module: target, type: 'file' });
         const submodules = flatten(await Promise.all(fs.readdirSync(`node_modules/${target}`)
             .filter(file => fs.existsSync(path.normalize(`node_modules/${target}/${file}/package.json`)))
@@ -92,23 +91,12 @@ export async function main(target: string, options: WalkNodeOptions = {}): Promi
     return Promise.resolve(filterEntries(options.result, item => item.id()));
 }
 
-function rreaddirIgnore(file: string, stats: fs.Stats): boolean {
-    if (stats.isFile()) {
-        const ext = path.extname(file);
-        if (resolveOptions.extensions.indexOf(ext) === -1) {
-            return true;
-        }
-    } else if (stats.isDirectory()) {
-        if (path.basename(file) === 'node_modules') {
-            return true;
-        }
-    }
-    return false;
-}
-
 function walkNode(node: ts.Node, options: WalkNodeOptions): any {
     // console.log("node.kind", node.kind);
-    if (node.kind === ts.SyntaxKind.ModuleDeclaration) {
+    if ((isModuleExportsAssign(node) || isThisExportsAssign(node)) && (node as any).left.name && (node as any).left.name.kind === ts.SyntaxKind.Identifier) {
+        const name = (node as any).left.name.text;
+        options.result.push(new Entry({ ...options, name }));
+    } else if (node.kind === ts.SyntaxKind.ModuleDeclaration) {
         if (hasDeclareKeyword(node)) {
             const moduleBlock = node.getChildren().find(c => c.kind === ts.SyntaxKind.ModuleBlock) as ts.Block | undefined;
             if (!moduleBlock) {
@@ -140,9 +128,13 @@ function walkNode(node: ts.Node, options: WalkNodeOptions): any {
         const name = (node as any).expression.text;
         options.result.push(new Entry({ ...options, name, isDefault: true }));
         if (options.module != null) {
+            let newModule = options.module;
+            if (options.isDeclarationFile && newModule.indexOf('@types/') === 0) {
+                newModule = newModule.slice(7);
+            }
             options.result.forEach(x => {
                 if (x.module === name) {
-                    x.module = options.module;
+                    x.module = newModule;
                 }
             });
         }
@@ -154,8 +146,34 @@ function walkNode(node: ts.Node, options: WalkNodeOptions): any {
     node.forEachChild(node => walkNode(node, options));
 }
 
+function rreaddirIgnore(file: string, stats: fs.Stats): boolean {
+    if (stats.isFile()) {
+        const ext = path.extname(file);
+        if (resolveOptions.extensions.indexOf(ext) === -1) {
+            return true;
+        }
+    } else if (stats.isDirectory()) {
+        if (path.basename(file) === 'node_modules') {
+            return true;
+        }
+    }
+    return false;
+}
+
+function isModuleExportsAssign(node: any) {
+    return node.kind === ts.SyntaxKind.BinaryExpression
+        && node.left.kind === ts.SyntaxKind.PropertyAccessExpression && node.left.expression.kind === ts.SyntaxKind.PropertyAccessExpression
+        && node.left.expression.expression && node.left.expression.expression.kind === ts.SyntaxKind.Identifier
+        && node.left.expression.expression.escapedText === 'module'
+        && node.left.expression.name && node.left.expression.name.kind === ts.SyntaxKind.Identifier && node.left.expression.name.text === 'exports';
+}
+
+function isThisExportsAssign(node: any) {
+    return node.kind === ts.SyntaxKind.BinaryExpression
+        && node.left.kind === ts.SyntaxKind.PropertyAccessExpression && node.left.expression.kind === ts.SyntaxKind.ThisKeyword;
+}
+
 function isModuleFromOptions(options: WalkNodeOptions) {
-    console.log("options", options);
     return options.module != null;
 }
 

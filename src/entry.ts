@@ -6,6 +6,9 @@ type EntryConstructor = {
     isDefault?: boolean;
 };
 
+/**
+ * Class represents import item.
+ */
 export class Entry {
 
     private static count = 1;
@@ -30,7 +33,7 @@ export class Entry {
      * Flag indicates export default.
      */
     isDefault: boolean;
-    private counter: number;
+    private readonly counter: number;
 
     constructor({ name, filepath, specifier, module, isDefault }: EntryConstructor) {
         this.name = name;
