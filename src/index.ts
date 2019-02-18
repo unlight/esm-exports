@@ -6,7 +6,6 @@ import * as path from 'path';
 import flatten from 'lodash.flatten';
 import debug from 'debug';
 import rreaddir from 'recursive-readdir';
-import { IgnoreFunction } from 'recursive-readdir';
 import * as fs from 'fs';
 
 const d = debug('esm-exports');
@@ -16,6 +15,7 @@ type WalkNodeOptions = {
     result?: Entry[];
     type?: 'text' | 'file' | 'directory' | 'module';
     filepath?: string;
+    isDeclarationFile?: boolean;
 };
 
 const resolveOptions: resolve.AsyncOpts = {
@@ -35,18 +35,18 @@ export async function main(target: string, options: WalkNodeOptions = {}): Promi
     d('target %s', target);
     d('options %o', options);
     let source: string = target;
-    let file: string;
+    let file: string = '';
     let directory: string;
     if (!options.result) {
         options.result = [];
     }
     if (options.type === 'file') {
-        file = source;
+        file = target;
         source = await readFile(file).then(buffer => buffer.toString(), (err) => undefined);
     } else if (options.type === 'directory') {
         directory = target;
         try {
-            const files = await rreaddir(directory, [rreaddirIgnore] as IgnoreFunction[]);
+            const files = await rreaddir(directory, [rreaddirIgnore]);
             return flatten(await Promise.all(files.map(filepath => main(filepath, { type: 'file', filepath }))));
         } catch (err) {
             return [];
@@ -54,6 +54,7 @@ export async function main(target: string, options: WalkNodeOptions = {}): Promi
     } else if (options.type === 'module') {
         try {
             file = resolve.sync(target, resolveOptions as any);
+            console.log("file", file);
         } catch (err) {
             return [];
         }
@@ -67,7 +68,8 @@ export async function main(target: string, options: WalkNodeOptions = {}): Promi
         options.result.push(...submodules);
     }
     if (source) {
-        const sourceFile = ts.createSourceFile('dummy.ts', source, ts.ScriptTarget.ESNext, true);
+        const sourceFile = ts.createSourceFile(file, source, ts.ScriptTarget.ESNext, true);
+        options.isDeclarationFile = sourceFile.isDeclarationFile;
         ts.forEachChild<ts.Node>(sourceFile, (node: any) => walkNode(node, options));
     }
     // todo: Improve performance here
@@ -144,12 +146,17 @@ function walkNode(node: ts.Node, options: WalkNodeOptions): any {
                 }
             });
         }
-    } else if (isDeclaration(node) && (options.module != null || hasExportModifier(node))) {
+    } else if (isDeclaration(node) && (isModuleFromOptions(options) || hasExportModifier(node))) {
         const isDefault = /*node.kind === ts.SyntaxKind.ExportAssignment || */ hasDefaultModifier(node);
         options.result.push(new Entry({ ...options, name: (node as any).name.text, isDefault }));
     }
     // todo: Check depth
     node.forEachChild(node => walkNode(node, options));
+}
+
+function isModuleFromOptions(options: WalkNodeOptions) {
+    console.log("options", options);
+    return options.module != null;
 }
 
 function getParentIf(node: ts.Node, syntaxKinds: ts.SyntaxKind[]) {

@@ -4,8 +4,6 @@ type EntryConstructor = {
     filepath?: string;
     specifier?: string;
     isDefault?: boolean;
-    cjs?: boolean;
-    ts?: boolean;
 };
 
 export class Entry {
@@ -32,18 +30,14 @@ export class Entry {
      * Flag indicates export default.
      */
     isDefault: boolean;
-    cjs?: boolean;
-    ts?: boolean;
     private counter: number;
 
-    constructor({ name, filepath, specifier, module, isDefault, cjs, ts }: EntryConstructor) {
+    constructor({ name, filepath, specifier, module, isDefault }: EntryConstructor) {
         this.name = name;
         this.specifier = specifier;
         this.isDefault = Boolean(isDefault);
         this.module = module;
         this.filepath = (!module) ? filepath : undefined;
-        this.cjs = cjs;
-        this.ts = ts;
         Object.defineProperty(this, 'counter', {
             enumerable: false,
             value: Entry.count++

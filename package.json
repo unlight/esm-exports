@@ -5,8 +5,9 @@
   "main": "index.js",
   "typings": "index.d.ts",
   "scripts": {
-    "test": "npm run eslint && npm run tscheck && npm run test:r",
+    "test": "npm run eslint && npm run tscheck && npm run test:cov",
     "test:r": "npm run mocha -- src/*.spec.ts",
+    "test:cov": "nyc mocha --timeout 5s src/**/*.spec.ts",
     "mocha": "node -r ts-node/register/transpile-only node_modules/mocha/bin/_mocha",
     "test:w": "npm run mocha -- --timeout 5s --watch-extensions ts --watch src/**/*.spec.ts",
     "test:d": "node --inspect -r ts-node/register/transpile-only node_modules/mocha/bin/_mocha --no-timeouts --watch-extensions ts --watch src/**/*.spec.ts",
@@ -63,6 +64,7 @@
     "inotifywait-win32": "^1.0.0",
     "material-design-iconic-font": "^2.2.0",
     "mocha": "^5.2.0",
+    "nyc": "^13.3.0",
     "pkg-dir": "^3.0.0",
     "preact": "^8.4.2",
     "rimraf": "^2.6.3",

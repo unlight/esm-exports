@@ -394,32 +394,28 @@ it('inner module', async () => {
 
 it('should find inner module properly', async function() {
     result = await main('@angular/core', { type: 'module' });
+    const inject = result.filter(n => n.name === 'inject' && n.module === '@angular/core');
+    assert.equal(inject.length, 1);
     const testing = result.filter(n => n.module === '@angular/core/testing');
     assert.notEqual(testing.length, 0, 'submodule entries');
-    const inject = result.filter(n => n.name === 'inject');
-    assert.notEqual(inject.length, 0);
     const unnamed = result.filter(m => !m.name);
     assert.equal(unnamed.length, 0, 'all entries must have name');
+    const TestBed = result.filter(n => n.name === 'TestBed');
+    assert.equal(TestBed.length, 1);
 });
 
-// it('should not contain duplicated entries (modules)', async () => {
-//     result = await main('@angular/core', { type: 'module' });
-//     const inject = result.filter(n => n.name === 'inject' && n.module === '@angular/core');
-//     assert.equal(inject.length, 1);
-//     const TestBed = result.filter(n => n.name === 'TestBed');
-//     assert.equal(TestBed.length, 1);
-//     assert(result.filter(m => !m.name).length === 0, 'all entries must have name');
-// });
-
-// it('types node', async () => {
-//     result = await main('@types/node', { type: 'module' });
-//     const bastards = result.filter(m => m.module === '@types/node');
-//     assert.equal(bastards.length, 0, 'globals should be eliminated');
-//     const buffer = result.filter(m => m.module === 'buffer');
-//     assert(buffer.length > 0);
-//     const spawnSyncList = result.filter(m => m.name === 'spawnSync' && m.module === 'child_precess');
-//     assert(result.filter(m => !m.name).length === 0, 'all entries must have name');
-// });
+it.only('types node', async () => {
+    result = await main('@types/node', { type: 'module' });
+    assert(result.find(x => x.name === 'promisify' && x.module === 'util'), 'node util core module promisify');
+    assert(!result.find(x => x.name === 'promisify' && x.module === '@types/node'), 'cannot import from definitions');
+    // const bastards = result.filter(m => m.module === '@types/node');
+    // console.log("bastards", bastards);
+    // assert.equal(bastards.length, 0, 'globals should be eliminated');
+    // const buffer = result.filter(m => m.module === 'buffer');
+    // assert(buffer.length > 0);
+    // const spawnSyncList = result.filter(m => m.name === 'spawnSync' && m.module === 'child_precess');
+    // assert(result.filter(m => !m.name).length === 0, 'all entries must have name');
+});
 
 // it.skip('types node events', async () => {
 //     result = await main('@types/node', { type: 'module' });
