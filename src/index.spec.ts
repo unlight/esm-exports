@@ -322,13 +322,6 @@ it('declare namespace', async () => {
     assert.equal(entry.isDefault, true);
 });
 
-it.skip('export as namespace', async () => {
-    result = await main(`
-        export = _;
-        export as namespace _;
-    `);
-});
-
 it('should take only file by findFileExtensions', async () => {
     result = await main(normalize(`${rootPath}/fixtures`), { type: 'directory' });
     assert(result);
@@ -398,16 +391,17 @@ it('should find inner module properly', async function() {
     assert.equal(TestBed.length, 1);
 });
 
-it.skip('types node', async () => {
+it('types node', async () => {
     result = await main('@types/node', { type: 'module' });
+    // console.log("entries", result.filter(x => x.module === '@types/node'));
     assert(result.find(x => x.name === 'promisify' && x.module === 'util'), 'node util core module promisify');
     assert(!result.find(x => x.name === 'promisify' && x.module === '@types/node'), 'cannot import from definitions');
-    const bastards = result.filter(m => m.module === '@types/node');
-    console.log("bastards", bastards);
-    assert.equal(bastards.length, 0, 'globals should be eliminated');
+    const bad = result.filter(m => m.module === '@types/node');
+    assert.equal(bad.length, 0, 'globals should be eliminated');
     const buffer = result.filter(m => m.module === 'buffer');
-    assert(buffer.length > 0);
+    assert(buffer.length > 0, 'buffer modules not found');
     const spawnSyncList = result.filter(m => m.name === 'spawnSync' && m.module === 'child_precess');
+    assert(spawnSyncList, 'spawn family not found');
     assert(result.filter(m => !m.name).length === 0, 'all entries must have name');
 });
 
@@ -462,4 +456,12 @@ it('type-zoo package types property', async () => {
 it('material-design-iconic-font contains invalid package main', async () => {
     result = await main('material-design-iconic-font', { type: 'module' });
     assert(result, 'should not fail');
+});
+
+it.skip('export as namespace', async () => {
+    result = await main(`
+        export = _;
+        export as namespace _;
+    `);
+    console.log("result", result);
 });

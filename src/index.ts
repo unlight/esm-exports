@@ -43,6 +43,7 @@ export async function main(target: string, options: WalkNodeOptions = {}): Promi
     }
     if (options.type === 'file') {
         file = target;
+        d('reading file %s', file);
         source = await fsReadFilePromise(file).then(buffer => buffer.toString(), (err) => undefined);
     } else if (options.type === 'directory') {
         directory = target;
@@ -65,6 +66,12 @@ export async function main(target: string, options: WalkNodeOptions = {}): Promi
                 return main(`${target}/${folder}`, { ...options, module: `${target}/${folder}` });
             })));
         options.result.push(...submodules);
+        // todo: remove hack
+        if (target === '@types/node') {
+            const entries = await main('node_modules/@types/node', { ...options, type: 'directory' });
+            // console.log("entries", entries.filter(x => x.module === '@types/node'));
+            options.result.push(...entries);
+        }
     }
     if (source) {
         const sourceFile = ts.createSourceFile(file, source, ts.ScriptTarget.ESNext, true);
@@ -138,10 +145,14 @@ function walkNode(node: ts.Node, options: WalkNodeOptions): any {
                 }
             });
         }
-    } else if (isDeclaration(node) && (isModuleFromOptions(options) || hasExportModifier(node))) {
-        const isDefault = /*node.kind === ts.SyntaxKind.ExportAssignment || */ hasDefaultModifier(node);
+    } else if (isDeclaration(node) && (hasExportModifier(node) || options.module != null)) {
+        const isDefault = hasDefaultModifier(node);
         options.result.push(new Entry({ ...options, name: (node as any).name.text, isDefault }));
     }
+    // else if (isDeclaration(node) && isInDeclaredModule(node)) {
+    //     const isDefault = hasDefaultModifier(node);
+    //     options.result.push(new Entry({ ...options, name: (node as any).name.text, isDefault, module: (node as any).parent.parent.name.text }));
+    // }
     // todo: Check depth
     node.forEachChild(node => walkNode(node, options));
 }
@@ -165,12 +176,23 @@ function isModuleExportsAssign(node: any) {
         && node.left.kind === ts.SyntaxKind.PropertyAccessExpression && node.left.expression.kind === ts.SyntaxKind.PropertyAccessExpression
         && node.left.expression.expression && node.left.expression.expression.kind === ts.SyntaxKind.Identifier
         && node.left.expression.expression.escapedText === 'module'
-        && node.left.expression.name && node.left.expression.name.kind === ts.SyntaxKind.Identifier && node.left.expression.name.text === 'exports';
+        && node.left.expression.name && node.left.expression.name.kind === ts.SyntaxKind.Identifier && node.left.expression.name.text === 'exports'
+        && node.parent && node.parent.kind === ts.SyntaxKind.ExpressionStatement
+        && node.parent.parent && node.parent.parent.kind === ts.SyntaxKind.SourceFile;
 }
 
 function isThisExportsAssign(node: any) {
     return node.kind === ts.SyntaxKind.BinaryExpression
-        && node.left.kind === ts.SyntaxKind.PropertyAccessExpression && node.left.expression.kind === ts.SyntaxKind.ThisKeyword;
+        && node.left.kind === ts.SyntaxKind.PropertyAccessExpression && node.left.expression.kind === ts.SyntaxKind.ThisKeyword
+        && node.parent && node.parent.kind === ts.SyntaxKind.ExpressionStatement
+        && node.parent.parent && node.parent.parent.kind === ts.SyntaxKind.SourceFile;
+}
+
+function isInDeclaredModule(node: any) {
+    return node.parent && node.parent.kind === ts.SyntaxKind.ModuleBlock
+        && node.parent.parent && node.parent.parent.kind === ts.SyntaxKind.ModuleDeclaration
+        && node.parent.parent.modifiers && node.parent.parent.modifiers.find(m => m.kind === ts.SyntaxKind.DeclareKeyword) != null
+        && node.parent.parent.name != null && node.parent.parent.name.text != null;
 }
 
 function isModuleFromOptions(options: WalkNodeOptions) {
@@ -195,13 +217,15 @@ function hasDefaultModifier(node: ts.Node): boolean {
 }
 
 function hasDeclareKeyword(node: ts.Node): boolean {
-    return node.modifiers && node.modifiers.find(m => m.kind === ts.SyntaxKind.DeclareKeyword) !== undefined
+    return node.modifiers && node.modifiers.find(m => m.kind === ts.SyntaxKind.DeclareKeyword) !== undefined;
 }
 
-function filterEntries(array: Entry[], iteratee) {
-    return array.filter((value, index, self) => {
-        const item = iteratee(value);
-        return value.name && (value.module || value.filepath) && index === self.findIndex(other => iteratee(other) === item);
+function filterEntries(entries: Entry[], iteratee) {
+    return entries.filter((entry, index, self) => {
+        const item = iteratee(entry);
+        return entry.name
+            && (entry.module || entry.filepath)
+            && index === self.findIndex(other => iteratee(other) === item);
     });
 }
 
