@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/tslint/config */
-import assert = require('assert');
+const assert = require('assert');
 import { main } from './index';
 import { normalize } from 'path';
 import { Entry } from './entry';

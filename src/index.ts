@@ -98,6 +98,8 @@ export async function main(target: string, options: WalkNodeOptions = {}): Promi
     return Promise.resolve(filterEntries(options.result, item => item.id()));
 }
 
+export { main as esmExports };
+
 function walkNode(node: ts.Node, options: WalkNodeOptions): any {
     // console.log("node.kind", node.kind);
     if ((isModuleExportsAssign(node) || isThisExportsAssign(node)) && (node as any).left.name && (node as any).left.name.kind === ts.SyntaxKind.Identifier) {

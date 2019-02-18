@@ -9,7 +9,7 @@
     "outDir": "dist",
     "pretty": true,
     "removeComments": false,
-    "inlineSourceMap": true,
+    "sourceMap": true,
     "lib": [
       "es2017"
     ]
