@@ -136,8 +136,8 @@ function walkNode(node: ts.Node, options: WalkNodeOptions): any {
         options.result.push(new Entry({ ...options, name, isDefault: true }));
         if (options.module != null) {
             let newModule = options.module;
-            if (options.isDeclarationFile && newModule.indexOf('@types/') === 0) {
-                newModule = newModule.slice(7);
+            if (options.isDeclarationFile) {
+                newModule = typedModule(newModule);
             }
             options.result.forEach(x => {
                 if (x.module === name) {
@@ -146,8 +146,9 @@ function walkNode(node: ts.Node, options: WalkNodeOptions): any {
             });
         }
     } else if (isDeclaration(node) && (hasExportModifier(node) || options.module != null)) {
+        const newModule = typedModule(options.module);
         const isDefault = hasDefaultModifier(node);
-        options.result.push(new Entry({ ...options, name: (node as any).name.text, isDefault }));
+        options.result.push(new Entry({ ...options, name: (node as any).name.text, isDefault, module: newModule }));
     }
     // else if (isDeclaration(node) && isInDeclaredModule(node)) {
     //     const isDefault = hasDefaultModifier(node);
@@ -155,6 +156,13 @@ function walkNode(node: ts.Node, options: WalkNodeOptions): any {
     // }
     // todo: Check depth
     node.forEachChild(node => walkNode(node, options));
+}
+
+function typedModule(name: string) {
+    if (name && name.indexOf('@types/') === 0) {
+        name = name.slice(7);
+    }
+    return name;
 }
 
 function rreaddirIgnore(file: string, stats: fs.Stats): boolean {
@@ -222,6 +230,9 @@ function hasDeclareKeyword(node: ts.Node): boolean {
 
 function filterEntries(entries: Entry[], iteratee) {
     return entries.filter((entry, index, self) => {
+        if (entry.module && entry.module.indexOf('@types/') === 0) {
+            return false;
+        }
         const item = iteratee(entry);
         return entry.name
             && (entry.module || entry.filepath)
