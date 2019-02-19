@@ -405,6 +405,8 @@ it('types node', async () => {
     assert(result.filter(m => !m.name).length === 0, 'all entries must have name');
     const events = result.filter(m => m.module === 'events');
     assert(events.length > 0, 'events module not found');
+    assert(!result.find(x => x.filepath && x.filepath.includes('node_modules/@types/node')), 'filepath should not contain types node');
+
 });
 
 it('commonjs modules pkg-dir', async () => {

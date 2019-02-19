@@ -235,6 +235,9 @@ function filterEntries(entries: Entry[], iteratee) {
         if (entry.module && entry.module.indexOf('@types/') === 0) {
             return false;
         }
+        if (entry.filepath && (entry.filepath.indexOf('node_modules/@types/') !== -1 || entry.filepath.indexOf('node_modules\\@types\\') !== -1)) {
+            return false;
+        }
         const item = iteratee(entry);
         return entry.name
             && (entry.module || entry.filepath)
