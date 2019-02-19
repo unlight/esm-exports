@@ -1,3 +1,10 @@
+## [3.0.1](https://github.com/unlight/esm-exports/compare/v3.0.0...v3.0.1) (2019-02-19)
+
+
+### Bug Fixes
+
+* Bump version ([58a8c02](https://github.com/unlight/esm-exports/commit/58a8c02))
+
 # [3.0.0](https://github.com/unlight/esm-exports/compare/v2.3.1...v3.0.0) (2019-02-19)
 
 
