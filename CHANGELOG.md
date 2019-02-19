@@ -1,3 +1,30 @@
+# [3.0.0](https://github.com/unlight/esm-exports/compare/v2.3.1...v3.0.0) (2019-02-19)
+
+
+### Bug Fixes
+
+* Always collect export in declare module/names blocks ([0b8f307](https://github.com/unlight/esm-exports/commit/0b8f307))
+* Fixed tslint notes ([cfd678e](https://github.com/unlight/esm-exports/commit/cfd678e))
+* pkg-dir added to dependency ([4573ed6](https://github.com/unlight/esm-exports/commit/4573ed6))
+* Updated TypeScript to version 3 ([155cdbc](https://github.com/unlight/esm-exports/commit/155cdbc))
+
+
+### chore
+
+* Updated dependencies ([df1145e](https://github.com/unlight/esm-exports/commit/df1145e))
+
+
+### Code Refactoring
+
+* Renamed parse function to main ([c495275](https://github.com/unlight/esm-exports/commit/c495275))
+
+
+### BREAKING CHANGES
+
+* TypeScript 3
+* Renamed parse function to main
+* Declared items in declare module x construction considered always as exported
+
 # [3.0.0](https://github.com/unlight/esm-exports/compare/v2.3.1...v3.0.0) (2019-02-13)
 
 
