@@ -44,6 +44,7 @@
     "no-unsafe-any": false,
     "no-reserved-keywords": false,
     "newline-per-chained-call": false,
+    "no-increment-decrement": false,
     ".": false
   }
 }

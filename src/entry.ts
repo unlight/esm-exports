@@ -4,10 +4,11 @@ type EntryConstructor = {
     filepath?: string;
     specifier?: string;
     isDefault?: boolean;
-    cjs?: boolean;
-    ts?: boolean;
 };
 
+/**
+ * Class represents import item.
+ */
 export class Entry {
 
     private static count = 1;
@@ -32,24 +33,21 @@ export class Entry {
      * Flag indicates export default.
      */
     isDefault: boolean;
-    cjs?: boolean;
-    ts?: boolean;
+    private readonly counter: number;
 
-    constructor({ name, filepath, specifier, module, isDefault, cjs, ts }: EntryConstructor) {
+    constructor({ name, filepath, specifier, module, isDefault }: EntryConstructor) {
         this.name = name;
         this.specifier = specifier;
         this.isDefault = Boolean(isDefault);
         this.module = module;
         this.filepath = (!module) ? filepath : undefined;
-        this.cjs = cjs;
-        this.ts = ts;
-    }
-
-    private get counter() {
-        return Entry.count++; // tslint:disable-line:no-increment-decrement
+        Object.defineProperty(this, 'counter', {
+            enumerable: false,
+            value: Entry.count++
+        });
     }
 
     id() {
-        return `${this.name || this.counter}${this.isDefault ? '*' : '' }/${this.module ? this.module : this.filepath}`;
+        return `${this.name || this.counter}${this.isDefault ? '*' : ''}/${this.module ? this.module : this.filepath}`;
     }
 }
