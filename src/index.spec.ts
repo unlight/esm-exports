@@ -458,5 +458,4 @@ it.skip('export as namespace', async () => {
         export = _;
         export as namespace _;
     `);
-    console.log("result", result);
 });
