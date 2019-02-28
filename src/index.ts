@@ -16,6 +16,7 @@ type WalkNodeOptions = {
     type?: 'text' | 'file' | 'directory' | 'module';
     filepath?: string;
     isDeclarationFile?: boolean;
+    basedir?: string;
 };
 
 const resolveOptions: resolve.AsyncOpts = {
@@ -30,6 +31,7 @@ const resolveOptions: resolve.AsyncOpts = {
         }
         return pk;
     },
+    basedir: undefined,
 };
 
 export async function main(target: string, options: WalkNodeOptions = {}): Promise<Entry[]> {
@@ -54,14 +56,16 @@ export async function main(target: string, options: WalkNodeOptions = {}): Promi
             return [];
         }
     } else if (options.type === 'module') {
+        const basedir = options.basedir || process.cwd();
         try {
-            file = resolve.sync(target, <any>resolveOptions);
+            file = resolve.sync(target, { ...<any>resolveOptions, basedir });
         } catch (err) {
             return [];
         }
         options.result = await main(file, { ...options, module: target, type: 'file' });
-        const submodules = flatten(await Promise.all(fs.readdirSync(`node_modules/${target}`)
-            .filter(file => fs.existsSync(path.normalize(`node_modules/${target}/${file}/package.json`)))
+        const testPath = path.join(basedir, 'node_modules', target);
+        const submodules = flatten(await Promise.all(fs.readdirSync(testPath)
+            .filter(file => fs.existsSync(path.join(basedir, `node_modules/${target}/${file}/package.json`)))
             .map((folder) => {
                 return main(`${target}/${folder}`, { ...options, module: `${target}/${folder}` });
             })));
