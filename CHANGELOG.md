@@ -1,3 +1,10 @@
+## [3.0.2](https://github.com/unlight/esm-exports/compare/v3.0.1...v3.0.2) (2019-02-28)
+
+
+### Bug Fixes
+
+* Added basedire option ([3d7db53](https://github.com/unlight/esm-exports/commit/3d7db53))
+
 ## [3.0.1](https://github.com/unlight/esm-exports/compare/v3.0.0...v3.0.1) (2019-02-19)
 
 
