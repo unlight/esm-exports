@@ -1,3 +1,10 @@
+## [3.0.3](https://github.com/unlight/esm-exports/compare/v3.0.2...v3.0.3) (2019-03-14)
+
+
+### Bug Fixes
+
+* Make access to values or safe check for undefined ([d5c3b7f](https://github.com/unlight/esm-exports/commit/d5c3b7f))
+
 ## [3.0.2](https://github.com/unlight/esm-exports/compare/v3.0.1...v3.0.2) (2019-02-28)
 
 
