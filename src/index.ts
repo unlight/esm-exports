@@ -104,20 +104,24 @@ export async function main(target: string, options: WalkNodeOptions = {}): Promi
 export { main as esmExports };
 
 function walkNode(node: ts.Node, options: WalkNodeOptions): any {
-    // console.log("node.kind", node.kind);
     if ((isModuleExportsAssign(node) || isThisExportsAssign(node)) && (<any>node).left.name && (<any>node).left.name.kind === ts.SyntaxKind.Identifier) {
-        const name = (<any>node).left.name.text;
-        options.result.push(new Entry({ ...options, name }));
+        const name = getNameText((<any>node).left);
+        if (name) {
+            options.result.push(new Entry({ ...options, name }));
+        }
     } else if (node.kind === ts.SyntaxKind.ModuleDeclaration) {
         if (hasDeclareKeyword(node)) {
             const moduleBlock = <ts.Block | undefined>(node.getChildren().find(c => c.kind === ts.SyntaxKind.ModuleBlock));
             if (!moduleBlock) {
                 return;
             }
-            const declaredModule = (<any>node).name.text;
+            const declaredModule = getNameText(node);
             moduleBlock.forEachChild(node => walkNode(node, { ...options, module: declaredModule }));
         } else if (options.module) {
-            options.result.push(new Entry({ ...options, name: (<any>node).name.text }));
+            const name = getNameText(node);
+            if (name) {
+                options.result.push(new Entry({ ...options, name }));
+            }
         }
     } else if (node.kind === ts.SyntaxKind.ExportDeclaration) {
         const specifier = (<any>node).moduleSpecifier;
@@ -126,16 +130,21 @@ function walkNode(node: ts.Node, options: WalkNodeOptions): any {
         }
     } else if (node.kind === ts.SyntaxKind.VariableDeclarationList && node.parent && hasExportModifier(node.parent)) {
         (<any>node).declarations.forEach(d => {
-            if (d.name.kind === ts.SyntaxKind.Identifier) {
+            if (d.name.kind === ts.SyntaxKind.Identifier && d.name && d.name.text) {
                 options.result.push(new Entry({ ...options, name: d.name.text }));
             } else if (d.name.kind === ts.SyntaxKind.ObjectBindingPattern) {
                 d.name.elements.forEach(element => {
-                    options.result.push(new Entry({ ...options, name: element.name.text }));
+                    if (element.name && element.name.text) {
+                        options.result.push(new Entry({ ...options, name: element.name.text }));
+                    }
                 });
             }
         });
     } else if (node.kind === ts.SyntaxKind.ExportSpecifier) {
-        options.result.push(new Entry({ ...options, name: (<any>node).name.text }));
+        const name = getNameText(node);
+        if (name) {
+            options.result.push(new Entry({ ...options, name }));
+        }
     } else if (node.kind === ts.SyntaxKind.ExportAssignment) {
         const name = (<any>node).expression.text;
         options.result.push(new Entry({ ...options, name, isDefault: true }));
@@ -153,7 +162,10 @@ function walkNode(node: ts.Node, options: WalkNodeOptions): any {
     } else if (isDeclaration(node) && (hasExportModifier(node) || options.module != undefined)) {
         const newModule = typedModule(options.module);
         const isDefault = hasDefaultModifier(node);
-        options.result.push(new Entry({ ...options, name: (<any>node).name.text, isDefault, module: newModule }));
+        const name = getNameText(node);
+        if (name) {
+            options.result.push(new Entry({ ...options, name, isDefault, module: newModule }));
+        }
     }
     // else if (isDeclaration(node) && isInDeclaredModule(node)) {
     //     const isDefault = hasDefaultModifier(node);
@@ -187,7 +199,7 @@ function isModuleExportsAssign(node: any) {
         && node.left.kind === ts.SyntaxKind.PropertyAccessExpression && node.left.expression.kind === ts.SyntaxKind.PropertyAccessExpression
         && node.left.expression.expression && node.left.expression.expression.kind === ts.SyntaxKind.Identifier
         && node.left.expression.expression.escapedText === 'module'
-        && node.left.expression.name && node.left.expression.name.kind === ts.SyntaxKind.Identifier && node.left.expression.name.text === 'exports'
+        && node.left.expression.name && node.left.expression.name.kind === ts.SyntaxKind.Identifier && getNameText(node.left.expression) === 'exports'
         && node.parent && node.parent.kind === ts.SyntaxKind.ExpressionStatement
         && node.parent.parent && node.parent.parent.kind === ts.SyntaxKind.SourceFile;
 }
@@ -203,7 +215,7 @@ function isInDeclaredModule(node: any) {
     return node.parent && node.parent.kind === ts.SyntaxKind.ModuleBlock
         && node.parent.parent && node.parent.parent.kind === ts.SyntaxKind.ModuleDeclaration
         && node.parent.parent.modifiers && node.parent.parent.modifiers.find(m => m.kind === ts.SyntaxKind.DeclareKeyword) != undefined
-        && node.parent.parent.name != undefined && node.parent.parent.name.text != undefined;
+        && node.parent.parent.name != undefined && getNameText(node.parent.parent) != undefined;
 }
 
 function isModuleFromOptions(options: WalkNodeOptions) {
@@ -251,4 +263,8 @@ function isDeclaration(node: ts.Node) {
         || node.kind === ts.SyntaxKind.InterfaceDeclaration
         || node.kind === ts.SyntaxKind.ClassDeclaration
         || node.kind === ts.SyntaxKind.TypeAliasDeclaration;
+}
+
+function getNameText(node: any) {
+    return node && node.name && node.name.text;
 }
