@@ -425,6 +425,7 @@ it('types node', async () => {
     const events = result.filter(m => m.module === 'events');
     assert(events.length > 0, 'events module not found');
     assert(!result.find(x => x.filepath && x.filepath.includes('node_modules/@types/node')), 'filepath should not contain types node');
+    assert(result.find(x => x.module === 'worker_threads'), 'worker_threads');
 
 });
 
