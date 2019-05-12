@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/tslint/config */
-const assert = require('assert');
+import * as assert from 'assert';
 import { main } from './index';
 import { normalize } from 'path';
 import { Entry } from './entry';
@@ -10,7 +10,7 @@ let entry: Entry;
 let result: Entry[];
 
 it('smoke test', () => {
-    assert(main);
+    assert.ok(main);
 });
 
 it('id function', () => {
@@ -27,7 +27,7 @@ it('serialization should not contain private properties', () => {
 it('var export', async () => {
     result = await main(`export var test = 1`, { module: 'test' });
     entry = result.find(x => x.name === 'test');
-    assert(entry);
+    assert.ok(entry);
 });
 
 it('declare module', async () => {
@@ -38,67 +38,67 @@ it('declare module', async () => {
         }
         function readFile();
     }`, { module: 'test' });
-    entry = result.find(x => x.name === 'access' && x.module === 'fs');
-    assert(entry);
-    entry = result.find(x => x.name === 'readFile' && x.module === 'fs');
-    assert(entry);
+    assert.ok(result.find(x => x.name === 'access' && x.module === 'fs'));
+    assert.ok(result.find(x => x.name === 'readFile' && x.module === 'fs'));
 });
 
 it('several var export', async () => {
     result = await main(`export var aaa, bbb`, { module: 'test' });
-    assert(result.find(x => x.name === 'aaa'));
-    assert(result.find(x => x.name === 'bbb'));
+    assert.ok(result.find(x => x.name === 'aaa'));
+    assert.ok(result.find(x => x.name === 'bbb'));
 });
 
 it('export several vars', async () => {
     result = await main(`export {somevar, otherVar}`, { module: 'test' });
-    assert(result.find(x => x.name === 'somevar'));
-    assert(result.find(x => x.name === 'otherVar'));
+    assert.ok(result.find(x => x.name === 'somevar'));
+    assert.ok(result.find(x => x.name === 'otherVar'));
 });
 
 it('export function', async () => {
     result = await main(`export function dummy() {}`, { module: 'test' });
-    assert(result.find(x => x.name === 'dummy'));
+    assert.ok(result.find(x => x.name === 'dummy'));
 });
 
 it('export interface', async () => {
     result = await main(`export interface Entry {}`, { module: 'test' });
-    assert(result.find(x => x.name === 'Entry'));
+    assert.ok(result.find(x => x.name === 'Entry'));
 });
 
-it.only('export default var', async () => {
+it('export default var', async () => {
     result = await main(`export default component`, { module: 'test' });
     entry = result.find(x => x.name === 'component');
     assert.equal(entry.isDefault, true);
 });
 
 it('export default', async () => {
-    result = await main(`export default function foo() {}`, { module: 'test' });
-    assert(result.find(x => x.name === 'foo' && x.isDefault === true));
+    ([entry] = await main(`export default function foo() {}`, { module: 'test' }));
+    assert.ok(entry);
+    assert.equal(entry.name, 'foo');
+    assert.equal(entry.isDefault, true);
 });
 
 it('export declare class', async () => {
     result = await main(`export declare class Calendar`, { module: 'test' });
-    assert(result.find(x => x.name === 'Calendar'));
+    assert.ok(result.find(x => x.name === 'Calendar'));
 });
 
 it('export some from module', async () => {
     result = await main(`export {var1} from './provider'`, { module: 'test' });
     entry = result.find(x => x.name === 'var1');
-    assert(entry);
+    assert.ok(entry);
 });
 
 it('pick export', async () => {
     result = await main(`export { CalendarEvent, EventAction } from 'calendar-utils'`, { module: 'angualar2-calendar' });
     entry = result.find(x => x.name === 'CalendarEvent');
-    assert(entry);
+    assert.ok(entry);
     entry = result.find(x => x.name === 'EventAction');
-    assert(entry);
+    assert.ok(entry);
 });
 
 it('export class', async () => {
     result = await main(`export class Aaa`, { module: 'test' });
-    assert(result.find(x => x.name === 'Aaa'));
+    assert.ok(result.find(x => x.name === 'Aaa'));
 });
 
 it('empty source', async () => {
@@ -108,7 +108,7 @@ it('empty source', async () => {
 
 it('object binding', async () => {
     result = await main(`export const {ModuleStore} = $traceurRuntime`, { module: 'test' });
-    assert(result.find(x => x.name === 'ModuleStore'));
+    assert.ok(result.find(x => x.name === 'ModuleStore'));
 });
 
 it('should extract declared module http', async () => {
@@ -117,9 +117,9 @@ it('should extract declared module http', async () => {
         export const c1, c2: any;
     }
     `);
-    assert(result.find(x => x.module === 'http' && x.name === 'METHODS'));
-    assert(result.find(x => x.module === 'http' && x.name === 'c1'));
-    assert(result.find(x => x.module === 'http' && x.name === 'c2'));
+    assert.ok(result.find(x => x.module === 'http' && x.name === 'METHODS'));
+    assert.ok(result.find(x => x.module === 'http' && x.name === 'c1'));
+    assert.ok(result.find(x => x.module === 'http' && x.name === 'c2'));
 });
 
 it('should extract declared module events', async () => {
@@ -131,7 +131,7 @@ it('should extract declared module events', async () => {
         }
         export = internal;
     }`);
-    assert(result.find(x => x.name === 'EventEmitter' && x.module === 'events'));
+    assert.ok(result.find(x => x.name === 'EventEmitter' && x.module === 'events'));
 });
 
 it('not too deep parse', async () => {
@@ -144,7 +144,7 @@ it('not too deep parse', async () => {
     };
 }`, { module: 'test' });
     assert.equal(result.length, 1);
-    assert(result.find(x => x.name === 'deep'));
+    assert.ok(result.find(x => x.name === 'deep'));
 });
 
 it('duplicates must be removed', async () => {
@@ -167,8 +167,8 @@ declare module "preact" {
     export = internal;
 }
 `, { module: 'preact', result: [] });
-    assert(result.find(x => x.name === 'rerender' && x.module === 'preact'));
-    assert(result.find(x => x.name === 'AnyComponent' && x.module === 'preact'));
+    assert.ok(result.find(x => x.name === 'rerender' && x.module === 'preact'));
+    assert.ok(result.find(x => x.name === 'AnyComponent' && x.module === 'preact'));
 });
 
 it('react definitions', async () => {
@@ -181,10 +181,10 @@ declare namespace React {
     class PureComponent<P = {}, S = {}> extends Component<P, S> { }
 }
 `, { result: [], module: 'react' });
-    assert(result.length > 0);
-    assert(result.find(x => x.module === 'react' && x.name === 'ReactType'));
-    assert(result.find(x => x.module === 'react' && x.name === 'Component'));
-    assert(result.find(x => x.module === 'react' && x.name === 'PureComponent'));
+    assert.ok(result.length > 0);
+    assert.ok(result.find(x => x.module === 'react' && x.name === 'ReactType'));
+    assert.ok(result.find(x => x.module === 'react' && x.name === 'Component'));
+    assert.ok(result.find(x => x.module === 'react' && x.name === 'PureComponent'));
 });
 
 it('webpack', async () => {
@@ -196,7 +196,7 @@ it('webpack', async () => {
             }
         }
     `, { module: 'webpack', result: [] });
-    assert(result.find(e => e.name === 'Configuration'));
+    assert.ok(result.find(e => e.name === 'Configuration'));
 });
 
 it('declare module function', async () => {
@@ -205,7 +205,7 @@ it('declare module function', async () => {
         function readFile();
     }
     `, { module: '@types/node', result: [] });
-    assert(result.find(e => e.module === 'fs' && e.name === 'readFile'));
+    assert.ok(result.find(e => e.module === 'fs' && e.name === 'readFile'));
 });
 
 it('simulated commonjs', async () => {
@@ -254,7 +254,7 @@ it('should parse directory', async () => {
     assert.equal(entry.filepath, normalize(`${rootPath}/src/entry.ts`));
     assert.equal(result.filter(m => !m.name).length, 0, 'Missing name');
     entry = result.find(x => x.filepath === normalize(`${rootPath}/src/index.ts`));
-    assert(entry);
+    assert.ok(entry);
 });
 
 it('directory target null', async () => {
@@ -305,7 +305,7 @@ it('commonjs module.exports 1', async () => {
 
 it('commonjs module.exports 2', async () => {
     [entry] = await main(`this.myfunc = 1`, { module: 'test' });
-    assert(entry);
+    assert.ok(entry);
     assert.equal(entry.name, 'myfunc');
     assert.equal(entry.isDefault, false);
 });
@@ -322,7 +322,7 @@ it('declare namespace', async () => {
 
 it('should take only file by findFileExtensions', async () => {
     result = await main(normalize(`${rootPath}/fixtures`), { type: 'directory' });
-    assert(result);
+    assert.ok(result);
     assert.equal(result.filter(m => !m.name).length, 0, 'all entries must have name');
     assert.equal(result.filter(x => x.name === 'NotADummyComponent').length, 0, 'NotADummyComponent should not be found');
     assert.equal(result[0].name, 'DummyComponent');
@@ -333,8 +333,8 @@ it('angular2-calendar', async () => {
     result = await main('angular2-calendar', { type: 'module' });
     assert.notEqual(result.length, 0);
     assert.equal(result.filter(x => x.module !== 'angular2-calendar').length, 0);
-    assert(result.find(item => item.name === 'CalendarEventTitle'), 'CalendarEventTitle');
-    assert(result.filter(m => !m.name).length === 0, 'all entries must have name');
+    assert.ok(result.find(item => item.name === 'CalendarEventTitle'), 'CalendarEventTitle');
+    assert.ok(result.filter(m => !m.name).length === 0, 'all entries must have name');
 });
 
 it('rxjs module, node_modules names should be uniq', async () => {
@@ -342,39 +342,39 @@ it('rxjs module, node_modules names should be uniq', async () => {
     const ids = result.map(item => item.id());
     const uniqIds: string[] = [...new Set(ids)];
     assert.equal(uniqIds.length, ids.length, 'found duplicates or so');
-    assert(result.filter(m => !m.name).length === 0, 'all entries must have name');
+    assert.ok(result.filter(m => !m.name).length === 0, 'all entries must have name');
 });
 
 it('gulp-tslint', async () => {
     result = await main('gulp-tslint', { type: 'module' });
     const falsyNodes = result.filter(v => !v);
-    assert(falsyNodes.length === 0);
+    assert.ok(falsyNodes.length === 0);
     const pluginOptions = result.find(v => v.name === 'PluginOptions');
-    assert(pluginOptions);
-    assert(pluginOptions.module === 'gulp-tslint');
-    assert(result.filter(m => !m.name).length === 0, 'all entries must have name');
+    assert.ok(pluginOptions);
+    assert.ok(pluginOptions.module === 'gulp-tslint');
+    assert.ok(result.filter(m => !m.name).length === 0, 'all entries must have name');
 });
 
 it('no falsy nodes', async function() {
     result = await main('@angular/core', { type: 'module' });
     const falsyNodes = result.filter(v => !v);
-    assert(falsyNodes.length === 0);
-    assert(result.filter(m => !m.name).length === 0, 'all entries must have name');
+    assert.ok(falsyNodes.length === 0);
+    assert.ok(result.filter(m => !m.name).length === 0, 'all entries must have name');
 });
 
 it('parse unknown module', async () => {
     result = await main('unknown_module_foo', { type: 'module' });
     assert.equal(result.length, 0);
-    assert(result.filter(m => !m.name).length === 0, 'all entries must have name');
+    assert.ok(result.filter(m => !m.name).length === 0, 'all entries must have name');
 });
 
 it('inner module', async () => {
     result = await main('@angular/core/testing', { type: 'module' });
     const inject = result.find(n => n.name === 'inject');
-    assert(inject);
+    assert.ok(inject);
     const TestBed = result.find(n => n.name === 'TestBed');
-    assert(TestBed);
-    assert(result.filter(m => !m.name).length === 0, 'all entries must have name');
+    assert.ok(TestBed);
+    assert.ok(result.filter(m => !m.name).length === 0, 'all entries must have name');
 });
 
 it('should find inner module properly', async function() {
@@ -392,19 +392,19 @@ it('should find inner module properly', async function() {
 it('types node', async () => {
     result = await main('@types/node', { type: 'module' });
     // console.log("entries", result.filter(x => x.module === '@types/node'));
-    assert(result.find(x => x.name === 'promisify' && x.module === 'util'), 'node util core module promisify');
-    assert(!result.find(x => x.name === 'promisify' && x.module === '@types/node'), 'cannot import from definitions');
+    assert.ok(result.find(x => x.name === 'promisify' && x.module === 'util'), 'node util core module promisify');
+    assert.ok(!result.find(x => x.name === 'promisify' && x.module === '@types/node'), 'cannot import from definitions');
     const bad = result.filter(m => m.module === '@types/node');
     assert.equal(bad.length, 0, 'globals should be eliminated');
     const buffer = result.filter(m => m.module === 'buffer');
-    assert(buffer.length > 0, 'buffer modules not found');
+    assert.ok(buffer.length > 0, 'buffer modules not found');
     const spawnSyncList = result.filter(m => m.name === 'spawnSync' && m.module === 'child_precess');
-    assert(spawnSyncList, 'spawn family not found');
-    assert(result.filter(m => !m.name).length === 0, 'all entries must have name');
+    assert.ok(spawnSyncList, 'spawn family not found');
+    assert.ok(result.filter(m => !m.name).length === 0, 'all entries must have name');
     const events = result.filter(m => m.module === 'events');
-    assert(events.length > 0, 'events module not found');
-    assert(!result.find(x => x.filepath && x.filepath.includes('node_modules/@types/node')), 'filepath should not contain types node');
-    assert(result.find(x => x.module === 'worker_threads'), 'worker_threads');
+    assert.ok(events.length > 0, 'events module not found');
+    assert.ok(!result.find(x => x.filepath && x.filepath.includes('node_modules/@types/node')), 'filepath should not contain types node');
+    assert.ok(result.find(x => x.module === 'worker_threads'), 'worker_threads');
 
 });
 
@@ -419,15 +419,15 @@ it('types express', async () => {
     result = await main('@types/express', { type: 'module' });
     assert.notEqual(result.length, 0);
     const request = result.find(n => n.name === 'Request');
-    assert(request);
+    assert.ok(request);
     assert.equal(request.module, 'express');
 });
 
 it('types fs-extra', async () => {
     result = await main('@types/fs-extra', { type: 'module' });
     assert.notEqual(result.length, 0);
-    assert(result.find(m => m.name === 'copy'), 'name copy');
-    assert(result.find(m => m.name === 'CopyOptions'), 'name CopyOptions');
+    assert.ok(result.find(m => m.name === 'copy'), 'name copy');
+    assert.ok(result.find(m => m.name === 'CopyOptions'), 'name CopyOptions');
 });
 
 it('preact', async () => {
@@ -443,13 +443,13 @@ it('hover', async () => {
 it('type-zoo package types property', async () => {
     result = await main('type-zoo', { type: 'module' });
     assert.notEqual(result.length, 0);
-    assert(result.find(f => f.name === 'Required'), 'Require name');
-    assert(result.find(f => f.name === 'unknown'), 'unknown name');
+    assert.ok(result.find(f => f.name === 'Required'), 'Require name');
+    assert.ok(result.find(f => f.name === 'unknown'), 'unknown name');
 });
 
 it('material-design-iconic-font contains invalid package main', async () => {
     result = await main('material-design-iconic-font', { type: 'module' });
-    assert(result, 'should not fail');
+    assert.ok(result, 'should not fail');
 });
 
 it.skip('export as namespace', async () => {

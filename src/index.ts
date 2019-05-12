@@ -9,7 +9,6 @@ import recursiveReadDir from 'recursive-readdir';
 import * as fs from 'fs';
 import * as parser from '@typescript-eslint/typescript-estree';
 import * as esrecurse from 'esrecurse';
-import * as estreeWalk from 'estree-walk';
 
 const d = debug('esm-exports');
 const parseOptions = {
@@ -107,6 +106,13 @@ export async function main(target: string, options: WalkNodeOptions = {}): Promi
             },
             ExportSpecifier: function(node) {
                 this.visit(node.exported);
+            },
+            ExportDefaultDeclaration: function(node) {
+                if (node.declaration.type === 'Identifier') {
+                    options.result.push(new Entry({ ...options, isDefault: true, name: node.declaration.name }));
+                } else if (node.declaration.type === 'FunctionDeclaration') {
+                    options.result.push(new Entry({ ...options, isDefault: true, name: node.declaration.id.name }));
+                }
             },
             ExportNamedDeclaration: function(node) {
                 exportNamedDeclaration = true;
