@@ -30,15 +30,14 @@ it('var export', async () => {
     assert(entry);
 });
 
-it.only('declare module', async () => {
+it('declare module', async () => {
     result = await main(`
     declare module "fs" {
         namespace access {
             foo();
         }
         function readFile();
-    }
-    `);
+    }`, { module: 'test' });
     entry = result.find(x => x.name === 'access' && x.module === 'fs');
     assert(entry);
     entry = result.find(x => x.name === 'readFile' && x.module === 'fs');
@@ -67,7 +66,7 @@ it('export interface', async () => {
     assert(result.find(x => x.name === 'Entry'));
 });
 
-it('export default var', async () => {
+it.only('export default var', async () => {
     result = await main(`export default component`, { module: 'test' });
     entry = result.find(x => x.name === 'component');
     assert.equal(entry.isDefault, true);

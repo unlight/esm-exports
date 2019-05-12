@@ -21,6 +21,14 @@ const parseOptions = {
     errorOnTypeScriptSyntacticAndSemanticIssues: false,
 };
 
+const visitOptions = {
+    fallback: 'iteration',
+    childVisitorKeys: {
+        TSModuleBlock: ['body'],
+        ExportNamedDeclaration: ['specifiers'],
+    },
+};
+
 type WalkNodeOptions = {
     module?: string;
     result?: Entry[];
@@ -94,12 +102,20 @@ export async function main(target: string, options: WalkNodeOptions = {}): Promi
         let moduleBlock = 0;
         esrecurse.visit(ast, {
             Identifier: function(node) {
-                console.log('Identifier', node);
+                // console.log('Identifier', node);
                 options.result.push(new Entry({ ...options, name: node.name }));
+            },
+            ExportSpecifier: function(node) {
+                this.visit(node.exported);
             },
             ExportNamedDeclaration: function(node) {
                 exportNamedDeclaration = true;
-                this.visit(node.declaration);
+                if (node.declaration) {
+                    this.visitChildren(node.declaration);
+                }
+                if (node.specifiers) {
+                    this.visitChildren(node);
+                }
                 exportNamedDeclaration = false;
             },
             VariableDeclarator: function(node) {
@@ -108,22 +124,25 @@ export async function main(target: string, options: WalkNodeOptions = {}): Promi
                 }
             },
             TSModuleDeclaration: function(node) {
+                if (node.declare === true) {
+                    options.module = node.id.value;
+                }
                 moduleDeclaration++;
-                this.visit(node.body);
-                // if (moduleDeclaration === 1 || moduleDeclaration === 2) {
-                //     this.visit(node.body);
-                // }
+                if (moduleDeclaration === 1) {
+                    this.visit(node.body);
+                } else if (moduleDeclaration === 2 && node.id && node.id.name) {
+                    this.visit(node.id);
+                }
                 moduleDeclaration--;
             },
             TSModuleBlock: function(node) {
                 moduleBlock++;
-                this.visit(node.body);
-                // if (moduleBlock === 1) {
-                //     this.visit(node.body);
-                // }
+                if (moduleBlock === 1 || moduleBlock == 2) {
+                    this.visitChildren(node);
+                }
                 moduleBlock--;
             },
-        }, { fallback: 'iteration' });
+        }, visitOptions);
         // const sourceFile = ts.createSourceFile(file, source, ts.ScriptTarget.ESNext, true);
         // options.isDeclarationFile = sourceFile.isDeclarationFile;
         // ts.forEachChild<ts.Node>(sourceFile, (node: any) => walkNode(node, options));
