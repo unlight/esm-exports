@@ -24,14 +24,13 @@ it('serialization should not contain private properties', () => {
     assert.deepEqual(Object.keys(unserialized), ['name', 'isDefault', 'module']);
 });
 
-
 it('var export', async () => {
     result = await main(`export var test = 1`, { module: 'test' });
     entry = result.find(x => x.name === 'test');
     assert(entry);
 });
 
-it('declare module', async () => {
+it.only('declare module', async () => {
     result = await main(`
     declare module "fs" {
         namespace access {
