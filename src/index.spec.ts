@@ -282,6 +282,25 @@ it('should ignore node_modules', async function() {
     assert.equal(nodeModules.length, 0, 'node_modules in filepath');
 });
 
+it('should accept ignore patterns', async function() {
+    const ignorePatterns = ['ok.ts', 'large-data-dump' ];
+    result = await main(`${rootPath}/fixtures`, { type: 'directory', ignorePatterns });
+
+    assert.equal(result.filter(m => !m.name).length, 0, 'Missing names');
+
+    const ts = result.filter(item => item.module === 'typescript');
+    assert.equal(ts.length, 0, 'Typescript modules');
+
+    const xDir = result.find(({ filepath }) => filepath.indexOf('/large-data-dump/') !== -1);
+    assert.equal(xDir, null, 'did not ignore "large-data-dump" dir');
+
+    const okFile = result.find(({ filepath }) => filepath.indexOf('ok.ts') !== -1);
+    assert.equal(okFile, null, 'did not ignore "ok.ts" file');
+
+    const nodeModules = result.filter(item => item.filepath && item.filepath.indexOf('node_modules') !== -1);
+    assert.equal(nodeModules.length, 0, 'node_modules in filepath');
+});
+
 it('node core with additional functions', async () => {
     result = await main(`
         declare module "assert" {

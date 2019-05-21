@@ -17,7 +17,10 @@ type WalkNodeOptions = {
     filepath?: string;
     isDeclarationFile?: boolean;
     basedir?: string;
+    ignorePatterns?: string[];
 };
+
+type IgnoreOption = ((file: string, stats: fs.Stats) => boolean) | string;
 
 const resolveOptions: resolve.AsyncOpts = {
     extensions: ['.ts', '.d.ts', '.js', '.tsx', '.jsx', '.mjs'],
@@ -50,7 +53,11 @@ export async function main(target: string, options: WalkNodeOptions = {}): Promi
     } else if (options.type === 'directory') {
         directory = target;
         try {
-            const files = await recursiveReadDir(directory, [rreaddirIgnore]);
+            let ignore: IgnoreOption[] = [rreaddirIgnore];
+            if (Array.isArray(options.ignorePatterns) && options.ignorePatterns.every(p => typeof p === 'string')) {
+                ignore = ignore.concat(options.ignorePatterns);
+            }
+            const files = await recursiveReadDir(directory, ignore);
             return flatten(await Promise.all(files.map(filepath => main(filepath, { type: 'file', filepath }))));
         } catch (err) {
             return [];
