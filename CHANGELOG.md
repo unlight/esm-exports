@@ -1,3 +1,10 @@
+# [3.1.0](https://github.com/unlight/esm-exports/compare/v3.0.3...v3.1.0) (2019-05-21)
+
+
+### Features
+
+* Allow file / folder patterns in WalkNodeOptions ([#14](https://github.com/unlight/esm-exports/issues/14)) ([e3884e0](https://github.com/unlight/esm-exports/commit/e3884e0))
+
 ## [3.0.3](https://github.com/unlight/esm-exports/compare/v3.0.2...v3.0.3) (2019-03-14)
 
 
