@@ -454,6 +454,11 @@ it('types fs-extra', async () => {
 it('preact', async () => {
     result = await main('preact', { type: 'module' });
     assert.notEqual(result.length, 0);
+    result = await main('preact', { type: 'module' });
+    const nonpreact = result.filter(x => x.module !== 'preact');
+    assert.ok(result.every(x => x.module === 'preact' || x.module.startsWith('preact/')));
+    assert.ok(result.find(x => x.name === 'Component'));
+    assert.ok(result.find(x => x.name === 'h'));
 });
 
 it('hover', async () => {

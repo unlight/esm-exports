@@ -28,6 +28,8 @@ module.exports = {
         'no-dupe-class-members': 0,
         'unicorn/import-index': 0,
         'unicorn/catch-error-name': 0,
+        'unicorn/prevent-abbreviations': 1,
+        'unicorn/prefer-includes': 1,
         'import/newline-after-import': 0,
         'import/no-duplicates': 1,
         'import/max-dependencies': [1, { 'max': 10 }],
