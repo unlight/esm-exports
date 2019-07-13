@@ -208,7 +208,7 @@ it('webpack', async () => {
             }
         }
     `, { module: 'webpack', result: [] });
-    assert(result.find(e => e.name === 'Configuration'));
+    assert(result.find(entry => entry.name === 'Configuration'));
 });
 
 it('declare module function', async () => {
@@ -217,7 +217,7 @@ it('declare module function', async () => {
         function readFile();
     }
     `, { module: '@types/node', result: [] });
-    assert(result.find(e => e.module === 'fs' && e.name === 'readFile'));
+    assert(result.find(entry => entry.module === 'fs' && entry.name === 'readFile'));
 });
 
 it('simulated commonjs', async () => {
@@ -288,7 +288,7 @@ it('should ignore node_modules', async function() {
     assert.equal(result.filter(m => !m.name).length, 0, 'Missing names');
     const ts = result.filter(item => item.module === 'typescript');
     assert.equal(ts.length, 0, 'Typescript modules');
-    const nodeModules = result.filter(item => item.filepath && item.filepath.indexOf('node_modules') !== -1);
+    const nodeModules = result.filter(item => item.filepath && item.filepath.includes('node_modules'));
     assert.equal(nodeModules.length, 0, 'node_modules in filepath');
 });
 
@@ -301,13 +301,13 @@ it('should accept ignore patterns', async function() {
     const ts = result.filter(item => item.module === 'typescript');
     assert.equal(ts.length, 0, 'Typescript modules');
 
-    const xDir = result.find(({ filepath }) => filepath.indexOf('/large-data-dump/') !== -1);
-    assert.equal(xDir, null, 'did not ignore "large-data-dump" dir');
+    const xDirectory = result.find(({ filepath }) => filepath.includes('/large-data-dump/'));
+    assert.equal(xDirectory, null, 'did not ignore "large-data-dump" dir');
 
-    const okFile = result.find(({ filepath }) => filepath.indexOf('ok.ts') !== -1);
+    const okFile = result.find(({ filepath }) => filepath.includes('ok.ts'));
     assert.equal(okFile, null, 'did not ignore "ok.ts" file');
 
-    const nodeModules = result.filter(item => item.filepath && item.filepath.indexOf('node_modules') !== -1);
+    const nodeModules = result.filter(item => item.filepath && item.filepath.includes('node_modules'));
     assert.equal(nodeModules.length, 0, 'node_modules in filepath');
 });
 

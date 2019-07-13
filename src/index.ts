@@ -50,7 +50,7 @@ export async function main(target: string, options: WalkNodeOptions = {}): Promi
     if (options.type === 'file') {
         file = target;
         d('reading file %s', file);
-        source = await fsReadFilePromise(file).then(buffer => buffer.toString(), (err) => undefined);
+        source = await fsReadFilePromise(file).then(buffer => buffer.toString(), (error) => undefined);
     } else if (options.type === 'directory') {
         directory = target;
         try {
@@ -60,21 +60,21 @@ export async function main(target: string, options: WalkNodeOptions = {}): Promi
             }
             const files = await recursiveReadDir(directory, ignore);
             return flatten(await Promise.all(files.map(filepath => main(filepath, { type: 'file', filepath }))));
-        } catch (err) {
+        } catch (error) {
             return [];
         }
     } else if (options.type === 'module') {
         const basedir = options.basedir || process.cwd();
         try {
             file = resolve.sync(target, { ...<any>resolveOptions, basedir });
-        } catch (err) {
+        } catch (error) {
             return [];
         }
-        options.result = await main(file, { ...options, module: target, type: 'file' });
+        options.result = await main(file, { ...options, module: target, type: 'file' }); // eslint-disable-line require-atomic-updates
         const testPath = path.join(basedir, 'node_modules', target);
         const submodules = flatten(await Promise.all(fs.readdirSync(testPath)
             .filter(file => fs.existsSync(path.join(basedir, `node_modules/${target}/${file}/package.json`)))
-            .map((folder) => {
+            .map(async (folder) => {
                 return main(`${target}/${folder}`, { ...options, module: `${target}/${folder}` });
             })));
         options.result.push(...submodules);
@@ -86,7 +86,7 @@ export async function main(target: string, options: WalkNodeOptions = {}): Promi
     }
     if (source) {
         const sourceFile = ts.createSourceFile(file, source, ts.ScriptTarget.ESNext, true);
-        options.isDeclarationFile = sourceFile.isDeclarationFile;
+        options.isDeclarationFile = sourceFile.isDeclarationFile; // eslint-disable-line require-atomic-updates
         ts.forEachChild<ts.Node>(sourceFile, (node: any) => walkNode(node, options));
         if (options.exportsAs) {
             options.result.forEach(entry => {
@@ -104,11 +104,11 @@ export async function main(target: string, options: WalkNodeOptions = {}): Promi
             .filter(entry => !entry.name && entry.specifier)
             .map(entry => {
                 try {
-                    var filepath = resolve.sync(entry.specifier, { ...(<any>resolveOptions), basedir: path.dirname(file) });
-                } catch (err) {
+                    var filepath = resolve.sync(entry.specifier, { ...(<any>resolveOptions), basedir: path.dirname(file) }); // tslint:disable-line:prefer-const
+                } catch (error) {
                     return [];
                 }
-                return main(filepath, { ...options, filepath, result: [] }).catch(err => []);
+                return main(filepath, { ...options, filepath, result: [] }).catch(error => []);
             })));
         const specifiers = fileResult.map(entry => new Entry({ ...entry, filepath: file }));
         options.result.push(...specifiers, ...fileResult);
@@ -207,8 +207,8 @@ function typedModule(name: string) {
 
 function rreaddirIgnore(file: string, stats: fs.Stats): boolean {
     if (stats.isFile()) {
-        const ext = path.extname(file);
-        if (resolveOptions.extensions.indexOf(ext) === -1) {
+        const extension = path.extname(file);
+        if (!resolveOptions.extensions.includes(extension)) {
             return true;
         }
     } else if (stats.isDirectory() && path.basename(file) === 'node_modules') {
@@ -271,7 +271,7 @@ function filterEntries(entries: Entry[], iteratee) {
         if (entry.module && entry.module.indexOf('@types/') === 0) {
             return false;
         }
-        if (entry.filepath && (entry.filepath.indexOf('node_modules/@types/') !== -1 || entry.filepath.indexOf('node_modules\\@types\\') !== -1)) {
+        if (entry.filepath && (entry.filepath.includes('node_modules/@types/') || entry.filepath.includes('node_modules\\@types\\'))) {
             return false;
         }
         const item = iteratee(entry);

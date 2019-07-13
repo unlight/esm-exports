@@ -18,7 +18,7 @@
     "tsclint:w": "npm run tsclint -- --watch",
     "eslint": "eslint --ext ts src",
     "eslint:fix": "eslint src --ext \"ts\" --fix",
-    "eslint:w": "sh Taskfile eslint_watch",
+    "eslint:w": "watchexec -w src \"npm run eslint\"",
     "tslint:fix": "tslint -p tsconfig.json --fix",
     "lint:w": "concurrently -- \"npm run -s tsclint:w\" \"npm run -s eslint:w\"",
     "semantic-release": "semantic-release",
@@ -63,7 +63,6 @@
     "eslint-plugin-unicorn": "^9.1.1",
     "gulp-tslint": "^8.1.4",
     "hover": "^3.0.0-alpha.6",
-    "inotifywait-win32": "^1.0.0",
     "material-design-iconic-font": "^2.2.0",
     "mocha": "^6.1.4",
     "nyc": "^14.1.1",
@@ -77,7 +76,8 @@
     "tslint-clean-code": "^0.2.9",
     "tslint-microsoft-contrib": "^6.2.0",
     "tslint-sonarts": "^1.9.0",
-    "type-zoo": "2.X.X"
+    "type-zoo": "2.X.X",
+    "watchexec-bin": "^1.0.0"
   },
   "engines": {
     "node": ">=6",
