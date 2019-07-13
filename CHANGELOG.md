@@ -1,3 +1,10 @@
+## [3.1.1](https://github.com/unlight/esm-exports/compare/v3.1.0...v3.1.1) (2019-07-13)
+
+
+### Bug Fixes
+
+* Declaration namespace contains foreign definitions ([17b5b50](https://github.com/unlight/esm-exports/commit/17b5b50))
+
 # [3.1.0](https://github.com/unlight/esm-exports/compare/v3.0.3...v3.1.0) (2019-05-21)
 
 
