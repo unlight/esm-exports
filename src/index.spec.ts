@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/tslint/config */
 const assert = require('assert');
+import { ok } from 'assert';
 import { main } from './index';
 import { normalize } from 'path';
 import { Entry } from './entry';
@@ -169,8 +170,17 @@ declare module "preact" {
     export = internal;
 }
 `, { module: 'preact', result: [] });
-    assert(result.find(x => x.name === 'rerender' && x.module === 'preact'));
-    assert(result.find(x => x.name === 'AnyComponent' && x.module === 'preact'));
+    ok(result.find(x => x.name === 'rerender' && x.module === 'preact'));
+    ok(result.find(x => x.name === 'AnyComponent' && x.module === 'preact'));
+});
+
+it('preact compat', async () => {
+    result = await main('preact/compat', { type: 'module' });
+    assert.notEqual(result.length, 0);
+    const preactPredicate = x => x.module === 'preact' || x.module.startsWith('preact/');
+    const nonpreact = result.filter(x => !preactPredicate(x));
+    ok(nonpreact.length === 0);
+    ok(result.every(preactPredicate));
 });
 
 it('react definitions', async () => {
@@ -283,7 +293,7 @@ it('should ignore node_modules', async function() {
 });
 
 it('should accept ignore patterns', async function() {
-    const ignorePatterns = ['ok.ts', 'large-data-dump' ];
+    const ignorePatterns = ['ok.ts', 'large-data-dump'];
     result = await main(`${rootPath}/fixtures`, { type: 'directory', ignorePatterns });
 
     assert.equal(result.filter(m => !m.name).length, 0, 'Missing names');
@@ -451,16 +461,6 @@ it('types fs-extra', async () => {
     assert(result.find(m => m.name === 'CopyOptions'), 'name CopyOptions');
 });
 
-it('preact', async () => {
-    result = await main('preact', { type: 'module' });
-    assert.notEqual(result.length, 0);
-    result = await main('preact', { type: 'module' });
-    const nonpreact = result.filter(x => x.module !== 'preact');
-    assert.ok(result.every(x => x.module === 'preact' || x.module.startsWith('preact/')));
-    assert.ok(result.find(x => x.name === 'Component'));
-    assert.ok(result.find(x => x.name === 'h'));
-});
-
 it('hover', async () => {
     result = await main('hover', { type: 'module' });
     assert.notEqual(result.length, 0);
@@ -478,9 +478,33 @@ it('material-design-iconic-font contains invalid package main', async () => {
     assert(result, 'should not fail');
 });
 
-it.skip('export as namespace', async () => {
+it.skip('export as namespace 1', async () => {
     result = await main(`
-        export = _;
-        export as namespace _;
-    `);
+export = _;
+export as namespace _;
+
+declare const _: _.LoDashStatic;
+declare namespace _ {
+    // tslint:disable-next-line no-empty-interface (This will be augmented)
+    interface LoDashStatic {
+        attempt<TResult>(func: (...args: any[]) => TResult, ...args: any[]): TResult|Error;
+    }
+}
+    `, { type: 'module', module: 'lodash' });
+    ok(result.find(x => x.name === 'attempt'));
+});
+
+it('export as namespace 2', async () => {
+    result = await main(`
+export = React;
+export as namespace React;
+declare namespace React {
+    export import JSX = JSXInternal
+    export import CreateHandle = _hooks.CreateHandle;
+}
+    `, { type: 'text', module: 'mod' });
+    ok(result.length > 0);
+    ok(result.every(x => x.module === 'mod'), 'Every entry has name specified in module');
+    ok(result.find(x => x.name === 'JSX'));
+    ok(result.find(x => x.name === 'CreateHandle'));
 });

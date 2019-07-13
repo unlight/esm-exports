@@ -18,6 +18,7 @@ type WalkNodeOptions = {
     isDeclarationFile?: boolean;
     basedir?: string;
     ignorePatterns?: string[];
+    exportsAs?: { [k: string]: string };
 };
 
 type IgnoreOption = ((file: string, stats: fs.Stats) => boolean) | string;
@@ -87,6 +88,14 @@ export async function main(target: string, options: WalkNodeOptions = {}): Promi
         const sourceFile = ts.createSourceFile(file, source, ts.ScriptTarget.ESNext, true);
         options.isDeclarationFile = sourceFile.isDeclarationFile;
         ts.forEachChild<ts.Node>(sourceFile, (node: any) => walkNode(node, options));
+        if (options.exportsAs) {
+            options.result.forEach(entry => {
+                const newModule = options.exportsAs[entry.module];
+                if (newModule) {
+                    entry.module = newModule;
+                }
+            });
+        }
     }
     // todo: Improve performance here
     if (options.type === 'file') {
@@ -165,6 +174,10 @@ function walkNode(node: ts.Node, options: WalkNodeOptions): any {
                     x.module = newModule;
                 }
             });
+            if ((node as any).isExportEquals) {
+                options.exportsAs = options.exportsAs || {};
+                options.exportsAs[name] = newModule;
+            }
         }
     } else if (isDeclaration(node) && (hasExportModifier(node) || options.module != undefined)) {
         const newModule = typedModule(options.module);
@@ -173,6 +186,9 @@ function walkNode(node: ts.Node, options: WalkNodeOptions): any {
         if (name) {
             options.result.push(new Entry({ ...options, name, isDefault, module: newModule }));
         }
+    } else if (ts.isImportEqualsDeclaration(node)) {
+        const name = node.name.getText();
+        options.result.push(new Entry({ ...options, name }));
     }
     // else if (isDeclaration(node) && isInDeclaredModule(node)) {
     //     const isDefault = hasDefaultModifier(node);
