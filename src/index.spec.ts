@@ -187,7 +187,7 @@ declare module "preact" {
 it('preact compat', async () => {
     result = await main('preact/compat', { type: 'module' });
     assert.notEqual(result.length, 0);
-    const preactPredicate = x => x.module === 'preact' || x.module.startsWith('preact/');
+    const preactPredicate = x => x.module === 'preact' || x.module.startsWith('preact/'); // eslint-disable-line unicorn/consistent-function-scoping
     const nonpreact = result.filter(x => !preactPredicate(x));
     ok(nonpreact.length === 0);
     ok(result.every(preactPredicate));
@@ -244,7 +244,6 @@ export = e;
     entry = result[0];
     assert.equal(entry.module, 'somecjs');
     assert.equal(entry.name, 'Request');
-    assert.equal(entry.cjs, undefined);
 });
 
 it('import all should contain name', async () => {
