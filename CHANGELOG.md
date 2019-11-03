@@ -1,3 +1,10 @@
+## [3.1.2](https://github.com/unlight/esm-exports/compare/v3.1.1...v3.1.2) (2019-11-03)
+
+
+### Bug Fixes
+
+* find enum declaration ([c822fed](https://github.com/unlight/esm-exports/commit/c822fed374b4f40f91eb7cf0b7838be7950d2cf1))
+
 ## [3.1.1](https://github.com/unlight/esm-exports/compare/v3.1.0...v3.1.1) (2019-07-13)
 
 
