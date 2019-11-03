@@ -69,6 +69,16 @@ it('export interface', async () => {
     assert(result.find(x => x.name === 'Entry'));
 });
 
+it('export enum', async () => {
+    result = await main(`export enum Level {
+        Chapter = 'Chapter',
+        Subchapter = 'Subchapter',
+        Question = 'Question',
+    }`, { module: 'test' });
+    assert(result.find(x => x.name === 'Level'));
+});
+
+
 it('export default var', async () => {
     result = await main(`export default component`, { module: 'test' });
     entry = result.find(x => x.name === 'component');

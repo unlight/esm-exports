@@ -285,7 +285,8 @@ function isDeclaration(node: ts.Node) {
     return node.kind === ts.SyntaxKind.FunctionDeclaration
         || node.kind === ts.SyntaxKind.InterfaceDeclaration
         || node.kind === ts.SyntaxKind.ClassDeclaration
-        || node.kind === ts.SyntaxKind.TypeAliasDeclaration;
+        || node.kind === ts.SyntaxKind.TypeAliasDeclaration
+        || node.kind === ts.SyntaxKind.EnumDeclaration;
 }
 
 function getNameText(node: any) {
