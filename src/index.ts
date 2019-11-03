@@ -217,6 +217,24 @@ function rreaddirIgnore(file: string, stats: fs.Stats): boolean {
     return false;
 }
 
+/**
+ * Check for module.exports = {};
+ */
+function isModuleExportsObject(node: any) {
+    debugger;
+    return node.kind === ts.SyntaxKind.BinaryExpression
+        && node.left.kind === ts.SyntaxKind.PropertyAccessExpression
+        && node.left.expression
+        && node.left.expression.escapedText === 'module'
+        && node.left.name
+        && node.left.name.kind === ts.SyntaxKind.Identifier
+        && node.left.name.escapedText === 'exports'
+        && node.operatorToken
+        && node.operatorToken.kind === ts.SyntaxKind.EqualsToken
+        && node.right
+        && node.right.kind === ts.SyntaxKind.ObjectLiteralExpression;
+}
+
 function isModuleExportsAssign(node: any) {
     return node.kind === ts.SyntaxKind.BinaryExpression
         && node.left.kind === ts.SyntaxKind.PropertyAccessExpression && node.left.expression.kind === ts.SyntaxKind.PropertyAccessExpression

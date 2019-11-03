@@ -517,3 +517,15 @@ declare namespace React {
     ok(result.find(x => x.name === 'JSX'));
     ok(result.find(x => x.name === 'CreateHandle'));
 });
+
+it('react native import view', async () => {
+    result = await main('react-native', { type: 'module' });
+    assert.notEqual(result.length, 0);
+});
+
+it('module.exports with getters', async () => {
+    result = await main(`module.exports = {
+      get AccessibilityInfo() { }
+    }`, { type: 'text', module: 'mod' });
+    ok(result.find(x => x.name === 'AccessibilityInfo'));
+});
