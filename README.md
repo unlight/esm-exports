@@ -1,3 +1,5 @@
+# UNMAINTAINED, REPLACEMENT IS https://github.com/unlight/import-adjutor
+
 # esm-exports
 Parse ecmascript modules and collect names of export vars, functions, etc.
 
